@@ -1,16 +1,18 @@
 defmodule DiscordBot do
-  use Application
-  require Logger
-
   @moduledoc """
-  Application entry point for the bot.
+  Top-level supervisor for the bot
   """
 
-  def start(_type, _args) do
-    children = []
+  use Supervisor
+  require Logger
 
-    opts = [strategy: :one_for_one]
+  def start_link(opts) do
+    Supervisor.start_link(__MODULE__, :ok, opts)
+  end
+
+  def init(:ok) do
+    children = []
     Logger.info("Launching...")
-    Supervisor.start_link(children, opts)
+    Supervisor.init(children, strategy: :one_for_one)
   end
 end
