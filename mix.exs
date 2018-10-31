@@ -19,6 +19,8 @@ defmodule DiscordBot.MixProject do
   end
 
   defp deps do
-    []
+    [
+      {:httpoison, "~> 1.4"}
+    ]
   end
 end
