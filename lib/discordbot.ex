@@ -7,10 +7,11 @@ defmodule DiscordBot do
   require Logger
 
   def start_link(opts) do
-    Supervisor.start_link(__MODULE__, :ok, opts)
+    token = Keyword.fetch!(opts, :token)
+    Supervisor.start_link(__MODULE__, token, opts)
   end
 
-  def init(:ok) do
+  def init(_token) do
     children = []
     Logger.info("Launching...")
     Supervisor.init(children, strategy: :one_for_one)
