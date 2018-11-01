@@ -7,11 +7,10 @@ defmodule DiscordBot do
   require Logger
 
   def start_link(opts) do
-    token = Keyword.fetch!(opts, :token)
-    Supervisor.start_link(__MODULE__, token, opts)
+    Supervisor.start_link(__MODULE__, :ok, opts)
   end
 
-  def init(_token) do
+  def init(:ok) do
     children = []
     Logger.info("Launching...")
     DiscordBot.Api.start()
