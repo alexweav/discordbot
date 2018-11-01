@@ -7,6 +7,7 @@ defmodule DiscordBot.Application do
 
   def start(_type, _args) do
     children = [
+      {DiscordBot.Token, strategy: :one_for_one},
       {DiscordBot, name: DiscordBot}
     ]
 
