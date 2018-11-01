@@ -10,14 +10,16 @@ defmodule DiscordBot.Token do
   end
 
   @doc "Obtains the bot token"
-  @spec get() :: String.t
+  @spec get() :: String.t()
   def get() do
     case Agent.get(__MODULE__, fn state -> state end) do
-      nil -> 
+      nil ->
         token = token_fallback()
         Agent.update(__MODULE__, fn _ -> token end)
         token
-      token -> token
+
+      token ->
+        token
     end
   end
 

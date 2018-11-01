@@ -14,6 +14,7 @@ defmodule DiscordBot do
     children = []
     Logger.info("Launching...")
     DiscordBot.Api.start()
+    IO.inspect(DiscordBot.Api.get!("/v7/users/@me"))
     Supervisor.init(children, strategy: :one_for_one)
   end
 end
