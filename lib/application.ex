@@ -18,7 +18,7 @@ defmodule DiscordBot.Application do
     case Map.get(System.get_env(), "TOKEN") do
       nil ->
         case Application.get_env(:discordbot, :token) do
-          nil -> raise("no token lol")
+          nil -> raise("No token found. Please provide a bot token, either by environment variable (TOKEN) or via confix.exs.")
           token -> token
         end
 
