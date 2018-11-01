@@ -16,10 +16,11 @@ defmodule DiscordBot.Api do
 
   @doc "Appends global request headers to an existing set"
   def process_request_headers(existing) do
-    token = DiscordBot.Token.get()
+    token = DiscordBot.Token.token()
 
     [
-      {"Authorization", "Bot " <> token}
+      {"Authorization", "Bot " <> token},
+      {"Content-Type", "application/json"}
       | existing
     ]
   end
