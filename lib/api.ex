@@ -1,9 +1,15 @@
 defmodule DiscordBot.Api do
-  def base_url("/" <> uri) do
-    base_url(uri)
+  @moduledoc """
+  API module for Discord
+  """
+
+  use HTTPoison.Base
+
+  def process_request_url("/" <> uri) do
+    process_request_url(uri)
   end
 
-  def base_url(uri) do
+  def process_request_url(uri) do
     "https://discordapp.com/api/" <> uri
   end
 end
