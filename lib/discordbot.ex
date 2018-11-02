@@ -12,8 +12,12 @@ defmodule DiscordBot do
 
   def init(:ok) do
     DiscordBot.Api.start()
-    IO.inspect(request_gateway())
-    children = []
+    {:ok, %{"url" => url}} = request_gateway()
+
+    children = [
+      {DiscordBot.Connection, url}
+    ]
+
     Logger.info("Launching...")
     Supervisor.init(children, strategy: :one_for_one)
   end
