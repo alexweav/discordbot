@@ -22,7 +22,30 @@ defmodule DiscordBot.ApiTest do
 
     assert Enum.member?(
              DiscordBot.Api.process_request_headers(headers),
-             {"Content-Type", "application/json" <> DiscordBot.Token.token()}
+             {"Content-Type", "application/json"}
            )
+  end
+
+  test "json encodes elixir objects" do
+    body = %{
+      "bool" => true,
+      "number" => 3.1,
+      "string" => "yeet",
+      "list" => [
+        "asdf",
+        3.1,
+        true,
+        []
+      ],
+      "object" => %{
+        "key" => "value",
+        "number" => 3.2
+      }
+    }
+
+    assert DiscordBot.Api.process_response_body(Poison.encode!(body)) == body
+  end
+
+  test "deserializes json responses" do
   end
 end
