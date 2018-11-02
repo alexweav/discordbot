@@ -12,7 +12,6 @@ defmodule DiscordBot do
 
   def init(:ok) do
     DiscordBot.Api.start()
-    # IO.inspect(DiscordBot.Api.get!("/v7/users/@me"))
     IO.inspect(request_gateway())
     children = []
     Logger.info("Launching...")
@@ -26,6 +25,9 @@ defmodule DiscordBot do
       %HTTPoison.Response{status_code: 200, body: body} ->
         {:ok, body}
 
+      %HTTPoison.Response{status_code: 401} ->
+        {:error, :invalid_token}
+        
       %HTTPoison.Error{reason: reason} ->
         {:error, reason}
     end

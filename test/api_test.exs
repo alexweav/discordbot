@@ -26,7 +26,7 @@ defmodule DiscordBot.ApiTest do
            )
   end
 
-  test "json encodes elixir objects" do
+  test "deserializes JSON response bodies" do
     body = %{
       "bool" => true,
       "number" => 3.1,
@@ -44,8 +44,5 @@ defmodule DiscordBot.ApiTest do
     }
 
     assert DiscordBot.Api.process_response_body(Poison.encode!(body)) == body
-  end
-
-  test "deserializes json responses" do
   end
 end
