@@ -6,19 +6,32 @@ defmodule DiscordBot.Connection do
   use WebSockex
   require Logger
 
-  def start_link(url) do
-    WebSockex.start_link(url <> "/?v=6&encoding=json", __MODULE__, :ok)
+  def start_link([url, token]) do
+    WebSockex.start_link(url <> "/?v=6&encoding=json", __MODULE__, {:launched, token})
   end
 
-  def handle_connect(connection, _state) do
+  def handle_connect(connection, {:launched, token}) do
     Logger.info("Connected!")
     IO.inspect connection
-    {:ok, :ok}
+    {:ok, {:connecting, token}}
+  end
+
+  def handle_frame({:text, json}, {:connecting, _token}) do
+    json
+    |> Poison.decode!()
+    |> IO.inspect()
   end
 
   def handle_frame(frame, _state) do
     Logger.info("Got message.")
-    IO.inspect frame
+    case frame do
+      {:text, json} ->
+        json
+        |> Poison.decode!()
+        |> IO.inspect()
+      other ->
+        IO.inspect(other)
+    end
   end
 
   def handle_disconnect(_reason, _state) do

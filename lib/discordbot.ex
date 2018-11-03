@@ -15,7 +15,7 @@ defmodule DiscordBot do
     {:ok, %{"url" => url}} = request_gateway()
 
     children = [
-      {DiscordBot.Connection, url}
+      {DiscordBot.Connection, [url, DiscordBot.Token.token()]}
     ]
 
     Logger.info("Launching...")
