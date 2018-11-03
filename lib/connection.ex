@@ -12,7 +12,7 @@ defmodule DiscordBot.Connection do
 
   def handle_connect(connection, {:launched, token}) do
     Logger.info("Connected!")
-    IO.inspect connection
+    IO.inspect(connection)
     {:ok, {:connecting, token}}
   end
 
@@ -24,11 +24,13 @@ defmodule DiscordBot.Connection do
 
   def handle_frame(frame, _state) do
     Logger.info("Got message.")
+
     case frame do
       {:text, json} ->
         json
         |> Poison.decode!()
         |> IO.inspect()
+
       other ->
         IO.inspect(other)
     end
