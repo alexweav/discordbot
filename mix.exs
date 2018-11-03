@@ -20,7 +20,9 @@ defmodule DiscordBot.MixProject do
 
   defp deps do
     [
-      {:httpoison, "~> 1.4"}
+      {:httpoison, "~> 1.4"},
+      {:poison, "~>3.1"},
+      {:websockex, "~> 0.4.0"}
     ]
   end
 end
