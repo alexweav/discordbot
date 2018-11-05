@@ -1,4 +1,4 @@
-defmodule DiscordBot.Connection do
+defmodule DiscordBot.Gateway.Connection do
   @moduledoc """
   Represents a single websocket connection to Discord.
   """
