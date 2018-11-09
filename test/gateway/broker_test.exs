@@ -33,7 +33,7 @@ defmodule DiscordBot.Gateway.BrokerTest do
 
     message =
       receive do
-        {:broker, broker, msg} -> msg
+        {:broker, _broker, msg} -> msg
       after
         1_000 -> "timeout"
       end

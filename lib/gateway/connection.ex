@@ -7,37 +7,34 @@ defmodule DiscordBot.Gateway.Connection do
   require Logger
 
   def start_link([url, token]) do
-    WebSockex.start_link(url <> "/?v=6&encoding=json", __MODULE__, {:launched, token})
+    state = %{
+      url: url <> "/?v=6&encoding=json",
+      token: token
+    }
+
+    WebSockex.start_link(state[:url], __MODULE__, state)
   end
 
-  def handle_connect(connection, {:launched, token}) do
+  def handle_connect(connection, state) do
     Logger.info("Connected!")
-    IO.inspect(connection)
-    {:ok, {:connecting, token}}
+    {:ok, Map.put(state, :connection, connection)}
   end
 
-  def handle_frame({:text, json}, {:connecting, _token}) do
-    json
-    |> Poison.decode!()
-    |> IO.inspect()
-  end
-
-  def handle_frame(frame, _state) do
+  def handle_frame({:text, json}, state) do
     Logger.info("Got message.")
-
-    case frame do
-      {:text, json} ->
-        json
-        |> Poison.decode!()
-        |> IO.inspect()
-
-      other ->
-        IO.inspect(other)
-    end
+    IO.inspect(Poison.decode!(json))
+    {:ok, state}
   end
 
-  def handle_disconnect(_reason, _state) do
+  def handle_frame(frame, state) do
+    Logger.info("Got other frame.")
+    IO.inspect(frame)
+    {:ok, state}
+  end
+
+  def handle_disconnect(_reason, state) do
     Logger.info("Disconnected.")
+    {:ok, state}
   end
 
   def terminate(_reason, _state) do
