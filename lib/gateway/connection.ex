@@ -22,7 +22,12 @@ defmodule DiscordBot.Gateway.Connection do
 
   def handle_frame({:text, json}, state) do
     Logger.info("Got message.")
-    IO.inspect(Poison.decode!(json))
+    message = Poison.decode!(json)
+    code = message
+           |> Map.fetch("op")
+           |> atom_from_opcode()
+    DiscordBot.Gateway.Broker.publish(Broker, code, message)
+    IO.inspect code
     {:ok, state}
   end
 
@@ -41,4 +46,18 @@ defmodule DiscordBot.Gateway.Connection do
     Logger.info("Terminated.")
     exit(:normal)
   end
-end
+
+  defp atom_from_opcode({:ok, opcode}) do
+    atom_from_opcode(opcode)
+  end
+
+  defp atom_from_opcode(opcode) do
+    case opcode do
+      0 -> :dispatch
+      1 -> :heartbeat
+      7 -> :reconnect
+      9 -> :invalid_session
+      10 -> :hello
+      11 -> :heartbeat_ack
+    end
+  end end

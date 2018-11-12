@@ -12,7 +12,8 @@ defmodule DiscordBot.Gateway do
 
   def init(url) do
     children = [
-      {DiscordBot.Gateway.Broker, []},
+      {DiscordBot.Gateway.Broker, [name: Broker]},
+      {DiscordBot.Gateway.Heartbeat, []},
       {DiscordBot.Gateway.Connection, [url, DiscordBot.Token.token()]}
     ]
 
