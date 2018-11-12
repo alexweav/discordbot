@@ -36,6 +36,16 @@ defmodule DiscordBot.Gateway.Heartbeat do
     GenServer.call(provider, {:schedule, interval})
   end
 
+  @doc """
+  Schedules the provider to send a heartbeat message
+  every `interval` milliseconds, to the process `pid`
+  """
+  def schedule(provider, interval, pid) do
+    GenServer.call(provider, {:schedule, interval pid})
+  end
+
+  ## Handlers
+
   def init(state) do
     {:ok, state}
   end
@@ -54,6 +64,14 @@ defmodule DiscordBot.Gateway.Heartbeat do
 
   def handle_call({:schedule, _interval}, {from, _ref}, {:running, pid}) do
     {:reply, {:overwrote, pid}, {:running, from}}
+  end
+
+  def handle_call({:schedule, _interval, pid}, _from, {:waiting, Nil}) do
+    {:reply, :ok, {:running, pid}}
+  end
+
+  def handle_call({:schedule, _interval, pid}, _from, {:running, old_pid}) do
+    {:reply, {:overwrote, old_pid}, {:running, pid}}
   end
 
   # TODO actually send the heartbeat on the interval
