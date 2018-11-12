@@ -23,11 +23,18 @@ defmodule DiscordBot.Gateway.Connection do
   def handle_frame({:text, json}, state) do
     Logger.info("Got message.")
     message = Poison.decode!(json)
-    code = message
-           |> Map.fetch("op")
-           |> atom_from_opcode()
-    DiscordBot.Gateway.Broker.publish(Broker, code, message)
-    IO.inspect code
+
+    code =
+      message
+      |> Map.fetch("op")
+      |> atom_from_opcode()
+
+    socket_event = %{
+      connection: self(),
+      json: message
+    }
+
+    DiscordBot.Gateway.Broker.publish(Broker, code, socket_event)
     {:ok, state}
   end
 
@@ -60,4 +67,5 @@ defmodule DiscordBot.Gateway.Connection do
       10 -> :hello
       11 -> :heartbeat_ack
     end
-  end end
+  end
+end

@@ -41,12 +41,13 @@ defmodule DiscordBot.Gateway.Heartbeat do
   every `interval` milliseconds, to the process `pid`
   """
   def schedule(provider, interval, pid) do
-    GenServer.call(provider, {:schedule, interval pid})
+    GenServer.call(provider, {:schedule, interval, pid})
   end
 
   ## Handlers
 
   def init(state) do
+    DiscordBot.Gateway.Broker.subscribe(Broker, :hello)
     {:ok, state}
   end
 
@@ -74,8 +75,11 @@ defmodule DiscordBot.Gateway.Heartbeat do
     {:reply, {:overwrote, old_pid}, {:running, pid}}
   end
 
+  def handle_info({:broker, _broker, %{connection: pid, json: _message}}, _state) do
+    {:noreply, {:running, pid}}
+  end
+
   # TODO actually send the heartbeat on the interval
   # TODO listen for when the target process shuts down
   # TODO go back to waiting if the target doesn't exist
-  # TODO call for obtaining time until next send?
 end
