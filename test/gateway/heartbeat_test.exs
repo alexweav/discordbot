@@ -35,9 +35,33 @@ defmodule DiscordBot.Gateway.HeartbeatTest do
   end
 
   test "running after schedule other", %{heartbeat: heartbeat} do
-    :ok = Heartbeat.schedule(heartbeat, 10000, self())
-    assert Heartbeat.target(heartbeat) == self()
+    {:ok, pid} =
+      Task.start_link(fn ->
+        receive do
+          :dummy -> :wontmatch
+        end
+      end)
+
+    :ok = Heartbeat.schedule(heartbeat, 10000, pid)
+    assert Heartbeat.target(heartbeat) == pid
     assert Heartbeat.interval(heartbeat) == 10000
+  end
+
+  test "idle after scheduled process closes", %{heartbeat: heartbeat} do
+    %{pid: pid} =
+      task =
+      Task.async(fn ->
+        receive do
+          {:dummy, msg} -> msg
+        end
+      end)
+
+    :ok = Heartbeat.schedule(heartbeat, 10000, pid)
+    send(pid, {:dummy, :msg})
+    Task.await(task)
+    assert Heartbeat.status(heartbeat) == :waiting
+    assert Heartbeat.target(heartbeat) == Nil
+    assert Heartbeat.interval(heartbeat) == Nil
   end
 
   test "running after broker hello event", %{heartbeat: heartbeat, broker: broker} do

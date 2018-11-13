@@ -19,6 +19,7 @@ defmodule DiscordBot.Gateway.Heartbeat do
     state = %{
       status: :waiting,
       target: Nil,
+      target_ref: Nil,
       interval: Nil,
       broker: broker
     }
@@ -85,28 +86,43 @@ defmodule DiscordBot.Gateway.Heartbeat do
   end
 
   def handle_call({:schedule, interval}, {from, _ref}, %{status: :waiting} = state) do
-    {:reply, :ok, retarget_state(state, from, interval)}
+    new_state = start_heartbeat(state, from, interval)
+    {:reply, :ok, new_state}
   end
 
   def handle_call({:schedule, interval}, {from, _ref}, %{status: :running} = state) do
-    {:reply, {:overwrote, state[:target]}, retarget_state(state, from, interval)}
+    new_state = start_heartbeat(state, from, interval)
+    {:reply, {:overwrote, state[:target]}, new_state}
   end
 
   def handle_call({:schedule, interval, pid}, _from, %{status: :waiting} = state) do
-    {:reply, :ok, retarget_state(state, pid, interval)}
+    new_state = start_heartbeat(state, pid, interval)
+    {:reply, :ok, new_state}
   end
 
   def handle_call({:schedule, interval, pid}, _from, %{status: :running} = state) do
-    {:reply, {:overwrote, state[:target]}, retarget_state(state, pid, interval)}
+    new_state = start_heartbeat(state, pid, interval)
+    {:reply, {:overwrote, state[:target]}, new_state}
   end
 
   def handle_info({:broker, _broker, %{connection: pid, json: message}}, state) do
     interval = heartbeat_interval(message)
-    {:noreply, retarget_state(state, pid, interval)}
+    new_state = start_heartbeat(state, pid, interval)
+    {:noreply, new_state}
   end
 
-  defp retarget_state(state, pid, interval) do
-    %{state | status: :running, target: pid, interval: interval}
+  def handle_info({:DOWN, _ref, :process, _object, _reason}, state) do
+    new_state = go_idle(state)
+    {:noreply, new_state}
+  end
+
+  defp start_heartbeat(state, pid, interval) do
+    ref = Process.monitor(pid)
+    %{state | status: :running, target: pid, interval: interval, target_ref: ref}
+  end
+
+  defp go_idle(state) do
+    %{state | status: :waiting, target: Nil, interval: Nil, target_ref: Nil}
   end
 
   defp heartbeat_interval(hello_message) do
@@ -114,6 +130,4 @@ defmodule DiscordBot.Gateway.Heartbeat do
   end
 
   # TODO actually send the heartbeat on the interval
-  # TODO listen for when the target process shuts down
-  # TODO go back to waiting if the target doesn't exist
 end
