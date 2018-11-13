@@ -6,6 +6,10 @@ defmodule DiscordBot.Gateway.Connection do
   use WebSockex
   require Logger
 
+  @doc """
+  Starts a gateway connection with Discord, connecting
+  via `url` and authenticating with `token`
+  """
   def start_link([url, token]) do
     state = %{
       url: url <> "/?v=6&encoding=json",
@@ -13,6 +17,13 @@ defmodule DiscordBot.Gateway.Connection do
     }
 
     WebSockex.start_link(state[:url], __MODULE__, state)
+  end
+
+  @doc """
+  Sends a heartbeat message over the websocket
+  """
+  def heartbeat(connection) do
+    WebSockex.cast(connection, {:heartbeat})
   end
 
   ## Handlers
@@ -54,6 +65,11 @@ defmodule DiscordBot.Gateway.Connection do
   def terminate(_reason, _state) do
     Logger.info("Terminated.")
     exit(:normal)
+  end
+
+  def handle_cast({:heartbeat}, state) do
+    Logger.info("Send heartbeat.")
+    {:noreply, state}
   end
 
   defp atom_from_opcode({:ok, opcode}) do
