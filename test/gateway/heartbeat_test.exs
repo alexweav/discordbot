@@ -4,6 +4,7 @@ defmodule DiscordBot.Gateway.HeartbeatTest do
   alias DiscordBot.Gateway.Heartbeat
 
   setup do
+    _ = start_supervised!({DiscordBot.Gateway.Broker, [name: Broker]})
     heartbeat = start_supervised!({DiscordBot.Gateway.Heartbeat, []})
     %{heartbeat: heartbeat}
   end
