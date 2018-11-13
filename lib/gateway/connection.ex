@@ -15,6 +15,8 @@ defmodule DiscordBot.Gateway.Connection do
     WebSockex.start_link(state[:url], __MODULE__, state)
   end
 
+  ## Handlers
+
   def handle_connect(connection, state) do
     Logger.info("Connected!")
     {:ok, Map.put(state, :connection, connection)}

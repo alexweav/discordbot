@@ -10,7 +10,19 @@ defmodule DiscordBot.Gateway.Heartbeat do
   Starts the heartbeat provider
   """
   def start_link(opts) do
-    GenServer.start_link(__MODULE__, {:waiting, Nil}, opts)
+    broker =
+      case Keyword.fetch(opts, :broker) do
+        {:ok, pid} -> pid
+        :error -> Broker
+      end
+
+    state = %{
+      status: :waiting,
+      target: Nil,
+      broker: broker
+    }
+
+    GenServer.start_link(__MODULE__, state, opts)
   end
 
   @doc """
@@ -47,36 +59,40 @@ defmodule DiscordBot.Gateway.Heartbeat do
   ## Handlers
 
   def init(state) do
-    DiscordBot.Gateway.Broker.subscribe(Broker, :hello)
+    DiscordBot.Gateway.Broker.subscribe(state[:broker], :hello)
     {:ok, state}
   end
 
-  def handle_call({:status}, _from, {status, _pid} = state) do
-    {:reply, status, state}
+  def handle_call({:status}, _from, state) do
+    {:reply, state[:status], state}
   end
 
-  def handle_call({:target}, _from, {_status, pid} = state) do
-    {:reply, pid, state}
+  def handle_call({:target}, _from, state) do
+    {:reply, state[:target], state}
   end
 
-  def handle_call({:schedule, _interval}, {from, _ref}, {:waiting, Nil}) do
-    {:reply, :ok, {:running, from}}
+  def handle_call({:schedule, _interval}, {from, _ref}, %{status: :waiting} = state) do
+    {:reply, :ok, retarget_state(state, from)}
   end
 
-  def handle_call({:schedule, _interval}, {from, _ref}, {:running, pid}) do
-    {:reply, {:overwrote, pid}, {:running, from}}
+  def handle_call({:schedule, _interval}, {from, _ref}, %{status: :running} = state) do
+    {:reply, {:overwrote, state[:target]}, retarget_state(state, from)}
   end
 
-  def handle_call({:schedule, _interval, pid}, _from, {:waiting, Nil}) do
-    {:reply, :ok, {:running, pid}}
+  def handle_call({:schedule, _interval, pid}, _from, %{status: :waiting} = state) do
+    {:reply, :ok, retarget_state(state, pid)}
   end
 
-  def handle_call({:schedule, _interval, pid}, _from, {:running, old_pid}) do
-    {:reply, {:overwrote, old_pid}, {:running, pid}}
+  def handle_call({:schedule, _interval, pid}, _from, %{status: :running} = state) do
+    {:reply, {:overwrote, state[:target]}, retarget_state(state, pid)}
   end
 
-  def handle_info({:broker, _broker, %{connection: pid, json: _message}}, _state) do
-    {:noreply, {:running, pid}}
+  def handle_info({:broker, _broker, %{connection: pid, json: _message}}, state) do
+    {:noreply, retarget_state(state, pid)}
+  end
+
+  defp retarget_state(state, pid) do
+    %{state | status: :running, target: pid}
   end
 
   # TODO actually send the heartbeat on the interval
