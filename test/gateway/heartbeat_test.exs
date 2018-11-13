@@ -11,10 +11,12 @@ defmodule DiscordBot.Gateway.HeartbeatTest do
 
   test "waiting on launch", %{heartbeat: heartbeat} do
     assert Heartbeat.status(heartbeat) == :waiting
+    assert Heartbeat.interval(heartbeat) == Nil
   end
 
-  test "nil target on launch", %{heartbeat: heartbeat} do
+  test "untargeted on launch", %{heartbeat: heartbeat} do
     assert Heartbeat.target(heartbeat) == Nil
+    assert Heartbeat.interval(heartbeat) == Nil
   end
 
   test "schedule :ok on launch", %{heartbeat: heartbeat} do
@@ -29,11 +31,13 @@ defmodule DiscordBot.Gateway.HeartbeatTest do
   test "self target after schedule", %{heartbeat: heartbeat} do
     :ok = Heartbeat.schedule(heartbeat, 10000)
     assert Heartbeat.target(heartbeat) == self()
+    assert Heartbeat.interval(heartbeat) == 10000
   end
 
   test "running after schedule other", %{heartbeat: heartbeat} do
     :ok = Heartbeat.schedule(heartbeat, 10000, self())
     assert Heartbeat.target(heartbeat) == self()
+    assert Heartbeat.interval(heartbeat) == 10000
   end
 
   test "running after broker hello event", %{heartbeat: heartbeat, broker: broker} do
@@ -41,10 +45,15 @@ defmodule DiscordBot.Gateway.HeartbeatTest do
 
     message = %{
       connection: self(),
-      json: %{}
+      json: %{
+        "d" => %{
+          "heartbeat_interval" => 10000
+        }
+      }
     }
 
     DiscordBot.Gateway.Broker.publish(broker, code, message)
     assert Heartbeat.target(heartbeat) == self()
+    assert Heartbeat.interval(heartbeat) == 10000
   end
 end
