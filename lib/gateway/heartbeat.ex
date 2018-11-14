@@ -119,8 +119,10 @@ defmodule DiscordBot.Gateway.Heartbeat do
 
   def handle_info(:heartbeat, state) do
     case state[:target] do
-      Nil -> {:noreply, state}
-      target -> 
+      Nil ->
+        {:noreply, state}
+
+      target ->
         DiscordBot.Gateway.Connection.heartbeat(target)
         sender = Process.send_after(self(), :heartbeat, state[:interval])
         new_state = %{state | sender: sender}
@@ -132,7 +134,15 @@ defmodule DiscordBot.Gateway.Heartbeat do
     idle_state = go_idle(state)
     ref = Process.monitor(pid)
     sender = Process.send_after(self(), :heartbeat, interval)
-    %{idle_state | status: :running, target: pid, interval: interval, target_ref: ref, sender: sender}
+
+    %{
+      idle_state
+      | status: :running,
+        target: pid,
+        interval: interval,
+        target_ref: ref,
+        sender: sender
+    }
   end
 
   defp go_idle(state) do
@@ -140,8 +150,6 @@ defmodule DiscordBot.Gateway.Heartbeat do
   end
 
   defp heartbeat_interval(hello_message) do
-    hello_message["d"]["heartbeat_interval"] - 1000
+    hello_message["d"]["heartbeat_interval"]
   end
-
-  # TODO actually send the heartbeat on the interval
 end
