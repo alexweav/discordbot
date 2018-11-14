@@ -1,6 +1,6 @@
-# DiscordBot
+# DiscordBot [![Build Status](https://travis-ci.org/alexweav/discordbot.svg?branch=master)](https://travis-ci.org/alexweav/discordbot)
 
-**TODO: Add description**
+A simple Discord bot, built directly on top of the Discord API.
 
 ## Installation
 
