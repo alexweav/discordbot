@@ -8,7 +8,6 @@ defmodule DiscordBot.MixProject do
       elixir: "~> 1.7",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-
       name: "DiscordBot",
       source_url: "https://github.com/alexweav/discordbot",
       docs: [
