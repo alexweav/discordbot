@@ -8,10 +8,7 @@ defmodule DiscordBot.Gateway.Messages do
   Builds the heartbeat message
   """
   def heartbeat(sequence_number) do
-    %{
-      "op" => 1,
-      "d" => sequence_number
-    }
+    payload(:heartbeat, sequence_number)
   end
 
   @doc """
@@ -19,22 +16,17 @@ defmodule DiscordBot.Gateway.Messages do
   the bot token `token` and the shard index `shard`
   """
   def identify(token, shard) do
-    body = %{
+    payload(:identify, %{
       "token" => token,
       "properties" => connection_properties(),
       "compress" => false,
       "large_threshold" => 250,
       "shard" => shard
-    }
-
-    %{
-      "op" => 2,
-      "d" => body
-    }
+    })
   end
 
   @doc """
-  Message object representing metadata about the client
+  Message sub-object representing metadata about the client
   """
   def connection_properties() do
     {_, os} = :os.type()
@@ -43,6 +35,17 @@ defmodule DiscordBot.Gateway.Messages do
       "$os" => Atom.to_string(os),
       "$browser" => "DiscordBot",
       "$device" => "DiscordBot"
+    }
+  end
+
+  @doc """
+  Generic payload wrapper object for a message with
+  opcode `opcode` and a body of `data`
+  """
+  def payload(opcode, data) do
+    %{
+      "op" => opcode_from_atom(opcode),
+      "d" => data
     }
   end
 
