@@ -15,13 +15,13 @@ defmodule DiscordBot.Gateway.Messages do
   Builds the message for an identify operation using
   the bot token `token` and the shard index `shard`
   """
-  def identify(token, shard) do
+  def identify(token, shard, num_shards) do
     payload(:identify, %{
       "token" => token,
       "properties" => connection_properties(),
       "compress" => false,
       "large_threshold" => 250,
-      "shard" => shard
+      "shard" => [shard, num_shards]
     })
   end
 

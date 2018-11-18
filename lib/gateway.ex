@@ -11,10 +11,16 @@ defmodule DiscordBot.Gateway do
   end
 
   def init(url) do
+    token = DiscordBot.Token.token()
+
     children = [
       {DiscordBot.Gateway.Broker, [name: Broker]},
       {DiscordBot.Gateway.Heartbeat, []},
-      {DiscordBot.Gateway.Connection, [url, DiscordBot.Token.token()]}
+      Supervisor.child_spec(
+        {Task, fn -> DiscordBot.Gateway.Authenticator.authenticate(token, Broker) end},
+        restart: :transient
+      ),
+      {DiscordBot.Gateway.Connection, [url, token]}
     ]
 
     Supervisor.init(children, strategy: :one_for_all)

@@ -26,6 +26,13 @@ defmodule DiscordBot.Gateway.Connection do
     WebSockex.cast(connection, {:heartbeat})
   end
 
+  @doc """
+  Sends an identify message over the websocket
+  """
+  def identify(connection, token, shard, num_shards) do
+    WebSockex.cast(connection, {:identify, token, shard, num_shards})
+  end
+
   ## Handlers
 
   def handle_connect(connection, state) do
@@ -70,6 +77,13 @@ defmodule DiscordBot.Gateway.Connection do
   def handle_cast({:heartbeat}, state) do
     Logger.info("Send heartbeat.")
     message = DiscordBot.Gateway.Messages.heartbeat(Nil)
+    json = Poison.encode!(message)
+    {:reply, {:text, json}, state}
+  end
+
+  def handle_cast({:identify, token, shard, num_shards}, state) do
+    Logger.info("Send identify.")
+    message = DiscordBot.Gateway.Messages.identify(token, shard, num_shards)
     json = Poison.encode!(message)
     {:reply, {:text, json}, state}
   end
