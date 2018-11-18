@@ -15,6 +15,7 @@ defmodule DiscordBot.Gateway do
 
     children = [
       {DiscordBot.Gateway.Broker, [name: Broker]},
+      {DiscordBot.Gateway.EventLogger, [name: EventLogger, broker: Broker, topics: [:dispatch]]},
       {DiscordBot.Gateway.Heartbeat, []},
       Supervisor.child_spec(
         {Task, fn -> DiscordBot.Gateway.Authenticator.authenticate(token, Broker) end},

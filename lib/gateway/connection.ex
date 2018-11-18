@@ -69,8 +69,8 @@ defmodule DiscordBot.Gateway.Connection do
     {:ok, state}
   end
 
-  def terminate(_reason, _state) do
-    Logger.info("Terminated.")
+  def terminate(reason, _state) do
+    log_gateway_close(reason)
     exit(:normal)
   end
 
@@ -86,5 +86,9 @@ defmodule DiscordBot.Gateway.Connection do
     message = DiscordBot.Gateway.Messages.identify(token, shard, num_shards)
     json = Poison.encode!(message)
     {:reply, {:text, json}, state}
+  end
+
+  defp log_gateway_close({_, code, msg}) do
+    Logger.info("Connection was closed with event #{code}: #{msg}")
   end
 end
