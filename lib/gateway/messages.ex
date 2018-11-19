@@ -28,7 +28,7 @@ defmodule DiscordBot.Gateway.Messages do
   @doc """
   Message sub-object representing metadata about the client
   """
-  def connection_properties() do
+  def connection_properties do
     {_, os} = :os.type()
 
     %{

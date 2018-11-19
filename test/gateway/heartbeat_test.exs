@@ -20,18 +20,18 @@ defmodule DiscordBot.Gateway.HeartbeatTest do
   end
 
   test "schedule :ok on launch", %{heartbeat: heartbeat} do
-    assert Heartbeat.schedule(heartbeat, 10000) == :ok
+    assert Heartbeat.schedule(heartbeat, 10_000) == :ok
   end
 
   test "running after schedule", %{heartbeat: heartbeat} do
-    :ok = Heartbeat.schedule(heartbeat, 10000)
+    :ok = Heartbeat.schedule(heartbeat, 10_000)
     assert Heartbeat.status(heartbeat) == :running
   end
 
   test "self target after schedule", %{heartbeat: heartbeat} do
-    :ok = Heartbeat.schedule(heartbeat, 10000)
+    :ok = Heartbeat.schedule(heartbeat, 10_000)
     assert Heartbeat.target(heartbeat) == self()
-    assert Heartbeat.interval(heartbeat) == 10000
+    assert Heartbeat.interval(heartbeat) == 10_000
   end
 
   test "running after schedule other", %{heartbeat: heartbeat} do
@@ -42,9 +42,9 @@ defmodule DiscordBot.Gateway.HeartbeatTest do
         end
       end)
 
-    :ok = Heartbeat.schedule(heartbeat, 10000, pid)
+    :ok = Heartbeat.schedule(heartbeat, 10_000, pid)
     assert Heartbeat.target(heartbeat) == pid
-    assert Heartbeat.interval(heartbeat) == 10000
+    assert Heartbeat.interval(heartbeat) == 10_000
   end
 
   test "idle after scheduled process closes", %{heartbeat: heartbeat} do
@@ -56,7 +56,7 @@ defmodule DiscordBot.Gateway.HeartbeatTest do
         end
       end)
 
-    :ok = Heartbeat.schedule(heartbeat, 10000, pid)
+    :ok = Heartbeat.schedule(heartbeat, 10_000, pid)
     send(pid, {:dummy, :msg})
     Task.await(task)
     assert Heartbeat.status(heartbeat) == :waiting
@@ -71,13 +71,13 @@ defmodule DiscordBot.Gateway.HeartbeatTest do
       connection: self(),
       json: %{
         "d" => %{
-          "heartbeat_interval" => 10000
+          "heartbeat_interval" => 10_000
         }
       }
     }
 
     DiscordBot.Gateway.Broker.publish(broker, code, message)
     assert Heartbeat.target(heartbeat) == self()
-    assert Heartbeat.interval(heartbeat) == 10000
+    assert Heartbeat.interval(heartbeat) == 10_000
   end
 end

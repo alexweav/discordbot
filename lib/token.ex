@@ -10,8 +10,8 @@ defmodule DiscordBot.Token do
   end
 
   @doc "Obtains the bot token"
-  @spec token() :: String.t()
-  def token() do
+  @spec token :: String.t()
+  def token do
     case Agent.get(__MODULE__, fn state -> state end) do
       nil ->
         token = token_fallback()
@@ -23,7 +23,7 @@ defmodule DiscordBot.Token do
     end
   end
 
-  defp token_fallback() do
+  defp token_fallback do
     case Map.get(System.get_env(), "TOKEN") do
       nil ->
         case Application.get_env(:discordbot, :token) do

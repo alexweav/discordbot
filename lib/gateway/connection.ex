@@ -58,9 +58,8 @@ defmodule DiscordBot.Gateway.Connection do
     {:ok, state}
   end
 
-  def handle_frame(frame, state) do
+  def handle_frame(_frame, state) do
     Logger.info("Got other frame.")
-    IO.inspect(frame)
     {:ok, state}
   end
 
