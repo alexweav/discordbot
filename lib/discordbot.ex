@@ -22,7 +22,7 @@ defmodule DiscordBot do
     Supervisor.init(children, strategy: :one_for_one)
   end
 
-  def request_gateway() do
+  def request_gateway do
     get_gateway_bot_uri = "/v7/gateway/bot"
 
     case DiscordBot.Api.get!(get_gateway_bot_uri) do
