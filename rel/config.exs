@@ -13,6 +13,12 @@ environment :dev do
   # We don't use erlang distribution protocol, so this doesn't matter
   # Ideally, this would be provided through a config provider
   set cookie: :crypto.strong_rand_bytes(32) |> Base.encode16
+  set config_providers: [
+    {Mix.Releases.Config.Providers.Elixir, ["${RELEASE_ROOT_DIR}/etc/config.exs"]}
+  ]
+  set overlays: [
+    {:copy, "rel/config/config.exs", "etc/config.exs"}
+  ]
 end
 
 environment :prod do
@@ -21,6 +27,12 @@ environment :prod do
   # We don't use erlang distribution protocol, so this doesn't matter
   # Ideally, this would be provided through a config provider
   set cookie: :crypto.strong_rand_bytes(32) |> Base.encode16
+  set config_providers: [
+    {Mix.Releases.Config.Providers.Elixir, ["${RELEASE_ROOT_DIR}/etc/config.exs"]}
+  ]
+  set overlays: [
+    {:copy, "rel/config/config.exs", "etc/config.exs"}
+  ]
   set vm_args: "rel/vm.args"
 end
 

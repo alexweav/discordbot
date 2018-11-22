@@ -1,4 +1,6 @@
 use Mix.Config
 
 config :discordbot,
-  token: ""
+  token: "TOKEN"
+
+import_config "*.secret.exs"

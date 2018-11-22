@@ -25,5 +25,8 @@ discordbot-*.tar
 # Ignore config files containing secret keys
 /config/*secret.exs
 
+# Ignore base runtime distillery config file
+/rel/config/config.exs
+
 # VI/VIM swap files
 *.swp
