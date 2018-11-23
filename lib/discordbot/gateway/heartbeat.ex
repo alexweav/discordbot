@@ -6,6 +6,34 @@ defmodule DiscordBot.Gateway.Heartbeat do
 
   use GenServer
 
+  defmodule State do
+    @enforce_keys [:status, :broker]
+
+    defstruct [
+      :status,
+      :target,
+      :target_ref,
+      :interval,
+      :sender,
+      :broker
+    ]
+
+    @type status :: atom
+    @type target :: pid
+    @type target_ref :: reference
+    @type interval :: number
+    @type sender :: pid
+    @type broker :: pid
+    @type t :: %__MODULE__{
+            status: status,
+            target: target,
+            target_ref: target_ref,
+            interval: interval,
+            sender: sender,
+            broker: broker
+          }
+  end
+
   @doc """
   Starts the heartbeat provider
   """
@@ -16,7 +44,7 @@ defmodule DiscordBot.Gateway.Heartbeat do
         :error -> Broker
       end
 
-    state = %{
+    state = %State{
       status: :waiting,
       target: Nil,
       target_ref: Nil,
@@ -70,40 +98,40 @@ defmodule DiscordBot.Gateway.Heartbeat do
   ## Handlers
 
   def init(state) do
-    DiscordBot.Gateway.Broker.subscribe(state[:broker], :hello)
+    DiscordBot.Gateway.Broker.subscribe(state.broker, :hello)
     {:ok, state}
   end
 
   def handle_call({:status}, _from, state) do
-    {:reply, state[:status], state}
+    {:reply, state.status, state}
   end
 
   def handle_call({:target}, _from, state) do
-    {:reply, state[:target], state}
+    {:reply, state.target, state}
   end
 
   def handle_call({:interval}, _from, state) do
-    {:reply, state[:interval], state}
+    {:reply, state.interval, state}
   end
 
-  def handle_call({:schedule, interval}, {from, _ref}, %{status: :waiting} = state) do
+  def handle_call({:schedule, interval}, {from, _ref}, %State{status: :waiting} = state) do
     new_state = start_heartbeat(state, from, interval)
     {:reply, :ok, new_state}
   end
 
-  def handle_call({:schedule, interval}, {from, _ref}, %{status: :running} = state) do
+  def handle_call({:schedule, interval}, {from, _ref}, %State{status: :running} = state) do
     new_state = start_heartbeat(state, from, interval)
-    {:reply, {:overwrote, state[:target]}, new_state}
+    {:reply, {:overwrote, state.target}, new_state}
   end
 
-  def handle_call({:schedule, interval, pid}, _from, %{status: :waiting} = state) do
+  def handle_call({:schedule, interval, pid}, _from, %State{status: :waiting} = state) do
     new_state = start_heartbeat(state, pid, interval)
     {:reply, :ok, new_state}
   end
 
-  def handle_call({:schedule, interval, pid}, _from, %{status: :running} = state) do
+  def handle_call({:schedule, interval, pid}, _from, %State{status: :running} = state) do
     new_state = start_heartbeat(state, pid, interval)
-    {:reply, {:overwrote, state[:target]}, new_state}
+    {:reply, {:overwrote, state.target}, new_state}
   end
 
   def handle_info({:broker, _broker, %{connection: pid, json: message}}, state) do
@@ -118,13 +146,13 @@ defmodule DiscordBot.Gateway.Heartbeat do
   end
 
   def handle_info(:heartbeat, state) do
-    case state[:target] do
+    case state.target do
       Nil ->
         {:noreply, state}
 
       target ->
         DiscordBot.Gateway.Connection.heartbeat(target)
-        sender = Process.send_after(self(), :heartbeat, state[:interval])
+        sender = Process.send_after(self(), :heartbeat, state.interval)
         new_state = %{state | sender: sender}
         {:noreply, new_state}
     end
