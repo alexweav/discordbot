@@ -6,6 +6,8 @@ defmodule DiscordBot.Gateway.Heartbeat do
 
   use GenServer
 
+  alias DiscordBot.Gateway.Broker.Event
+
   defmodule State do
     @enforce_keys [:status, :broker]
 
@@ -134,7 +136,7 @@ defmodule DiscordBot.Gateway.Heartbeat do
     {:reply, {:overwrote, state.target}, new_state}
   end
 
-  def handle_info({:broker, _broker, %{connection: pid, json: message}}, state) do
+  def handle_info(%Event{message: %{connection: pid, json: message}}, state) do
     interval = heartbeat_interval(message)
     new_state = start_heartbeat(state, pid, interval)
     {:noreply, new_state}

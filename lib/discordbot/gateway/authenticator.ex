@@ -3,6 +3,8 @@ defmodule DiscordBot.Gateway.Authenticator do
   Authenticates the bot over the gateway
   """
 
+  alias DiscordBot.Gateway.Broker.Event
+
   @doc """
   Authenticates connections over a `broker`.
   Listens for `:hello` events indicating a new connection.
@@ -18,7 +20,7 @@ defmodule DiscordBot.Gateway.Authenticator do
 
   defp wait_for_connect(_broker) do
     receive do
-      {:broker, _broker, %{connection: connection}} -> connection
+      %Event{message: %{connection: connection}} -> connection
     end
   end
 end

@@ -4,8 +4,9 @@ defmodule DiscordBot.Gateway.EventLogger do
   """
 
   use GenServer
-
   require Logger
+
+  alias DiscordBot.Gateway.Broker.Event
 
   @doc """
   Launches an event logger for a broker.
@@ -81,7 +82,7 @@ defmodule DiscordBot.Gateway.EventLogger do
     {:reply, state[:topics], state}
   end
 
-  def handle_info({:broker, _broker, msg}, state) do
+  def handle_info(%Event{message: msg}, state) do
     Logger.info("EventLogger [#{state[:name]}] Event | #{Kernel.inspect(msg)}")
     {:noreply, state}
   end
