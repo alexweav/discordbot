@@ -94,10 +94,9 @@ defmodule DiscordBot.Gateway.Broker do
     registry
     |> Map.get(topic, MapSet.new())
     |> MapSet.to_list()
-    |> Enum.each(fn sub -> send(sub, %Event{
-      source: :broker,
-      broker: self(),
-      message: message}) end)
+    |> Enum.each(fn sub ->
+      send(sub, %Event{source: :broker, broker: self(), message: message})
+    end)
 
     {:reply, :ok, registry}
   end

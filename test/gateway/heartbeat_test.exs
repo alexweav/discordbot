@@ -10,13 +10,13 @@ defmodule DiscordBot.Gateway.HeartbeatTest do
   end
 
   test "waiting on launch", %{heartbeat: heartbeat} do
-    assert Heartbeat.status(heartbeat) == :waiting
-    assert Heartbeat.interval(heartbeat) == Nil
+    assert Heartbeat.status?(heartbeat) == :waiting
+    assert Heartbeat.interval?(heartbeat) == Nil
   end
 
   test "untargeted on launch", %{heartbeat: heartbeat} do
-    assert Heartbeat.target(heartbeat) == Nil
-    assert Heartbeat.interval(heartbeat) == Nil
+    assert Heartbeat.target?(heartbeat) == Nil
+    assert Heartbeat.interval?(heartbeat) == Nil
   end
 
   test "schedule :ok on launch", %{heartbeat: heartbeat} do
@@ -25,13 +25,13 @@ defmodule DiscordBot.Gateway.HeartbeatTest do
 
   test "running after schedule", %{heartbeat: heartbeat} do
     :ok = Heartbeat.schedule(heartbeat, 10_000)
-    assert Heartbeat.status(heartbeat) == :running
+    assert Heartbeat.status?(heartbeat) == :running
   end
 
   test "self target after schedule", %{heartbeat: heartbeat} do
     :ok = Heartbeat.schedule(heartbeat, 10_000)
-    assert Heartbeat.target(heartbeat) == self()
-    assert Heartbeat.interval(heartbeat) == 10_000
+    assert Heartbeat.target?(heartbeat) == self()
+    assert Heartbeat.interval?(heartbeat) == 10_000
   end
 
   test "running after schedule other", %{heartbeat: heartbeat} do
@@ -43,8 +43,8 @@ defmodule DiscordBot.Gateway.HeartbeatTest do
       end)
 
     :ok = Heartbeat.schedule(heartbeat, 10_000, pid)
-    assert Heartbeat.target(heartbeat) == pid
-    assert Heartbeat.interval(heartbeat) == 10_000
+    assert Heartbeat.target?(heartbeat) == pid
+    assert Heartbeat.interval?(heartbeat) == 10_000
   end
 
   test "idle after scheduled process closes", %{heartbeat: heartbeat} do
@@ -59,9 +59,9 @@ defmodule DiscordBot.Gateway.HeartbeatTest do
     :ok = Heartbeat.schedule(heartbeat, 10_000, pid)
     send(pid, {:dummy, :msg})
     Task.await(task)
-    assert Heartbeat.status(heartbeat) == :waiting
-    assert Heartbeat.target(heartbeat) == Nil
-    assert Heartbeat.interval(heartbeat) == Nil
+    assert Heartbeat.status?(heartbeat) == :waiting
+    assert Heartbeat.target?(heartbeat) == Nil
+    assert Heartbeat.interval?(heartbeat) == Nil
   end
 
   test "running after broker hello event", %{heartbeat: heartbeat, broker: broker} do
@@ -77,7 +77,7 @@ defmodule DiscordBot.Gateway.HeartbeatTest do
     }
 
     DiscordBot.Gateway.Broker.publish(broker, code, message)
-    assert Heartbeat.target(heartbeat) == self()
-    assert Heartbeat.interval(heartbeat) == 10_000
+    assert Heartbeat.target?(heartbeat) == self()
+    assert Heartbeat.interval?(heartbeat) == 10_000
   end
 end

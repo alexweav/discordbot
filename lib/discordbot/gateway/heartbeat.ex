@@ -61,7 +61,7 @@ defmodule DiscordBot.Gateway.Heartbeat do
   @doc """
   Gets the current status of the heartbeat provider
   """
-  def status(provider) do
+  def status?(provider) do
     GenServer.call(provider, {:status})
   end
 
@@ -69,7 +69,7 @@ defmodule DiscordBot.Gateway.Heartbeat do
   Returns the process that the provider is working for,
   or `Nil` if there is none.
   """
-  def target(provider) do
+  def target?(provider) do
     GenServer.call(provider, {:target})
   end
 
@@ -77,7 +77,7 @@ defmodule DiscordBot.Gateway.Heartbeat do
   Returns the interval of the current scheduled heartbeat,
   or `Nil` if there is none.
   """
-  def interval(provider) do
+  def interval?(provider) do
     GenServer.call(provider, {:interval})
   end
 
