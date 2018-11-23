@@ -9,7 +9,8 @@ defmodule DiscordBot.Gateway.Broker do
     defstruct [
       :source,
       :broker,
-      :message
+      :message,
+      :topic
     ]
 
     @typedoc """
@@ -27,10 +28,16 @@ defmodule DiscordBot.Gateway.Broker do
     """
     @type message :: any
 
+    @typedoc """
+    The topic that the event is associated with
+    """
+    @type topic :: atom
+
     @type t :: %__MODULE__{
             source: source,
             broker: broker,
-            message: message
+            message: message,
+            topic: topic
           }
   end
 
@@ -95,7 +102,7 @@ defmodule DiscordBot.Gateway.Broker do
     |> Map.get(topic, MapSet.new())
     |> MapSet.to_list()
     |> Enum.each(fn sub ->
-      send(sub, %Event{source: :broker, broker: self(), message: message})
+      send(sub, %Event{source: :broker, broker: self(), message: message, topic: topic})
     end)
 
     {:reply, :ok, registry}
