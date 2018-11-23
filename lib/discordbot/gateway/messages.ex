@@ -12,33 +12,6 @@ defmodule DiscordBot.Gateway.Messages do
   end
 
   @doc """
-  Builds the message for an identify operation using
-  the bot token `token` and the shard index `shard`
-  """
-  def identify(token, shard, num_shards) do
-    payload(:identify, %{
-      "token" => token,
-      "properties" => connection_properties(),
-      "compress" => false,
-      "large_threshold" => 250,
-      "shard" => [shard, num_shards]
-    })
-  end
-
-  @doc """
-  Message sub-object representing metadata about the client
-  """
-  def connection_properties do
-    {_, os} = :os.type()
-
-    %{
-      "$os" => Atom.to_string(os),
-      "$browser" => "DiscordBot",
-      "$device" => "DiscordBot"
-    }
-  end
-
-  @doc """
   Generic payload wrapper object for a message with
   opcode `opcode` and a body of `data`
   """

@@ -101,7 +101,7 @@ defmodule DiscordBot.Gateway.Connection do
 
   def handle_cast({:identify, token, shard, num_shards}, state) do
     Logger.info("Send identify.")
-    message = DiscordBot.Gateway.Messages.identify(token, shard, num_shards)
+    message = DiscordBot.Model.Identify.identify(token, shard, num_shards)
     json = Poison.encode!(message)
     {:reply, {:text, json}, state}
   end
