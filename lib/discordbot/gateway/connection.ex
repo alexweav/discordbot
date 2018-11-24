@@ -65,8 +65,8 @@ defmodule DiscordBot.Gateway.Connection do
 
     code =
       message
-      |> Map.fetch("op")
-      |> DiscordBot.Gateway.Messages.atom_from_opcode()
+      |> Map.fetch!("op")
+      |> DiscordBot.Model.Payload.atom_from_opcode()
 
     socket_event = %{
       connection: self(),
@@ -94,7 +94,7 @@ defmodule DiscordBot.Gateway.Connection do
 
   def handle_cast({:heartbeat}, state) do
     Logger.info("Send heartbeat.")
-    message = DiscordBot.Gateway.Messages.heartbeat(Nil)
+    message = DiscordBot.Model.Payload.heartbeat(Nil)
     json = Poison.encode!(message)
     {:reply, {:text, json}, state}
   end

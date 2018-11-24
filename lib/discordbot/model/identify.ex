@@ -1,9 +1,11 @@
 defmodule DiscordBot.Model.Identify do
+  @derive [Poison.Encoder]
   @moduledoc """
   Represents an identification operation with Discord
   """
 
   defmodule ConnectionProperties do
+    @derive [Poison.Encoder]
     @moduledoc """
     Connection metadata describing the client
     """
@@ -97,7 +99,8 @@ defmodule DiscordBot.Model.Identify do
   the shard count `num_shards`
   """
   def identify(token, shard, num_shards) do
-    DiscordBot.Gateway.Messages.payload(:identify, %__MODULE__{
+    # DiscordBot.Gateway.Messages.payload(:identify, %__MODULE__{
+    DiscordBot.Model.Payload.payload(:identify, %__MODULE__{
       token: token,
       properties: ConnectionProperties.connection_properties(),
       compress: false,
