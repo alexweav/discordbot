@@ -99,7 +99,6 @@ defmodule DiscordBot.Model.Identify do
   the shard count `num_shards`
   """
   def identify(token, shard, num_shards) do
-    # DiscordBot.Gateway.Messages.payload(:identify, %__MODULE__{
     DiscordBot.Model.Payload.payload(:identify, %__MODULE__{
       token: token,
       properties: ConnectionProperties.connection_properties(),
