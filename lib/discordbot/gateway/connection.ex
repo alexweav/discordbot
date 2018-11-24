@@ -6,17 +6,36 @@ defmodule DiscordBot.Gateway.Connection do
   use WebSockex
   require Logger
 
+  defmodule State do
+    @enforce_keys [:url, :token]
+
+    defstruct [
+      :url,
+      :token,
+      :connection
+    ]
+
+    @type url :: String.t()
+    @type token :: String.t()
+    @type connection :: map | Nil
+    @type t :: %__MODULE__{
+            url: url,
+            token: token,
+            connection: connection
+          }
+  end
+
   @doc """
   Starts a gateway connection with Discord, connecting
   via `url` and authenticating with `token`
   """
   def start_link([url, token]) do
-    state = %{
+    state = %State{
       url: url <> "/?v=6&encoding=json",
       token: token
     }
 
-    WebSockex.start_link(state[:url], __MODULE__, state)
+    WebSockex.start_link(state.url, __MODULE__, state)
   end
 
   @doc """
@@ -37,7 +56,7 @@ defmodule DiscordBot.Gateway.Connection do
 
   def handle_connect(connection, state) do
     Logger.info("Connected!")
-    {:ok, Map.put(state, :connection, connection)}
+    {:ok, %{state | connection: connection}}
   end
 
   def handle_frame({:text, json}, state) do
@@ -46,8 +65,8 @@ defmodule DiscordBot.Gateway.Connection do
 
     code =
       message
-      |> Map.fetch("op")
-      |> DiscordBot.Gateway.Messages.atom_from_opcode()
+      |> Map.fetch!("op")
+      |> DiscordBot.Model.Payload.atom_from_opcode()
 
     socket_event = %{
       connection: self(),
@@ -75,14 +94,14 @@ defmodule DiscordBot.Gateway.Connection do
 
   def handle_cast({:heartbeat}, state) do
     Logger.info("Send heartbeat.")
-    message = DiscordBot.Gateway.Messages.heartbeat(Nil)
+    message = DiscordBot.Model.Payload.heartbeat(Nil)
     json = Poison.encode!(message)
     {:reply, {:text, json}, state}
   end
 
   def handle_cast({:identify, token, shard, num_shards}, state) do
     Logger.info("Send identify.")
-    message = DiscordBot.Gateway.Messages.identify(token, shard, num_shards)
+    message = DiscordBot.Model.Identify.identify(token, shard, num_shards)
     json = Poison.encode!(message)
     {:reply, {:text, json}, state}
   end

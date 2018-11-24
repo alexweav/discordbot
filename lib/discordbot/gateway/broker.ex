@@ -5,6 +5,42 @@ defmodule DiscordBot.Gateway.Broker do
 
   use GenServer
 
+  defmodule Event do
+    defstruct [
+      :source,
+      :broker,
+      :message,
+      :topic
+    ]
+
+    @typedoc """
+    An atom indicating that the event originated from a broker
+    """
+    @type source :: atom
+
+    @typedoc """
+    The PID of the broker that sent the event
+    """
+    @type broker :: pid
+
+    @typedoc """
+    The event data originating from the publisher
+    """
+    @type message :: any
+
+    @typedoc """
+    The topic that the event is associated with
+    """
+    @type topic :: atom
+
+    @type t :: %__MODULE__{
+            source: source,
+            broker: broker,
+            message: message,
+            topic: topic
+          }
+  end
+
   @doc """
   Starts the broker
   """
@@ -65,7 +101,9 @@ defmodule DiscordBot.Gateway.Broker do
     registry
     |> Map.get(topic, MapSet.new())
     |> MapSet.to_list()
-    |> Enum.each(fn sub -> send(sub, {:broker, self(), message}) end)
+    |> Enum.each(fn sub ->
+      send(sub, %Event{source: :broker, broker: self(), message: message, topic: topic})
+    end)
 
     {:reply, :ok, registry}
   end

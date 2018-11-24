@@ -2,6 +2,7 @@ defmodule DiscordBot.Gateway.BrokerTest do
   use ExUnit.Case, async: true
 
   alias DiscordBot.Gateway.Broker
+  alias DiscordBot.Gateway.Broker.Event
 
   setup do
     broker = start_supervised!({Broker, []})
@@ -33,7 +34,7 @@ defmodule DiscordBot.Gateway.BrokerTest do
 
     message =
       receive do
-        {:broker, _broker, msg} -> msg
+        %Event{source: :broker, broker: _broker, message: msg} -> msg
       after
         1_000 -> "timeout"
       end
