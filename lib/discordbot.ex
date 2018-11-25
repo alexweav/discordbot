@@ -31,9 +31,6 @@ defmodule DiscordBot do
 
       %HTTPoison.Response{status_code: 401} ->
         {:error, :invalid_token}
-
-      %HTTPoison.Error{reason: reason} ->
-        {:error, reason}
     end
   end
 end
