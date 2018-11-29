@@ -17,7 +17,7 @@ defmodule DiscordBot.Gateway.Connection do
 
     @type url :: String.t()
     @type token :: String.t()
-    @type connection :: map | Nil
+    @type connection :: map | nil
     @type t :: %__MODULE__{
             url: url,
             token: token,
@@ -73,6 +73,7 @@ defmodule DiscordBot.Gateway.Connection do
       json: message
     }
 
+    IO.inspect(Poison.decode!(json, as: %DiscordBot.Model.Payload{}))
     DiscordBot.Gateway.Broker.publish(Broker, code, socket_event)
     {:ok, state}
   end

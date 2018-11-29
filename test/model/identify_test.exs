@@ -29,4 +29,12 @@ defmodule DiscordBot.Model.IdentifyTest do
     assert object.data.properties."$browser" == "DiscordBot"
     assert object.data.properties."$device" == "DiscordBot"
   end
+
+  test "serializes correctly", %{object: object} do
+    {:ok, serialized} =
+      object
+      |> Identify.to_json()
+
+    assert serialized == "{\"t\"}"
+  end
 end

@@ -3,6 +3,8 @@ defmodule DiscordBot.Model.Payload do
   An object which wraps all gateway messages
   """
 
+  @behaviour DiscordBot.Model.Serializable
+
   defstruct [
     :opcode,
     :data,
@@ -41,7 +43,6 @@ defmodule DiscordBot.Model.Payload do
     @spec encode(DiscordBot.Model.Payload.t(), Poison.Encoder.options()) :: iodata
     def encode(payload, options) do
       %{opcode: opcode, data: data, sequence: sequence, name: name} = payload
-
       Poison.Encoder.Map.encode(
         %{
           "op" => DiscordBot.Model.Payload.opcode_from_atom(opcode),
@@ -51,6 +52,19 @@ defmodule DiscordBot.Model.Payload do
         },
         options
       )
+    end
+  end
+
+  # TODO remove
+  defimpl Poison.Decoder, for: __MODULE__ do
+    def decode(value, _options) do
+      # %DiscordBot.Model.Payload{
+      #  opcode: value["op"],
+      #  data: value["d"],
+      #  sequence: value["s"],
+      #  name: value["t"]
+      # }
+      IO.inspect({"asdf", value})
     end
   end
 
@@ -97,6 +111,36 @@ defmodule DiscordBot.Model.Payload do
   @spec heartbeat(number) :: __MODULE__.t()
   def heartbeat(sequence_number) do
     payload(:heartbeat, sequence_number)
+  end
+
+  @doc """
+  Serializes the provided `payload` object into JSON
+  """
+  @spec to_json(__MODULE__.t()) :: {:ok, iodata}
+  def to_json(payload) do
+    Poison.encode(payload)
+  end
+
+  @doc """
+  Deserializes a JSON blob `json` into a payload
+  """
+  @spec from_json(iodata) :: __MODULE__.t()
+  def from_json(json) do
+    {:ok, map} = Poison.decode(json)
+    from_map(map)
+  end
+
+  @doc """
+  Converts a plain map-represented JSON object `map` into a payload
+  """
+  @spec from_map(map) :: __MODULE__.t()
+  def from_map(map) do
+    %__MODULE__{
+      opcode: Map.get(map, "op") |> atom_from_opcode(),
+      data: Map.get(map, "d"),
+      sequence: Map.get(map, "s"),
+      name: Map.get(map, "t")
+    }
   end
 
   @doc """
