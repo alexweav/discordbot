@@ -48,10 +48,10 @@ defmodule DiscordBot.Gateway.Heartbeat do
 
     state = %State{
       status: :waiting,
-      target: Nil,
-      target_ref: Nil,
-      interval: Nil,
-      sender: Nil,
+      target: nil,
+      target_ref: nil,
+      interval: nil,
+      sender: nil,
       broker: broker
     }
 
@@ -67,7 +67,7 @@ defmodule DiscordBot.Gateway.Heartbeat do
 
   @doc """
   Returns the process that the provider is working for,
-  or `Nil` if there is none.
+  or `nil` if there is none.
   """
   def target?(provider) do
     GenServer.call(provider, {:target})
@@ -75,7 +75,7 @@ defmodule DiscordBot.Gateway.Heartbeat do
 
   @doc """
   Returns the interval of the current scheduled heartbeat,
-  or `Nil` if there is none.
+  or `nil` if there is none.
   """
   def interval?(provider) do
     GenServer.call(provider, {:interval})
@@ -149,7 +149,7 @@ defmodule DiscordBot.Gateway.Heartbeat do
 
   def handle_info(:heartbeat, state) do
     case state.target do
-      Nil ->
+      nil ->
         {:noreply, state}
 
       target ->
@@ -176,7 +176,7 @@ defmodule DiscordBot.Gateway.Heartbeat do
   end
 
   defp go_idle(state) do
-    %{state | status: :waiting, target: Nil, interval: Nil, target_ref: Nil, sender: Nil}
+    %{state | status: :waiting, target: nil, interval: nil, target_ref: nil, sender: nil}
   end
 
   defp heartbeat_interval(hello_message) do
