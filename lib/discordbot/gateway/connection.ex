@@ -17,7 +17,7 @@ defmodule DiscordBot.Gateway.Connection do
 
     @type url :: String.t()
     @type token :: String.t()
-    @type connection :: map | Nil
+    @type connection :: map | nil
     @type t :: %__MODULE__{
             url: url,
             token: token,
@@ -94,7 +94,7 @@ defmodule DiscordBot.Gateway.Connection do
 
   def handle_cast({:heartbeat}, state) do
     Logger.info("Send heartbeat.")
-    message = DiscordBot.Model.Payload.heartbeat(Nil)
+    message = DiscordBot.Model.Payload.heartbeat(nil)
     json = Poison.encode!(message)
     {:reply, {:text, json}, state}
   end

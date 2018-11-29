@@ -7,25 +7,25 @@ defmodule DiscordBot.Model.PayloadTest do
   test "builds from atom opcode" do
     payload = Payload.payload(11)
     assert payload.opcode == :heartbeat_ack
-    assert payload.data == Nil
-    assert payload.sequence == Nil
-    assert payload.name == Nil
+    assert payload.data == nil
+    assert payload.sequence == nil
+    assert payload.name == nil
   end
 
   test "builds from numeric opcode" do
     payload = Payload.payload(:heartbeat_ack)
     assert payload.opcode == :heartbeat_ack
-    assert payload.data == Nil
-    assert payload.sequence == Nil
-    assert payload.name == Nil
+    assert payload.data == nil
+    assert payload.sequence == nil
+    assert payload.name == nil
   end
 
   test "builds from opcode and data" do
     payload = Payload.payload(:identify, %{"test" => "map"})
     assert payload.opcode == :identify
     assert payload.data == %{"test" => "map"}
-    assert payload.sequence == Nil
-    assert payload.name == Nil
+    assert payload.sequence == nil
+    assert payload.name == nil
   end
 
   test "builds from all properties" do
