@@ -11,9 +11,9 @@ defmodule DiscordBot.Model.IdentifyTest do
 
   test "wrapped by payload", %{object: object} do
     assert object.opcode == :identify
-    assert object.data != Nil
-    assert object.sequence == Nil
-    assert object.name == Nil
+    assert object.data != nil
+    assert object.sequence == nil
+    assert object.name == nil
   end
 
   test "identify object is correct", %{object: object} do

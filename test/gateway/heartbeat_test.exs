@@ -11,12 +11,12 @@ defmodule DiscordBot.Gateway.HeartbeatTest do
 
   test "waiting on launch", %{heartbeat: heartbeat} do
     assert Heartbeat.status?(heartbeat) == :waiting
-    assert Heartbeat.interval?(heartbeat) == Nil
+    assert Heartbeat.interval?(heartbeat) == nil
   end
 
   test "untargeted on launch", %{heartbeat: heartbeat} do
-    assert Heartbeat.target?(heartbeat) == Nil
-    assert Heartbeat.interval?(heartbeat) == Nil
+    assert Heartbeat.target?(heartbeat) == nil
+    assert Heartbeat.interval?(heartbeat) == nil
   end
 
   test "schedule :ok on launch", %{heartbeat: heartbeat} do
@@ -60,8 +60,8 @@ defmodule DiscordBot.Gateway.HeartbeatTest do
     send(pid, {:dummy, :msg})
     Task.await(task)
     assert Heartbeat.status?(heartbeat) == :waiting
-    assert Heartbeat.target?(heartbeat) == Nil
-    assert Heartbeat.interval?(heartbeat) == Nil
+    assert Heartbeat.target?(heartbeat) == nil
+    assert Heartbeat.interval?(heartbeat) == nil
   end
 
   test "running after broker hello event", %{heartbeat: heartbeat, broker: broker} do

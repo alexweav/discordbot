@@ -55,7 +55,7 @@ defmodule DiscordBot.Gateway.EventLogger do
     logger_name =
       case Keyword.fetch(opts, :logger_name) do
         {:ok, name} when is_bitstring(name) -> name
-        _ -> Nil
+        _ -> nil
       end
 
     state = %State{
@@ -104,7 +104,7 @@ defmodule DiscordBot.Gateway.EventLogger do
     {:noreply, state}
   end
 
-  defp fallback_name(%{name: Nil} = state) do
+  defp fallback_name(%{name: nil} = state) do
     %{state | name: Kernel.inspect(self())}
   end
 

@@ -95,7 +95,7 @@ defmodule DiscordBot.Gateway.Connection do
 
   def handle_cast({:heartbeat}, state) do
     Logger.info("Send heartbeat.")
-    message = DiscordBot.Model.Payload.heartbeat(Nil)
+    message = DiscordBot.Model.Payload.heartbeat(nil)
     json = Poison.encode!(message)
     {:reply, {:text, json}, state}
   end

@@ -20,17 +20,17 @@ defmodule DiscordBot.Model.Payload do
   @typedoc """
   The body of the payload
   """
-  @type data :: any | Nil
+  @type data :: any | nil
 
   @typedoc """
   The sequence number, used for resumes/heartbeats
   """
-  @type sequence :: number | Nil
+  @type sequence :: number | nil
 
   @typedoc """
   The payload's event name, only for opcode 0
   """
-  @type name :: String.t() | Nil
+  @type name :: String.t() | nil
 
   @type t :: %__MODULE__{
           opcode: opcode,
@@ -73,7 +73,7 @@ defmodule DiscordBot.Model.Payload do
   """
   @spec payload(atom | number) :: __MODULE__.t()
   def payload(opcode) do
-    payload(opcode, Nil, Nil, Nil)
+    payload(opcode, nil, nil, nil)
   end
 
   @doc """
@@ -81,7 +81,7 @@ defmodule DiscordBot.Model.Payload do
   """
   @spec payload(atom | number, any) :: __MODULE__.t()
   def payload(opcode, data) do
-    payload(opcode, data, Nil, Nil)
+    payload(opcode, data, nil, nil)
   end
 
   @doc """
