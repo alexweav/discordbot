@@ -37,10 +37,19 @@ defmodule DiscordBot.Model.PayloadTest do
   end
 
   test "serializes correctly" do
-    serialized =
+    {:ok, serialized} =
       Payload.payload(:status_update, "test", 10, "TEST")
-      |> Poison.encode!()
+      |> Payload.to_json()
 
     assert serialized == "{\"t\":\"TEST\",\"s\":10,\"op\":3,\"d\":\"test\"}"
+  end
+
+  test "deserializes correctly" do
+    json = "{\"t\":\"TEST\",\"s\":10,\"op\":3,\"d\":\"test\"}"
+    payload = Payload.from_json(json)
+    assert payload.opcode == :status_update
+    assert payload.data == "test"
+    assert payload.sequence == 10
+    assert payload.name == "TEST"
   end
 end

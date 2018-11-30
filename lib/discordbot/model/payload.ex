@@ -3,6 +3,8 @@ defmodule DiscordBot.Model.Payload do
   An object which wraps all gateway messages
   """
 
+  @behaviour DiscordBot.Model.Serializable
+
   defstruct [
     :opcode,
     :data,
@@ -97,6 +99,52 @@ defmodule DiscordBot.Model.Payload do
   @spec heartbeat(number) :: __MODULE__.t()
   def heartbeat(sequence_number) do
     payload(:heartbeat, sequence_number)
+  end
+
+  @doc """
+  Serializes the provided `payload` object into JSON
+  """
+  @spec to_json(__MODULE__.t()) :: {:ok, iodata}
+  def to_json(payload) do
+    Poison.encode(payload)
+  end
+
+  @doc """
+  Deserializes a JSON blob `json` into a payload
+  """
+  @spec from_json(iodata) :: __MODULE__.t()
+  def from_json(json) do
+    {:ok, map} = Poison.decode(json)
+    from_map(map)
+  end
+
+  @doc """
+  Converts a plain map-represented JSON object `map` into a payload
+  """
+  @spec from_map(map) :: __MODULE__.t()
+  def from_map(map) do
+    opcode = Map.get(map, "op") |> atom_from_opcode
+
+    %__MODULE__{
+      opcode: opcode,
+      data: Map.get(map, "d") |> to_model(opcode),
+      sequence: Map.get(map, "s"),
+      name: Map.get(map, "t")
+    }
+  end
+
+  @doc """
+  Converts a data object to the correct model given its opcode
+  """
+  @spec to_model(any, atom) :: struct
+  def to_model(data, opcode) do
+    case opcode do
+      :heartbeat -> data
+      :identify -> data |> DiscordBot.Model.Identify.from_map()
+      :hello -> data |> DiscordBot.Model.Hello.from_map()
+      :heartbeat_ack -> nil
+      _ -> data
+    end
   end
 
   @doc """

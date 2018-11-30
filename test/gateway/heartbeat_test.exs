@@ -69,10 +69,8 @@ defmodule DiscordBot.Gateway.HeartbeatTest do
 
     message = %{
       connection: self(),
-      json: %{
-        "d" => %{
-          "heartbeat_interval" => 10_000
-        }
+      json: %DiscordBot.Model.Hello{
+        heartbeat_interval: 10_000
       }
     }
 
