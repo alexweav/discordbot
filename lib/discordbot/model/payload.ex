@@ -43,6 +43,7 @@ defmodule DiscordBot.Model.Payload do
     @spec encode(DiscordBot.Model.Payload.t(), Poison.Encoder.options()) :: iodata
     def encode(payload, options) do
       %{opcode: opcode, data: data, sequence: sequence, name: name} = payload
+
       Poison.Encoder.Map.encode(
         %{
           "op" => DiscordBot.Model.Payload.opcode_from_atom(opcode),
@@ -52,19 +53,6 @@ defmodule DiscordBot.Model.Payload do
         },
         options
       )
-    end
-  end
-
-  # TODO remove
-  defimpl Poison.Decoder, for: __MODULE__ do
-    def decode(value, _options) do
-      # %DiscordBot.Model.Payload{
-      #  opcode: value["op"],
-      #  data: value["d"],
-      #  sequence: value["s"],
-      #  name: value["t"]
-      # }
-      IO.inspect({"asdf", value})
     end
   end
 
@@ -135,12 +123,28 @@ defmodule DiscordBot.Model.Payload do
   """
   @spec from_map(map) :: __MODULE__.t()
   def from_map(map) do
+    opcode = Map.get(map, "op") |> atom_from_opcode
+
     %__MODULE__{
-      opcode: Map.get(map, "op") |> atom_from_opcode(),
-      data: Map.get(map, "d"),
+      opcode: opcode,
+      data: Map.get(map, "d") |> to_model(opcode),
       sequence: Map.get(map, "s"),
       name: Map.get(map, "t")
     }
+  end
+
+  @doc """
+  Converts a data object to the correct model given its opcode
+  """
+  @spec to_model(any, atom) :: struct
+  def to_model(data, opcode) do
+    case opcode do
+      :heartbeat -> data
+      :identify -> data |> DiscordBot.Model.Identify.from_map()
+      # TODO :hello
+      :heartbeat_ack -> nil
+      _ -> data
+    end
   end
 
   @doc """

@@ -3,6 +3,7 @@ defmodule DiscordBot.Model.IdentifyTest do
   doctest DiscordBot.Model.Identify
 
   alias DiscordBot.Model.Identify
+  alias DiscordBot.Model.Payload
 
   setup do
     object = Identify.identify("TOKEN", 1, 3)
@@ -35,6 +36,18 @@ defmodule DiscordBot.Model.IdentifyTest do
       object
       |> Identify.to_json()
 
-    assert serialized == "{\"t\":null,\"s\":null,\"op\":2,\"d\":{\"token\":\"TOKEN\",\"shard\":[1,3],\"properties\":{\"$os\":\"linux\",\"$device\":\"DiscordBot\",\"$browser\":\"DiscordBot\"},\"large_threshold\":250,\"compress\":false}}"
+    assert serialized ==
+             "{\"t\":null,\"s\":null,\"op\":2,\"d\":{\"token\":\"TOKEN\",\"shard\":[1,3],\"properties\":{\"$os\":\"linux\",\"$device\":\"DiscordBot\",\"$browser\":\"DiscordBot\"},\"large_threshold\":250,\"compress\":false}}"
+  end
+
+  test "deserializes correctly" do
+    json =
+      "{\"t\":null,\"s\":null,\"op\":2,\"d\":{\"token\":\"TOKEN\",\"shard\":[1,3],\"properties\":{\"$os\":\"linux\",\"$device\":\"DiscordBot\",\"$browser\":\"DiscordBot\"},\"large_threshold\":250,\"compress\":false}}"
+
+    payload = Payload.from_json(json)
+    assert payload.opcode == :identify
+    assert %Identify{} = payload.data
+    assert payload.sequence == nil
+    assert payload.name == nil
   end
 end
