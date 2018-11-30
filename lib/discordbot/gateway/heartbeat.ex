@@ -137,7 +137,7 @@ defmodule DiscordBot.Gateway.Heartbeat do
   end
 
   def handle_info(%Event{message: %{connection: pid, json: message}}, state) do
-    interval = heartbeat_interval(message)
+    interval = message.heartbeat_interval
     new_state = start_heartbeat(state, pid, interval)
     {:noreply, new_state}
   end
@@ -177,9 +177,5 @@ defmodule DiscordBot.Gateway.Heartbeat do
 
   defp go_idle(state) do
     %{state | status: :waiting, target: nil, interval: nil, target_ref: nil, sender: nil}
-  end
-
-  defp heartbeat_interval(hello_message) do
-    hello_message["d"]["heartbeat_interval"]
   end
 end

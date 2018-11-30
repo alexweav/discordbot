@@ -141,7 +141,7 @@ defmodule DiscordBot.Model.Payload do
     case opcode do
       :heartbeat -> data
       :identify -> data |> DiscordBot.Model.Identify.from_map()
-      # TODO :hello
+      :hello -> data |> DiscordBot.Model.Hello.from_map()
       :heartbeat_ack -> nil
       _ -> data
     end

@@ -61,20 +61,14 @@ defmodule DiscordBot.Gateway.Connection do
 
   def handle_frame({:text, json}, state) do
     Logger.info("Got message.")
-    message = Poison.decode!(json)
-
-    code =
-      message
-      |> Map.fetch!("op")
-      |> DiscordBot.Model.Payload.atom_from_opcode()
+    message = DiscordBot.Model.Payload.from_json(json)
 
     socket_event = %{
       connection: self(),
-      json: message
+      json: message.data
     }
 
-    IO.inspect(Poison.decode!(json, as: %DiscordBot.Model.Payload{}))
-    DiscordBot.Gateway.Broker.publish(Broker, code, socket_event)
+    DiscordBot.Gateway.Broker.publish(Broker, message.opcode, socket_event)
     {:ok, state}
   end
 
