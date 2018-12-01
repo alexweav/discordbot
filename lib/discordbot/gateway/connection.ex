@@ -56,6 +56,13 @@ defmodule DiscordBot.Gateway.Connection do
     WebSockex.cast(connection, {:identify, token, shard, num_shards})
   end
 
+  @doc """
+  Updates the bot's status
+  """
+  def update_status(connection) do
+    WebSockex.cast(connection, {:update_status})
+  end
+
   ## Handlers
 
   def handle_connect(connection, state) do
@@ -117,6 +124,10 @@ defmodule DiscordBot.Gateway.Connection do
       |> DiscordBot.Model.Payload.to_json()
 
     {:reply, {:text, json}, state}
+  end
+
+  def handle_cast({:update_status}, state) do
+    {:noreply, state}
   end
 
   defp log_gateway_close({_, code, msg}) do
