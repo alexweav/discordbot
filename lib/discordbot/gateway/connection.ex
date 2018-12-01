@@ -12,16 +12,19 @@ defmodule DiscordBot.Gateway.Connection do
     defstruct [
       :url,
       :token,
-      :connection
+      :connection,
+      :sequence
     ]
 
     @type url :: String.t()
     @type token :: String.t()
     @type connection :: map | nil
+    @type sequence :: number
     @type t :: %__MODULE__{
             url: url,
             token: token,
-            connection: connection
+            connection: connection,
+            sequence: sequence
           }
   end
 
@@ -32,7 +35,8 @@ defmodule DiscordBot.Gateway.Connection do
   def start_link([url, token]) do
     state = %State{
       url: url <> "/?v=6&encoding=json",
-      token: token
+      token: token,
+      sequence: nil
     }
 
     WebSockex.start_link(state.url, __MODULE__, state)
@@ -69,7 +73,11 @@ defmodule DiscordBot.Gateway.Connection do
     }
 
     DiscordBot.Gateway.Broker.publish(Broker, message.opcode, socket_event)
-    {:ok, state}
+
+    case message.sequence do
+      nil -> {:ok, state}
+      _ -> {:ok, %State{state | sequence: message.sequence}}
+    end
   end
 
   def handle_frame(_frame, state) do
@@ -90,18 +98,32 @@ defmodule DiscordBot.Gateway.Connection do
   def handle_cast({:heartbeat}, state) do
     Logger.info("Send heartbeat.")
     message = DiscordBot.Model.Payload.heartbeat(nil)
-    json = Poison.encode!(message)
+
+    {:ok, json} =
+      message
+      |> apply_sequence(state.sequence)
+      |> DiscordBot.Model.Payload.to_json()
+
     {:reply, {:text, json}, state}
   end
 
   def handle_cast({:identify, token, shard, num_shards}, state) do
     Logger.info("Send identify.")
     message = DiscordBot.Model.Identify.identify(token, shard, num_shards)
-    json = Poison.encode!(message)
+
+    {:ok, json} =
+      message
+      |> apply_sequence(state.sequence)
+      |> DiscordBot.Model.Payload.to_json()
+
     {:reply, {:text, json}, state}
   end
 
   defp log_gateway_close({_, code, msg}) do
     Logger.info("Connection was closed with event #{code}: #{msg}")
+  end
+
+  defp apply_sequence(payload, sequence) do
+    %DiscordBot.Model.Payload{payload | sequence: sequence}
   end
 end
