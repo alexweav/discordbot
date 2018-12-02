@@ -1,5 +1,4 @@
 defmodule DiscordBot.Model.StatusUpdate do
-  @derive [Poison.Encoder]
   @moduledoc """
   Represents an operation which updates the bot's online status
   """
@@ -46,10 +45,21 @@ defmodule DiscordBot.Model.StatusUpdate do
           afk: afk
         }
 
+  defimpl Poison.Encoder, for: __MODULE__ do
+    def encode(status_update, options) do
+      map = Map.from_struct(status_update)
+
+      Poison.Encoder.Map.encode(
+        %{map | status: DiscordBot.Model.StatusUpdate.status_from_atom(map[:status])},
+        options
+      )
+    end
+  end
+
   @doc """
   Builds the status update object, given a `status`
   """
-  @spec status_update(status) :: __MODULE__.t()
+  @spec status_update(atom) :: __MODULE__.t()
   def status_update(status) do
     DiscordBot.Model.Payload.payload(:status_update, %__MODULE__{
       since: nil,
@@ -77,15 +87,43 @@ defmodule DiscordBot.Model.StatusUpdate do
   end
 
   @doc """
-  Converts a plain map-represented JSON object `map` into a payload
+  Converts a plain map-represented JSON object `map` into a `StatusUpdate`
   """
   @spec from_map(map) :: __MODULE__.t()
   def from_map(map) do
     %__MODULE__{
       since: Map.get(map, "since"),
       game: Map.get(map, "game"),
-      status: Map.get(map, "status"),
+      status: map |> Map.get("status") |> atom_from_status(),
       afk: Map.get(map, "afk")
     }
+  end
+
+  @doc """
+  Converts a Discord status string into a corresponding atom
+  """
+  @spec atom_from_status(String.t()) :: atom
+  def atom_from_status(status) do
+    %{
+      "online" => :online,
+      "dnd" => :dnd,
+      "idle" => :idle,
+      "invisible" => :invisible,
+      "offline" => :offline
+    }[status]
+  end
+
+  @doc """
+  Converts a status atom into the appropriate status string
+  """
+  @spec status_from_atom(atom) :: String.t()
+  def status_from_atom(atom) do
+    %{
+      online: "online",
+      dnd: "dnd",
+      idle: "idle",
+      invisible: "invisible",
+      offline: "offline"
+    }[atom]
   end
 end
