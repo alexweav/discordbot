@@ -39,7 +39,7 @@ defmodule DiscordBot.Gateway.Connection do
       sequence: nil
     }
 
-    WebSockex.start_link(state.url, __MODULE__, state)
+    WebSockex.start_link(state.url, __MODULE__, state, name: Connection)
   end
 
   @doc """
@@ -59,8 +59,8 @@ defmodule DiscordBot.Gateway.Connection do
   @doc """
   Updates the bot's status
   """
-  def update_status(connection) do
-    WebSockex.cast(connection, {:update_status})
+  def update_status(connection, status) do
+    WebSockex.cast(connection, {:update_status, status})
   end
 
   ## Handlers
@@ -126,8 +126,15 @@ defmodule DiscordBot.Gateway.Connection do
     {:reply, {:text, json}, state}
   end
 
-  def handle_cast({:update_status}, state) do
-    {:noreply, state}
+  def handle_cast({:update_status, status}, state) do
+    message = DiscordBot.Model.StatusUpdate.status_update(status)
+
+    {:ok, json} =
+      message
+      |> apply_sequence(state.sequence)
+      |> DiscordBot.Model.Payload.to_json()
+
+    {:reply, {:text, json}, state}
   end
 
   defp log_gateway_close({_, code, msg}) do
