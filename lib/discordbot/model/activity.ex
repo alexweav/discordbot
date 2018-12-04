@@ -1,5 +1,4 @@
 defmodule DiscordBot.Model.Activity do
-  @derive [Poison.Encoder]
   @moduledoc """
   Represents an activity that a user is currently performing
   """
@@ -29,6 +28,17 @@ defmodule DiscordBot.Model.Activity do
           type: type
         }
 
+  defimpl Poison.Encoder, for: __MODULE__ do
+    def encode(activity, options) do
+      map = Map.from_struct(activity)
+
+      Poison.Encoder.Map.encode(
+        %{map | type: DiscordBot.Model.Activity.type_from_atom(map[:type])},
+        options
+      )
+    end
+  end
+
   @doc """
   Serializes the provided `activity` object into JSON
   """
@@ -53,18 +63,42 @@ defmodule DiscordBot.Model.Activity do
   def from_map(map) do
     %__MODULE__{
       name: Map.get(map, "name"),
-      type: Map.get(map, "type")
+      type: Map.get(map, "type") |> atom_from_type()
     }
   end
 
   @doc """
   Builds the activity object
   """
-  @spec activity(String.t(), number) :: __MODULE__.t()
-  def activity(name, type) do
+  @spec activity(atom, String.t()) :: __MODULE__.t()
+  def activity(type, name) do
     %__MODULE__{
-      name: name,
-      type: type
+      type: type,
+      name: name
     }
+  end
+
+  @doc """
+  Converts an activity type ID into a corresponding atom
+  """
+  @spec atom_from_type(number) :: atom
+  def atom_from_type(id) do
+    %{
+      0 => :playing,
+      1 => :streaming,
+      2 => :listening
+    }[id]
+  end
+
+  @doc """
+  Converts an activity type atom into its corresponding ID
+  """
+  @spec type_from_atom(atom) :: number
+  def type_from_atom(atom) do
+    %{
+      playing: 0,
+      streaming: 1,
+      listening: 2
+    }[atom]
   end
 end
