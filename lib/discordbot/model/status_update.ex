@@ -57,15 +57,20 @@ defmodule DiscordBot.Model.StatusUpdate do
   end
 
   @doc """
-  Builds the status update object, given a `status`
+  Builds the status update object, given only a `status`. Valid statuses are:
+  - `:online`
+  - `:dnd`
+  - `:idle`
+  - `:invisible`
+  - `:offline`
   """
-  @spec status_update(atom) :: __MODULE__.t()
-  def status_update(status) do
+  @spec status_update(number, nil, atom, boolean) :: __MODULE__.t()
+  def status_update(since, game, status, afk \\ false) do
     DiscordBot.Model.Payload.payload(:status_update, %__MODULE__{
-      since: nil,
-      game: nil,
+      since: since,
+      game: game,
       status: status,
-      afk: false
+      afk: afk
     })
   end
 

@@ -127,7 +127,7 @@ defmodule DiscordBot.Gateway.Connection do
   end
 
   def handle_cast({:update_status, status}, state) do
-    message = DiscordBot.Model.StatusUpdate.status_update(status)
+    message = DiscordBot.Model.StatusUpdate.status_update(nil, nil, status)
 
     {:ok, json} =
       message
