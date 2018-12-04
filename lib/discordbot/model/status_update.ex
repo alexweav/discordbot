@@ -64,7 +64,7 @@ defmodule DiscordBot.Model.StatusUpdate do
   - `:invisible`
   - `:offline`
   """
-  @spec status_update(number, nil, atom, boolean) :: __MODULE__.t()
+  @spec status_update(number, DiscordBot.Model.Activity.t() | nil, atom, boolean) :: __MODULE__.t()
   def status_update(since, game, status, afk \\ false) do
     DiscordBot.Model.Payload.payload(:status_update, %__MODULE__{
       since: since,
