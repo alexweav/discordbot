@@ -39,7 +39,7 @@ defmodule DiscordBot.Gateway.Connection do
       sequence: nil
     }
 
-    WebSockex.start_link(state.url, __MODULE__, state)
+    WebSockex.start_link(state.url, __MODULE__, state, name: Connection)
   end
 
   @doc """
@@ -54,6 +54,22 @@ defmodule DiscordBot.Gateway.Connection do
   """
   def identify(connection, token, shard, num_shards) do
     WebSockex.cast(connection, {:identify, token, shard, num_shards})
+  end
+
+  @doc """
+  Updates the bot's status to `status` over `connection`.
+  """
+  def update_status(connection, status) do
+    WebSockex.cast(connection, {:update_status, status})
+  end
+
+  @doc """
+  Updates the bot's status to `status`, and sets its activity
+  over `connection`. Also updates their status activity given
+  the activity's `type` and `name.
+  """
+  def update_status(connection, status, type, name) do
+    WebSockex.cast(connection, {:update_status, status, type, name})
   end
 
   ## Handlers
@@ -110,6 +126,29 @@ defmodule DiscordBot.Gateway.Connection do
   def handle_cast({:identify, token, shard, num_shards}, state) do
     Logger.info("Send identify.")
     message = DiscordBot.Model.Identify.identify(token, shard, num_shards)
+
+    {:ok, json} =
+      message
+      |> apply_sequence(state.sequence)
+      |> DiscordBot.Model.Payload.to_json()
+
+    {:reply, {:text, json}, state}
+  end
+
+  def handle_cast({:update_status, status}, state) do
+    message = DiscordBot.Model.StatusUpdate.status_update(nil, nil, status)
+
+    {:ok, json} =
+      message
+      |> apply_sequence(state.sequence)
+      |> DiscordBot.Model.Payload.to_json()
+
+    {:reply, {:text, json}, state}
+  end
+
+  def handle_cast({:update_status, status, type, name}, state) do
+    activity = DiscordBot.Model.Activity.activity(type, name)
+    message = DiscordBot.Model.StatusUpdate.status_update(nil, activity, status)
 
     {:ok, json} =
       message
