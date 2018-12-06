@@ -127,18 +127,19 @@ defmodule DiscordBot.Model.Payload do
 
     %__MODULE__{
       opcode: opcode,
-      data: Map.get(map, "d") |> to_model(opcode),
+      data: Map.get(map, "d") |> to_model(opcode, Map.get(map, "t")),
       sequence: Map.get(map, "s"),
       name: Map.get(map, "t")
     }
   end
 
   @doc """
-  Converts a data object to the correct model given its opcode
+  Converts a data object to the correct model given its opcode and event name
   """
-  @spec to_model(any, atom) :: struct
-  def to_model(data, opcode) do
+  @spec to_model(any, atom, String.t()) :: struct
+  def to_model(data, opcode, name) do
     case opcode do
+      :dispatch -> data |> DiscordBot.Model.Dispatch.from_map(name)
       :heartbeat -> data
       :identify -> data |> DiscordBot.Model.Identify.from_map()
       :hello -> data |> DiscordBot.Model.Hello.from_map()

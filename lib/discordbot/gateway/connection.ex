@@ -88,7 +88,7 @@ defmodule DiscordBot.Gateway.Connection do
       json: message.data
     }
 
-    DiscordBot.Gateway.Broker.publish(Broker, message.opcode, socket_event)
+    DiscordBot.Gateway.Broker.publish(Broker, event_name(message), socket_event)
 
     case message.sequence do
       nil -> {:ok, state}
@@ -164,5 +164,16 @@ defmodule DiscordBot.Gateway.Connection do
 
   defp apply_sequence(payload, sequence) do
     %DiscordBot.Model.Payload{payload | sequence: sequence}
+  end
+
+  defp event_name(%DiscordBot.Model.Payload{opcode: :dispatch} = message) do
+    case DiscordBot.Model.Dispatch.atom_from_event(message.name) do
+      nil -> :dispatch
+      name -> name
+    end
+  end
+
+  defp event_name(payload) do
+    payload.opcode
   end
 end
