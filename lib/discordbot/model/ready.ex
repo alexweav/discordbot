@@ -23,8 +23,7 @@ defmodule DiscordBot.Model.Ready do
   @typedoc """
   Information about the current user
   """
-  @type user :: map
-  # TODO: model object for user
+  @type user :: DiscordBot.Model.User.t()
 
   @typedoc """
   Private channels that the bot is connected to. Initially empty
