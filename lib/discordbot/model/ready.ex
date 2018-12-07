@@ -80,7 +80,7 @@ defmodule DiscordBot.Model.Ready do
   def from_map(map) do
     %__MODULE__{
       v: Map.get(map, "v"),
-      user: Map.get(map, "user"),
+      user: map |> Map.get("user") |> DiscordBot.Model.User.from_map(),
       private_channels: Map.get(map, "private_channels"),
       guilds: Map.get(map, "guilds"),
       session_id: Map.get(map, "session_id"),
