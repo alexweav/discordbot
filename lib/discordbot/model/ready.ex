@@ -78,13 +78,12 @@ defmodule DiscordBot.Model.Ready do
   """
   @spec from_map(map) :: __MODULE__.t()
   def from_map(map) do
-    %__MODULE__{
-      v: Map.get(map, "v"),
-      user: map |> Map.get("user") |> DiscordBot.Model.User.from_map(),
-      private_channels: Map.get(map, "private_channels"),
-      guilds: Map.get(map, "guilds"),
-      session_id: Map.get(map, "session_id"),
-      _trace: Map.get(map, "_trace")
+    %{
+      map
+      | "user" =>
+          map["user"]
+          |> DiscordBot.Model.User.from_map()
     }
+    |> DiscordBot.Model.Serializable.struct_from_map(as: %__MODULE__{})
   end
 end

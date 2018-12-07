@@ -97,12 +97,13 @@ defmodule DiscordBot.Model.StatusUpdate do
   """
   @spec from_map(map) :: __MODULE__.t()
   def from_map(map) do
-    %__MODULE__{
-      since: Map.get(map, "since"),
-      game: Map.get(map, "game"),
-      status: map |> Map.get("status") |> atom_from_status(),
-      afk: Map.get(map, "afk")
+    %{
+      map
+      | "status" =>
+          map["status"]
+          |> atom_from_status()
     }
+    |> DiscordBot.Model.Serializable.struct_from_map(as: %__MODULE__{})
   end
 
   @doc """

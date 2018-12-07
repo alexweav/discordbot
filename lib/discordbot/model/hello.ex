@@ -48,9 +48,6 @@ defmodule DiscordBot.Model.Hello do
   """
   @spec from_map(map) :: __MODULE__.t()
   def from_map(map) do
-    %__MODULE__{
-      heartbeat_interval: Map.get(map, "heartbeat_interval"),
-      _trace: Map.get(map, "_trace")
-    }
+    DiscordBot.Model.Serializable.struct_from_map(map, as: %__MODULE__{})
   end
 end
