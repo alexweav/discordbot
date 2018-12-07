@@ -111,17 +111,6 @@ defmodule DiscordBot.Model.User do
   """
   @spec from_map(map) :: __MODULE__.t()
   def from_map(map) do
-    keys =
-      %__MODULE__{}
-      |> Map.keys()
-      |> Enum.filter(fn x -> x != :__struct__ end)
-
-    processed_map =
-      for key <- keys, into: %{} do
-        value = Map.get(map, key) || Map.get(map, to_string(key))
-        {key, value}
-      end
-
-    Map.merge(%__MODULE__{}, processed_map)
+    DiscordBot.Model.Serializable.struct_from_map(map, as: %__MODULE__{})
   end
 end
