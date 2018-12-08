@@ -148,13 +148,13 @@ defmodule DiscordBot.Model.Identify do
   """
   @spec from_map(map) :: __MODULE__.t()
   def from_map(map) do
-    %__MODULE__{
-      token: Map.get(map, "token"),
-      properties: Map.get(map, "properties") |> ConnectionProperties.from_map(),
-      compress: Map.get(map, "compress"),
-      large_threshold: Map.get(map, "large_threshold"),
-      shard: Map.get(map, "shard")
+    %{
+      map
+      | "properties" =>
+          map["properties"]
+          |> ConnectionProperties.from_map()
     }
+    |> DiscordBot.Model.Serializable.struct_from_map(as: %__MODULE__{})
   end
 
   @doc """
