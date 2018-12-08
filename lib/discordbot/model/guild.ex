@@ -184,10 +184,9 @@ defmodule DiscordBot.Model.Guild do
   # TODO: voice state struct
 
   @typedoc """
-  Users in the guild
+  Member of the guild
   """
-  @type members :: list(map)
-  # TODO: guild member struct
+  @type members :: list(DiscordBot.Model.GuildMember.t())
 
   @typedoc """
   Channels in the guild
@@ -253,11 +252,22 @@ defmodule DiscordBot.Model.Guild do
   end
 
   @doc """
-  Converts a plain map-represented JSON object `map` into a user
+  Converts a plain map-represented JSON object `map` into a guild
   """
   @spec from_map(map) :: __MODULE__.t()
   def from_map(map) do
-    DiscordBot.Model.Serializable.struct_from_map(map, as: %__MODULE__{})
-    # %__MODULE__{}
+    case Map.has_key?(map, "members") do
+      true ->
+        %{
+          map
+          | "members" =>
+              map["members"]
+              |> Enum.map(&DiscordBot.Model.GuildMember.from_map(&1))
+        }
+        |> DiscordBot.Model.Serializable.struct_from_map(as: %__MODULE__{})
+
+      false ->
+        map
+    end
   end
 end
