@@ -10,6 +10,7 @@ defmodule DiscordBot.Model.Dispatch do
   def from_map(map, name) do
     case atom_from_event(name) do
       :ready -> DiscordBot.Model.Ready.from_map(map)
+      :guild_create -> DiscordBot.Model.Guild.from_map(map)
       _ -> map
     end
   end
@@ -20,7 +21,8 @@ defmodule DiscordBot.Model.Dispatch do
   @spec atom_from_event(String.t()) :: atom
   def atom_from_event(name) do
     %{
-      "READY" => :ready
+      "READY" => :ready,
+      "GUILD_CREATE" => :guild_create
     }[name]
   end
 end

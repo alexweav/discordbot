@@ -81,7 +81,10 @@ defmodule DiscordBot.Model.Ready do
       map
       | "user" =>
           map["user"]
-          |> DiscordBot.Model.User.from_map()
+          |> DiscordBot.Model.User.from_map(),
+        "guilds" =>
+          map["guilds"]
+          |> Enum.map(&DiscordBot.Model.Guild.from_map(&1))
     }
     |> DiscordBot.Model.Serializable.struct_from_map(as: %__MODULE__{})
   end
