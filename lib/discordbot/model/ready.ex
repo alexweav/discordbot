@@ -33,8 +33,7 @@ defmodule DiscordBot.Model.Ready do
   @typedoc """
   The guilds the user is in
   """
-  @type guilds :: list(map)
-  # TODO: model object for unavailable guild
+  @type guilds :: list(DiscordBot.Model.Guild.t())
 
   @typedoc """
   Used for resuming connections
