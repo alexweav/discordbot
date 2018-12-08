@@ -33,8 +33,7 @@ defmodule DiscordBot.Model.Ready do
   @typedoc """
   The guilds the user is in
   """
-  @type guilds :: list(map)
-  # TODO: model object for unavailable guild
+  @type guilds :: list(DiscordBot.Model.Guild.t())
 
   @typedoc """
   Used for resuming connections
@@ -81,7 +80,10 @@ defmodule DiscordBot.Model.Ready do
       map
       | "user" =>
           map["user"]
-          |> DiscordBot.Model.User.from_map()
+          |> DiscordBot.Model.User.from_map(),
+        "guilds" =>
+          map["guilds"]
+          |> Enum.map(&DiscordBot.Model.Guild.from_map(&1))
     }
     |> DiscordBot.Model.Serializable.struct_from_map(as: %__MODULE__{})
   end

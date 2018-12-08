@@ -63,7 +63,7 @@ defmodule DiscordBot.Model.Activity do
   def from_map(map) do
     %__MODULE__{
       name: Map.get(map, "name"),
-      type: Map.get(map, "type") |> atom_from_type()
+      type: map |> Map.get("type") |> atom_from_type()
     }
   end
 

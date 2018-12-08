@@ -123,11 +123,11 @@ defmodule DiscordBot.Model.Payload do
   """
   @spec from_map(map) :: __MODULE__.t()
   def from_map(map) do
-    opcode = Map.get(map, "op") |> atom_from_opcode
+    opcode = map |> Map.get("op") |> atom_from_opcode
 
     %__MODULE__{
       opcode: opcode,
-      data: Map.get(map, "d") |> to_model(opcode, Map.get(map, "t")),
+      data: map |> Map.get("d") |> to_model(opcode, Map.get(map, "t")),
       sequence: Map.get(map, "s"),
       name: Map.get(map, "t")
     }
@@ -154,19 +154,19 @@ defmodule DiscordBot.Model.Payload do
   """
   @spec atom_from_opcode(number) :: atom
   def atom_from_opcode(opcode) do
-    case opcode do
-      0 -> :dispatch
-      1 -> :heartbeat
-      2 -> :identify
-      3 -> :status_update
-      4 -> :voice_state_update
-      6 -> :resume
-      7 -> :reconnect
-      8 -> :request_guild_members
-      9 -> :invalid_session
-      10 -> :hello
-      11 -> :heartbeat_ack
-    end
+    %{
+      0 => :dispatch,
+      1 => :heartbeat,
+      2 => :identify,
+      3 => :status_update,
+      4 => :voice_state_update,
+      6 => :resume,
+      7 => :reconnect,
+      8 => :request_guild_members,
+      9 => :invalid_session,
+      10 => :hello,
+      11 => :heartbeat_ack
+    }[opcode]
   end
 
   @doc """
@@ -175,18 +175,18 @@ defmodule DiscordBot.Model.Payload do
   """
   @spec opcode_from_atom(atom) :: number
   def opcode_from_atom(atom) do
-    case atom do
-      :dispatch -> 0
-      :heartbeat -> 1
-      :identify -> 2
-      :status_update -> 3
-      :voice_state_update -> 4
-      :resume -> 6
-      :reconnect -> 7
-      :request_guild_members -> 8
-      :invalid_session -> 9
-      :hello -> 10
-      :heartbeat_ack -> 11
-    end
+    %{
+      dispatch: 0,
+      heartbeat: 1,
+      identify: 2,
+      status_update: 3,
+      voice_state_update: 4,
+      resume: 6,
+      reconnect: 7,
+      request_guild_members: 8,
+      invalid_session: 9,
+      hello: 10,
+      heartbeat_ack: 11
+    }[atom]
   end
 end
