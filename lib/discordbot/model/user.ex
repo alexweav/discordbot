@@ -4,7 +4,7 @@ defmodule DiscordBot.Model.User do
   Represents a Discord user
   """
 
-  @behaviour DiscordBot.Model.Serializable
+  use DiscordBot.Model.Serializable
 
   defstruct [
     :id,

@@ -4,7 +4,7 @@ defmodule DiscordBot.Model.Ready do
   Setup data object sent over the websocket after authentication
   """
 
-  @behaviour DiscordBot.Model.Serializable
+  use DiscordBot.Model.Serializable
 
   defstruct [
     :v,

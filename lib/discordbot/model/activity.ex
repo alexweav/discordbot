@@ -3,7 +3,7 @@ defmodule DiscordBot.Model.Activity do
   Represents an activity that a user is currently performing
   """
 
-  @behaviour DiscordBot.Model.Serializable
+  use DiscordBot.Model.Serializable
 
   defstruct [
     :name,

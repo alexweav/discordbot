@@ -4,7 +4,7 @@ defmodule DiscordBot.Model.Hello do
   The initial message sent over the websocket
   """
 
-  @behaviour DiscordBot.Model.Serializable
+  use DiscordBot.Model.Serializable
 
   defstruct [
     :heartbeat_interval,

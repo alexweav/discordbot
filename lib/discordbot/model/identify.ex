@@ -4,7 +4,7 @@ defmodule DiscordBot.Model.Identify do
   Represents an identification operation with Discord
   """
 
-  @behaviour DiscordBot.Model.Serializable
+  use DiscordBot.Model.Serializable
 
   defmodule ConnectionProperties do
     @derive [Poison.Encoder]

@@ -4,7 +4,7 @@ defmodule DiscordBot.Model.Guild do
   Represents a Discord guild
   """
 
-  @behaviour DiscordBot.Model.Serializable
+  use DiscordBot.Model.Serializable
 
   defstruct [
     :id,

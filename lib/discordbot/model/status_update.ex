@@ -3,7 +3,7 @@ defmodule DiscordBot.Model.StatusUpdate do
   Represents an operation which updates the bot's online status
   """
 
-  @behaviour DiscordBot.Model.Serializable
+  use DiscordBot.Model.Serializable
 
   defstruct [
     :since,

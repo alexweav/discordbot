@@ -3,7 +3,7 @@ defmodule DiscordBot.Model.Payload do
   An object which wraps all gateway messages
   """
 
-  @behaviour DiscordBot.Model.Serializable
+  use DiscordBot.Model.Serializable
 
   defstruct [
     :opcode,

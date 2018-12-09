@@ -3,6 +3,12 @@ defmodule DiscordBot.Model.Serializable do
   Behaviour for modules which perform serialization/deserialization
   """
 
+  defmacro __using__(_) do
+    quote([]) do
+      @behaviour DiscordBot.Model.Serializable
+    end
+  end
+
   @callback from_json(json :: iodata) ::
               {:ok, deserialized :: term}
               | {:error, reason :: term}
