@@ -12,7 +12,7 @@ defmodule DiscordBot.Model.Identify do
     Connection metadata describing the client
     """
 
-    @behaviour DiscordBot.Model.Serializable
+    use DiscordBot.Model.Serializable
 
     defstruct [
       :"$os",
