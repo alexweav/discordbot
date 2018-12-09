@@ -90,14 +90,6 @@ defmodule DiscordBot.Model.User do
         }
 
   @doc """
-  Serializes the provided `user` into JSON
-  """
-  @spec to_json(__MODULE__.t()) :: {:ok, iodata}
-  def to_json(user) do
-    Poison.encode(user)
-  end
-
-  @doc """
   Deserializes a JSON blob `json` into a user
   """
   @spec from_json(iodata) :: __MODULE__.t()

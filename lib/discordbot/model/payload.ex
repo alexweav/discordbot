@@ -102,14 +102,6 @@ defmodule DiscordBot.Model.Payload do
   end
 
   @doc """
-  Serializes the provided `payload` object into JSON
-  """
-  @spec to_json(__MODULE__.t()) :: {:ok, iodata}
-  def to_json(payload) do
-    Poison.encode(payload)
-  end
-
-  @doc """
   Deserializes a JSON blob `json` into a payload
   """
   @spec from_json(iodata) :: __MODULE__.t()

@@ -42,14 +42,6 @@ defmodule DiscordBot.Model.Identify do
           }
 
     @doc """
-    Serializes the provided `connection_properties` object into JSON
-    """
-    @spec to_json(__MODULE__.t()) :: {:ok, iodata}
-    def to_json(payload) do
-      Poison.encode(payload)
-    end
-
-    @doc """
     Deserializes a JSON blob `json` into a connection properties object
     """
     @spec from_json(iodata) :: __MODULE__.t()
@@ -125,14 +117,6 @@ defmodule DiscordBot.Model.Identify do
           large_threshold: large_threshold,
           shard: shard
         }
-
-  @doc """
-  Serializes the provided `identify` object into JSON
-  """
-  @spec to_json(__MODULE__.t()) :: {:ok, iodata}
-  def to_json(identify) do
-    Poison.encode(identify)
-  end
 
   @doc """
   Deserializes a JSON blob `json` into an identify object

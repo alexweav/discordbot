@@ -55,14 +55,6 @@ defmodule DiscordBot.Model.Ready do
         }
 
   @doc """
-  Serializes the provided `ready` object into JSON
-  """
-  @spec to_json(__MODULE__.t()) :: {:ok, iodata}
-  def to_json(payload) do
-    Poison.encode(payload)
-  end
-
-  @doc """
   Deserializes a JSON blob `json` into a ready object
   """
   @spec from_json(iodata) :: __MODULE__.t()

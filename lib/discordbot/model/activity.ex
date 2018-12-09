@@ -40,14 +40,6 @@ defmodule DiscordBot.Model.Activity do
   end
 
   @doc """
-  Serializes the provided `activity` object into JSON
-  """
-  @spec to_json(__MODULE__.t()) :: {:ok, iodata}
-  def to_json(activity) do
-    Poison.encode(activity)
-  end
-
-  @doc """
   Deserializes a JSON blob `json` into an activity object
   """
   @spec from_json(iodata) :: __MODULE__.t()

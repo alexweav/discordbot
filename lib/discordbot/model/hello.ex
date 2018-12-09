@@ -27,14 +27,6 @@ defmodule DiscordBot.Model.Hello do
         }
 
   @doc """
-  Serializes the provided `hello` object into JSON
-  """
-  @spec to_json(__MODULE__.t()) :: {:ok, iodata}
-  def to_json(hello) do
-    Poison.encode(hello)
-  end
-
-  @doc """
   Deserializes a JSON blob `json` into a hello object
   """
   @spec from_json(iodata) :: __MODULE__.t()

@@ -76,14 +76,6 @@ defmodule DiscordBot.Model.StatusUpdate do
   end
 
   @doc """
-  Serializes the provided `status_update` object into JSON
-  """
-  @spec to_json(__MODULE__.t()) :: {:ok, iodata}
-  def to_json(payload) do
-    Poison.encode(payload)
-  end
-
-  @doc """
   Deserializes a JSON blob `json` into a `status_update` object
   """
   @spec from_json(iodata) :: __MODULE__.t()

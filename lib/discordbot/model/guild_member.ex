@@ -55,14 +55,6 @@ defmodule DiscordBot.Model.GuildMember do
         }
 
   @doc """
-  Serializes the provided `guild_member` into JSON
-  """
-  @spec to_json(__MODULE__.t()) :: {:ok, iodata}
-  def to_json(guild_member) do
-    Poison.encode(guild_member)
-  end
-
-  @doc """
   Deserializes a JSON blob `json` into a guild member
   """
   @spec from_json(iodata) :: __MODULE__.t()

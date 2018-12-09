@@ -6,6 +6,16 @@ defmodule DiscordBot.Model.Serializable do
   defmacro __using__(_) do
     quote([]) do
       @behaviour DiscordBot.Model.Serializable
+
+      @doc """
+      Serializes the provided instance of this type `struct` into JSON
+      """
+      @spec to_json(__MODULE__.t()) :: {:ok, iodata}
+      def to_json(struct) do
+        Poison.encode(struct)
+      end
+
+      defoverridable to_json: 1
     end
   end
 
