@@ -59,12 +59,8 @@ defmodule DiscordBot.Model.GuildMember do
   """
   @spec from_map(map) :: __MODULE__.t()
   def from_map(map) do
-    %{
-      map
-      | "user" =>
-          map["user"]
-          |> DiscordBot.Model.User.from_map()
-    }
+    map
+    |> Map.update("user", nil, &DiscordBot.Model.User.from_map(&1))
     |> DiscordBot.Model.Serializable.struct_from_map(as: %__MODULE__{})
   end
 end

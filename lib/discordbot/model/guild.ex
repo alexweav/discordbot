@@ -239,18 +239,8 @@ defmodule DiscordBot.Model.Guild do
   """
   @spec from_map(map) :: __MODULE__.t()
   def from_map(map) do
-    case Map.has_key?(map, "members") do
-      true ->
-        %{
-          map
-          | "members" =>
-              map["members"]
-              |> Enum.map(&DiscordBot.Model.GuildMember.from_map(&1))
-        }
-        |> DiscordBot.Model.Serializable.struct_from_map(as: %__MODULE__{})
-
-      false ->
-        map
-    end
+    map
+    |> Map.update("members", nil, &Enum.map(&1, fn member -> DiscordBot.Model.GuildMember.from_map(member) end))
+    |> DiscordBot.Model.Serializable.struct_from_map(as: %__MODULE__{})
   end
 end

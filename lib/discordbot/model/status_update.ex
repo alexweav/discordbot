@@ -86,6 +86,8 @@ defmodule DiscordBot.Model.StatusUpdate do
           map["status"]
           |> atom_from_status()
     }
+    map
+    |> Map.update("status", nil, &atom_from_status(&1))
     |> DiscordBot.Model.Serializable.struct_from_map(as: %__MODULE__{})
   end
 

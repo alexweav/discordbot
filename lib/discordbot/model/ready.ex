@@ -59,15 +59,9 @@ defmodule DiscordBot.Model.Ready do
   """
   @spec from_map(map) :: __MODULE__.t()
   def from_map(map) do
-    %{
-      map
-      | "user" =>
-          map["user"]
-          |> DiscordBot.Model.User.from_map(),
-        "guilds" =>
-          map["guilds"]
-          |> Enum.map(&DiscordBot.Model.Guild.from_map(&1))
-    }
+    map
+    |> Map.update("user", nil, &DiscordBot.Model.User.from_map(&1))
+    |> Map.update("guilds", nil, &Enum.map(&1, fn guild -> DiscordBot.Model.Guild.from_map(guild) end))
     |> DiscordBot.Model.Serializable.struct_from_map(as: %__MODULE__{})
   end
 end
