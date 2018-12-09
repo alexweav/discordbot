@@ -55,15 +55,6 @@ defmodule DiscordBot.Model.Ready do
         }
 
   @doc """
-  Deserializes a JSON blob `json` into a ready object
-  """
-  @spec from_json(iodata) :: __MODULE__.t()
-  def from_json(json) do
-    {:ok, map} = Poison.decode(json)
-    from_map(map)
-  end
-
-  @doc """
   Converts a plain map-represented JSON object `map` into a ready object
   """
   @spec from_map(map) :: __MODULE__.t()

@@ -102,15 +102,6 @@ defmodule DiscordBot.Model.Payload do
   end
 
   @doc """
-  Deserializes a JSON blob `json` into a payload
-  """
-  @spec from_json(iodata) :: __MODULE__.t()
-  def from_json(json) do
-    {:ok, map} = Poison.decode(json)
-    from_map(map)
-  end
-
-  @doc """
   Converts a plain map-represented JSON object `map` into a payload
   """
   @spec from_map(map) :: __MODULE__.t()

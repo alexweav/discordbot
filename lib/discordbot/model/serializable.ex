@@ -15,7 +15,16 @@ defmodule DiscordBot.Model.Serializable do
         Poison.encode(struct)
       end
 
-      defoverridable to_json: 1
+      @doc """
+      Deserializes a JSON blob `json` into an instance of this type
+      """
+      def from_json(json) do
+        {:ok, map} = Poison.decode(json)
+        from_map(map)
+      end
+
+      defoverridable to_json: 1,
+                     from_json: 1
     end
   end
 

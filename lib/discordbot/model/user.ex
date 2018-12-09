@@ -90,15 +90,6 @@ defmodule DiscordBot.Model.User do
         }
 
   @doc """
-  Deserializes a JSON blob `json` into a user
-  """
-  @spec from_json(iodata) :: __MODULE__.t()
-  def from_json(json) do
-    {:ok, map} = Poison.decode(json)
-    from_map(map)
-  end
-
-  @doc """
   Converts a plain map-represented JSON object `map` into a user
   """
   @spec from_map(map) :: __MODULE__.t()
