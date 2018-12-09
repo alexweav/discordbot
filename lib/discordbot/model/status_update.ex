@@ -3,7 +3,7 @@ defmodule DiscordBot.Model.StatusUpdate do
   Represents an operation which updates the bot's online status
   """
 
-  @behaviour DiscordBot.Model.Serializable
+  use DiscordBot.Model.Serializable
 
   defstruct [
     :since,
@@ -76,23 +76,6 @@ defmodule DiscordBot.Model.StatusUpdate do
   end
 
   @doc """
-  Serializes the provided `status_update` object into JSON
-  """
-  @spec to_json(__MODULE__.t()) :: {:ok, iodata}
-  def to_json(payload) do
-    Poison.encode(payload)
-  end
-
-  @doc """
-  Deserializes a JSON blob `json` into a `status_update` object
-  """
-  @spec from_json(iodata) :: __MODULE__.t()
-  def from_json(json) do
-    {:ok, map} = Poison.decode(json)
-    from_map(map)
-  end
-
-  @doc """
   Converts a plain map-represented JSON object `map` into a `StatusUpdate`
   """
   @spec from_map(map) :: __MODULE__.t()
@@ -103,6 +86,9 @@ defmodule DiscordBot.Model.StatusUpdate do
           map["status"]
           |> atom_from_status()
     }
+
+    map
+    |> Map.update("status", nil, &atom_from_status(&1))
     |> DiscordBot.Model.Serializable.struct_from_map(as: %__MODULE__{})
   end
 

@@ -4,7 +4,7 @@ defmodule DiscordBot.Model.Identify do
   Represents an identification operation with Discord
   """
 
-  @behaviour DiscordBot.Model.Serializable
+  use DiscordBot.Model.Serializable
 
   defmodule ConnectionProperties do
     @derive [Poison.Encoder]
@@ -12,7 +12,7 @@ defmodule DiscordBot.Model.Identify do
     Connection metadata describing the client
     """
 
-    @behaviour DiscordBot.Model.Serializable
+    use DiscordBot.Model.Serializable
 
     defstruct [
       :"$os",
@@ -40,23 +40,6 @@ defmodule DiscordBot.Model.Identify do
             "$browser": browser,
             "$device": device
           }
-
-    @doc """
-    Serializes the provided `connection_properties` object into JSON
-    """
-    @spec to_json(__MODULE__.t()) :: {:ok, iodata}
-    def to_json(payload) do
-      Poison.encode(payload)
-    end
-
-    @doc """
-    Deserializes a JSON blob `json` into a connection properties object
-    """
-    @spec from_json(iodata) :: __MODULE__.t()
-    def from_json(json) do
-      {:ok, map} = Poison.decode(json)
-      from_map(map)
-    end
 
     @doc """
     Converts a plain map-represented JSON object `map` into a payload
@@ -127,33 +110,12 @@ defmodule DiscordBot.Model.Identify do
         }
 
   @doc """
-  Serializes the provided `identify` object into JSON
-  """
-  @spec to_json(__MODULE__.t()) :: {:ok, iodata}
-  def to_json(identify) do
-    Poison.encode(identify)
-  end
-
-  @doc """
-  Deserializes a JSON blob `json` into an identify object
-  """
-  @spec from_json(iodata) :: __MODULE__.t()
-  def from_json(json) do
-    {:ok, map} = Poison.decode(json)
-    from_map(map)
-  end
-
-  @doc """
   Converts a plain map-represented JSON object `map` into an identify object
   """
   @spec from_map(map) :: __MODULE__.t()
   def from_map(map) do
-    %{
-      map
-      | "properties" =>
-          map["properties"]
-          |> ConnectionProperties.from_map()
-    }
+    map
+    |> Map.update("properties", nil, &ConnectionProperties.from_map(&1))
     |> DiscordBot.Model.Serializable.struct_from_map(as: %__MODULE__{})
   end
 

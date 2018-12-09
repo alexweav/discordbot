@@ -3,7 +3,7 @@ defmodule DiscordBot.Model.Payload do
   An object which wraps all gateway messages
   """
 
-  @behaviour DiscordBot.Model.Serializable
+  use DiscordBot.Model.Serializable
 
   defstruct [
     :opcode,
@@ -99,23 +99,6 @@ defmodule DiscordBot.Model.Payload do
   @spec heartbeat(number) :: __MODULE__.t()
   def heartbeat(sequence_number) do
     payload(:heartbeat, sequence_number)
-  end
-
-  @doc """
-  Serializes the provided `payload` object into JSON
-  """
-  @spec to_json(__MODULE__.t()) :: {:ok, iodata}
-  def to_json(payload) do
-    Poison.encode(payload)
-  end
-
-  @doc """
-  Deserializes a JSON blob `json` into a payload
-  """
-  @spec from_json(iodata) :: __MODULE__.t()
-  def from_json(json) do
-    {:ok, map} = Poison.decode(json)
-    from_map(map)
   end
 
   @doc """

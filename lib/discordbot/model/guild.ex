@@ -4,7 +4,7 @@ defmodule DiscordBot.Model.Guild do
   Represents a Discord guild
   """
 
-  @behaviour DiscordBot.Model.Serializable
+  use DiscordBot.Model.Serializable
 
   defstruct [
     :id,
@@ -118,14 +118,12 @@ defmodule DiscordBot.Model.Guild do
   @typedoc """
   Roles in the guild
   """
-  @type roles :: list(map)
-  # TODO: role struct
+  @type roles :: list(DiscordBot.Model.Role.t())
 
   @typedoc """
   Custom guild emojis
   """
-  @type emojis :: list(map)
-  # TODO: emoji struct
+  @type emojis :: list(DiscordBot.Model.Emoji.t())
 
   @typedoc """
   Enabled guild features
@@ -184,10 +182,9 @@ defmodule DiscordBot.Model.Guild do
   # TODO: voice state struct
 
   @typedoc """
-  Users in the guild
+  Member of the guild
   """
-  @type members :: list(map)
-  # TODO: guild member struct
+  @type members :: list(DiscordBot.Model.GuildMember.t())
 
   @typedoc """
   Channels in the guild
@@ -236,28 +233,26 @@ defmodule DiscordBot.Model.Guild do
         }
 
   @doc """
-  Serializes the provided `guild` into JSON
-  """
-  @spec to_json(__MODULE__.t()) :: {:ok, iodata}
-  def to_json(guild) do
-    Poison.encode(guild)
-  end
-
-  @doc """
-  Deserializes a JSON blob `json` into a guild
-  """
-  @spec from_json(iodata) :: __MODULE__.t()
-  def from_json(json) do
-    {:ok, map} = Poison.decode(json)
-    from_map(map)
-  end
-
-  @doc """
-  Converts a plain map-represented JSON object `map` into a user
+  Converts a plain map-represented JSON object `map` into a guild
   """
   @spec from_map(map) :: __MODULE__.t()
   def from_map(map) do
-    DiscordBot.Model.Serializable.struct_from_map(map, as: %__MODULE__{})
-    # %__MODULE__{}
+    map
+    |> Map.update(
+      "members",
+      nil,
+      &Enum.map(&1, fn member -> DiscordBot.Model.GuildMember.from_map(member) end)
+    )
+    |> Map.update(
+      "emojis",
+      nil,
+      &Enum.map(&1, fn emoji -> DiscordBot.Model.Emoji.from_map(emoji) end)
+    )
+    |> Map.update(
+      "roles",
+      nil,
+      &Enum.map(&1, fn role -> DiscordBot.Model.Role.from_map(role) end)
+    )
+    |> DiscordBot.Model.Serializable.struct_from_map(as: %__MODULE__{})
   end
 end

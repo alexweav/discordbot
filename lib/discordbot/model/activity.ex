@@ -3,7 +3,7 @@ defmodule DiscordBot.Model.Activity do
   Represents an activity that a user is currently performing
   """
 
-  @behaviour DiscordBot.Model.Serializable
+  use DiscordBot.Model.Serializable
 
   defstruct [
     :name,
@@ -37,23 +37,6 @@ defmodule DiscordBot.Model.Activity do
         options
       )
     end
-  end
-
-  @doc """
-  Serializes the provided `activity` object into JSON
-  """
-  @spec to_json(__MODULE__.t()) :: {:ok, iodata}
-  def to_json(activity) do
-    Poison.encode(activity)
-  end
-
-  @doc """
-  Deserializes a JSON blob `json` into an activity object
-  """
-  @spec from_json(iodata) :: __MODULE__.t()
-  def from_json(json) do
-    {:ok, map} = Poison.decode(json)
-    from_map(map)
   end
 
   @doc """

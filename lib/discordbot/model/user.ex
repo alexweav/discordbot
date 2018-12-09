@@ -4,7 +4,7 @@ defmodule DiscordBot.Model.User do
   Represents a Discord user
   """
 
-  @behaviour DiscordBot.Model.Serializable
+  use DiscordBot.Model.Serializable
 
   defstruct [
     :id,
@@ -88,23 +88,6 @@ defmodule DiscordBot.Model.User do
           flags: flags,
           premium_type: premium_type
         }
-
-  @doc """
-  Serializes the provided `user` into JSON
-  """
-  @spec to_json(__MODULE__.t()) :: {:ok, iodata}
-  def to_json(user) do
-    Poison.encode(user)
-  end
-
-  @doc """
-  Deserializes a JSON blob `json` into a user
-  """
-  @spec from_json(iodata) :: __MODULE__.t()
-  def from_json(json) do
-    {:ok, map} = Poison.decode(json)
-    from_map(map)
-  end
 
   @doc """
   Converts a plain map-represented JSON object `map` into a user

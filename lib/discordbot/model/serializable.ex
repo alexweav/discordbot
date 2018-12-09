@@ -3,6 +3,31 @@ defmodule DiscordBot.Model.Serializable do
   Behaviour for modules which perform serialization/deserialization
   """
 
+  defmacro __using__(_) do
+    quote([]) do
+      @behaviour DiscordBot.Model.Serializable
+
+      @doc """
+      Serializes the provided instance of this type `struct` into JSON
+      """
+      @spec to_json(__MODULE__.t()) :: {:ok, iodata}
+      def to_json(struct) do
+        Poison.encode(struct)
+      end
+
+      @doc """
+      Deserializes a JSON blob `json` into an instance of this type
+      """
+      def from_json(json) do
+        {:ok, map} = Poison.decode(json)
+        from_map(map)
+      end
+
+      defoverridable to_json: 1,
+                     from_json: 1
+    end
+  end
+
   @callback from_json(json :: iodata) ::
               {:ok, deserialized :: term}
               | {:error, reason :: term}
