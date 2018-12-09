@@ -123,8 +123,7 @@ defmodule DiscordBot.Model.Guild do
   @typedoc """
   Custom guild emojis
   """
-  @type emojis :: list(map)
-  # TODO: emoji struct
+  @type emojis :: list(DiscordBot.Model.Emoji.t())
 
   @typedoc """
   Enabled guild features
@@ -243,6 +242,11 @@ defmodule DiscordBot.Model.Guild do
       "members",
       nil,
       &Enum.map(&1, fn member -> DiscordBot.Model.GuildMember.from_map(member) end)
+    )
+    |> Map.update(
+      "emojis",
+      nil,
+      &Enum.map(&1, fn emoji -> DiscordBot.Model.Emoji.from_map(emoji) end)
     )
     |> Map.update(
       "roles",
