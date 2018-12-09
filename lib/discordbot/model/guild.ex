@@ -118,8 +118,7 @@ defmodule DiscordBot.Model.Guild do
   @typedoc """
   Roles in the guild
   """
-  @type roles :: list(map)
-  # TODO: role struct
+  @type roles :: list(DiscordBot.Model.Role.t())
 
   @typedoc """
   Custom guild emojis
@@ -240,7 +239,16 @@ defmodule DiscordBot.Model.Guild do
   @spec from_map(map) :: __MODULE__.t()
   def from_map(map) do
     map
-    |> Map.update("members", nil, &Enum.map(&1, fn member -> DiscordBot.Model.GuildMember.from_map(member) end))
+    |> Map.update(
+      "members",
+      nil,
+      &Enum.map(&1, fn member -> DiscordBot.Model.GuildMember.from_map(member) end)
+    )
+    |> Map.update(
+      "roles",
+      nil,
+      &Enum.map(&1, fn role -> DiscordBot.Model.Role.from_map(role) end)
+    )
     |> DiscordBot.Model.Serializable.struct_from_map(as: %__MODULE__{})
   end
 end

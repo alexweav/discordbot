@@ -61,7 +61,11 @@ defmodule DiscordBot.Model.Ready do
   def from_map(map) do
     map
     |> Map.update("user", nil, &DiscordBot.Model.User.from_map(&1))
-    |> Map.update("guilds", nil, &Enum.map(&1, fn guild -> DiscordBot.Model.Guild.from_map(guild) end))
+    |> Map.update(
+      "guilds",
+      nil,
+      &Enum.map(&1, fn guild -> DiscordBot.Model.Guild.from_map(guild) end)
+    )
     |> DiscordBot.Model.Serializable.struct_from_map(as: %__MODULE__{})
   end
 end
