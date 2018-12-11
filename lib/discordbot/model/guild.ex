@@ -178,8 +178,7 @@ defmodule DiscordBot.Model.Guild do
   @typedoc """
   Array of voice states for the guild (without the `guild_id` key)
   """
-  @type voice_states :: list(map)
-  # TODO: voice state struct
+  @type voice_states :: list(DiscordBot.Model.VoiceState.t())
 
   @typedoc """
   Member of the guild
@@ -252,6 +251,11 @@ defmodule DiscordBot.Model.Guild do
       "roles",
       nil,
       &Enum.map(&1, fn role -> DiscordBot.Model.Role.from_map(role) end)
+    )
+    |> Map.update(
+      "voice_states",
+      nil,
+      &Enum.map(&1, fn state -> DiscordBot.Model.VoiceState.from_map(state) end)
     )
     |> DiscordBot.Model.Serializable.struct_from_map(as: %__MODULE__{})
   end
