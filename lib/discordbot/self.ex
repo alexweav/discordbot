@@ -50,6 +50,7 @@ defmodule DiscordBot.Self do
   - `:dnd`
   - TODO
   """
+  @spec update_status(atom) :: :ok
   def update_status(status) do
     GenServer.cast(Self, {:update_status, status})
   end
@@ -58,8 +59,27 @@ defmodule DiscordBot.Self do
   Updates the bot's status to `status`, also setting the
   activity type `type` and activity name `name`.
   """
+  @spec update_status(atom, atom, String.t()) :: :ok
   def update_status(status, type, name) do
     GenServer.cast(Self, {:update_status, status, type, name})
+  end
+
+  @doc """
+  Returns the initialization status of the bot. Possible values are:
+  - `:uninitialized` - the bot is not yet connected
+  - `:initialized` - the bot is connected and ready for commands
+  """
+  @spec status?() :: atom
+  def status? do
+    GenServer.call(Self, :status)
+  end
+
+  @doc """
+  Returns the `DiscordBot.Model.User` struct describing the bot user
+  """
+  @spec user?() :: DiscordBot.Model.User.t()
+  def user? do
+    GenServer.call(Self, :user)
   end
 
   ## Handlers
@@ -67,6 +87,14 @@ defmodule DiscordBot.Self do
   def init(state) do
     DiscordBot.Gateway.Broker.subscribe(state.broker, :ready)
     {:ok, state}
+  end
+
+  def handle_call(:status, _from, state) do
+    {:reply, state.status, state}
+  end
+
+  def handle_call(:user, _from, state) do
+    {:reply, state.user, state}
   end
 
   def handle_cast({:update_status, status}, state) do
