@@ -43,11 +43,40 @@ defmodule DiscordBot.Self do
     GenServer.start_link(__MODULE__, state, opts)
   end
 
+  @doc """
+  Update's the bot's status to `status`.
+  Possible options are:
+  - `:online`,
+  - `:dnd`
+  - TODO
+  """
+  def update_status(status) do
+    GenServer.cast(Self, {:update_status, status})
+  end
+
+  @doc """
+  Updates the bot's status to `status`, also setting the
+  activity type `type` and activity name `name`.
+  """
+  def update_status(status, type, name) do
+    GenServer.cast(Self, {:update_status, status, type, name})
+  end
+
   ## Handlers
 
   def init(state) do
     DiscordBot.Gateway.Broker.subscribe(state.broker, :ready)
     {:ok, state}
+  end
+
+  def handle_cast({:update_status, status}, state) do
+    DiscordBot.Gateway.Connection.update_status(Connection, status)
+    {:noreply, state}
+  end
+
+  def handle_cast({:update_status, status, type, name}, state) do
+    DiscordBot.Gateway.Connection.update_status(Connection, status, type, name)
+    {:noreply, state}
   end
 
   def handle_info(%Event{topic: :ready, message: %{connection: _pid, json: message}}, state) do
