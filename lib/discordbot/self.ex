@@ -46,9 +46,11 @@ defmodule DiscordBot.Self do
   @doc """
   Update's the bot's status to `status`.
   Possible options are:
-  - `:online`,
-  - `:dnd`
-  - TODO
+  - `:online` - online
+  - `:dnd` - do not disturb
+  - `:idle` - AFK
+  - `:invisible` - invisible, shown as offline
+  - `:offline` - offline
   """
   @spec update_status(atom) :: :ok
   def update_status(status) do
@@ -58,6 +60,11 @@ defmodule DiscordBot.Self do
   @doc """
   Updates the bot's status to `status`, also setting the
   activity type `type` and activity name `name`.
+  See `DiscordBot.Self.update_status/1` for the eligible `status` values.
+  Possible type values are:
+  - `:playing` - Shown as "Playing `name`"
+  - `:streaming` - Shown as "Streaming `name`"
+  - `:listening` - Shown as "Listening to `name`"
   """
   @spec update_status(atom, atom, String.t()) :: :ok
   def update_status(status, type, name) do
