@@ -101,11 +101,17 @@ defmodule DiscordBot.Self do
   Returns the four-digit discriminator of the bot user as a string, or `nil` if the bot is not yet connected
   """
   @spec discriminator?() :: String.t() | nil
-  def discriminator?() do
+  def discriminator? do
     GenServer.call(Self, :discriminator)
   end
 
-  #TODO: query for ID
+  @doc """
+  Returns the unique user ID of the bot account, or `nil` if the bot is not yet connected
+  """
+  @spec id?() :: String.t() | nil
+  def id? do
+    GenServer.call(Self, :id)
+  end
 
   ## Handlers
 
@@ -128,6 +134,10 @@ defmodule DiscordBot.Self do
 
   def handle_call(:discriminator, _from, state) do
     {:reply, state.user.discriminator, state}
+  end
+
+  def handle_call(:id, _from, state) do
+    {:reply, state.user.id, state}
   end
 
   def handle_cast({:update_status, status}, state) do
