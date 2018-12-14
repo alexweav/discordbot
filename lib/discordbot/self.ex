@@ -89,6 +89,24 @@ defmodule DiscordBot.Self do
     GenServer.call(Self, :user)
   end
 
+  @doc """
+  Returns the username of the bot user, or `nil` if the bot is not yet connected
+  """
+  @spec username?() :: String.t() | nil
+  def username? do
+    GenServer.call(Self, :username)
+  end
+
+  @doc """
+  Returns the four-digit discriminator of the bot user as a string, or `nil` if the bot is not yet connected
+  """
+  @spec discriminator?() :: String.t() | nil
+  def discriminator?() do
+    GenServer.call(Self, :discriminator)
+  end
+
+  #TODO: query for ID
+
   ## Handlers
 
   def init(state) do
@@ -102,6 +120,14 @@ defmodule DiscordBot.Self do
 
   def handle_call(:user, _from, state) do
     {:reply, state.user, state}
+  end
+
+  def handle_call(:username, _from, state) do
+    {:reply, state.user.username, state}
+  end
+
+  def handle_call(:discriminator, _from, state) do
+    {:reply, state.user.discriminator, state}
   end
 
   def handle_cast({:update_status, status}, state) do
