@@ -11,6 +11,8 @@ defmodule DiscordBot.Model.Dispatch do
     case atom_from_event(name) do
       :ready -> DiscordBot.Model.Ready.from_map(map)
       :guild_create -> DiscordBot.Model.Guild.from_map(map)
+      :guild_update -> DiscordBot.Model.Guild.from_map(map)
+      :guild_delete -> DiscordBot.Model.Guild.from_map(map)
       _ -> map
     end
   end
@@ -22,7 +24,9 @@ defmodule DiscordBot.Model.Dispatch do
   def atom_from_event(name) do
     %{
       "READY" => :ready,
-      "GUILD_CREATE" => :guild_create
+      "GUILD_CREATE" => :guild_create,
+      "GUILD_UPDATE" => :guild_update,
+      "GUILD_DELETE" => :guild_delete
     }[name]
   end
 end
