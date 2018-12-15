@@ -41,4 +41,18 @@ defmodule DiscordBot.Gateway.BrokerTest do
 
     assert message == "test message"
   end
+
+  test "message has correct publisher PID", %{broker: broker} do
+    Broker.subscribe(broker, :my_topic)
+    Broker.publish(broker, :my_topic, "test message")
+
+    {pid, _ref} =
+      receive do
+        %Event{source: :broker, broker: _broker, publisher: pub} -> pub
+      after
+        1_000 -> "timeout"
+      end
+
+    assert pid == self()
+  end
 end
