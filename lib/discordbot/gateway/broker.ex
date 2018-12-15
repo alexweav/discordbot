@@ -105,6 +105,8 @@ defmodule DiscordBot.Gateway.Broker do
   end
 
   def handle_call({:publish, topic, message}, from, registry) do
+    {pid, _ref} = from
+
     registry
     |> Map.get(topic, MapSet.new())
     |> MapSet.to_list()
@@ -114,7 +116,7 @@ defmodule DiscordBot.Gateway.Broker do
         broker: self(),
         message: message,
         topic: topic,
-        publisher: from
+        publisher: pid
       })
     end)
 

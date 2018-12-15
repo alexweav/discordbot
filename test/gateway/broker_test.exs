@@ -46,7 +46,7 @@ defmodule DiscordBot.Gateway.BrokerTest do
     Broker.subscribe(broker, :my_topic)
     Broker.publish(broker, :my_topic, "test message")
 
-    {pid, _ref} =
+    pid =
       receive do
         %Event{source: :broker, broker: _broker, publisher: pub} -> pub
       after

@@ -20,7 +20,7 @@ defmodule DiscordBot.Gateway.Authenticator do
 
   defp wait_for_connect(_broker) do
     receive do
-      %Event{message: %{connection: connection}} -> connection
+      %Event{publisher: publisher} -> publisher
     end
   end
 end
