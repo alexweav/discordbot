@@ -10,7 +10,8 @@ defmodule DiscordBot.Gateway.Broker do
       :source,
       :broker,
       :message,
-      :topic
+      :topic,
+      :publisher
     ]
 
     @typedoc """
@@ -33,11 +34,17 @@ defmodule DiscordBot.Gateway.Broker do
     """
     @type topic :: atom
 
+    @typedoc """
+    The PID of the process that published this event
+    """
+    @type publisher :: pid
+
     @type t :: %__MODULE__{
             source: source,
             broker: broker,
             message: message,
-            topic: topic
+            topic: topic,
+            publisher: publisher
           }
   end
 
@@ -97,12 +104,20 @@ defmodule DiscordBot.Gateway.Broker do
     {:reply, MapSet.to_list(set), registry}
   end
 
-  def handle_call({:publish, topic, message}, _from, registry) do
+  def handle_call({:publish, topic, message}, from, registry) do
+    {pid, _ref} = from
+
     registry
     |> Map.get(topic, MapSet.new())
     |> MapSet.to_list()
     |> Enum.each(fn sub ->
-      send(sub, %Event{source: :broker, broker: self(), message: message, topic: topic})
+      send(sub, %Event{
+        source: :broker,
+        broker: self(),
+        message: message,
+        topic: topic,
+        publisher: pid
+      })
     end)
 
     {:reply, :ok, registry}

@@ -67,11 +67,8 @@ defmodule DiscordBot.Gateway.HeartbeatTest do
   test "running after broker hello event", %{heartbeat: heartbeat, broker: broker} do
     code = :hello
 
-    message = %{
-      connection: self(),
-      json: %DiscordBot.Model.Hello{
-        heartbeat_interval: 10_000
-      }
+    message = %DiscordBot.Model.Hello{
+      heartbeat_interval: 10_000
     }
 
     DiscordBot.Gateway.Broker.publish(broker, code, message)

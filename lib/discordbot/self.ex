@@ -150,7 +150,7 @@ defmodule DiscordBot.Self do
     {:noreply, state}
   end
 
-  def handle_info(%Event{topic: :ready, message: %{connection: _pid, json: message}}, state) do
+  def handle_info(%Event{topic: :ready, message: message}, state) do
     {:noreply, %{state | user: message.user, status: :initialized}}
   end
 end

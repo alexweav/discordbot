@@ -136,7 +136,7 @@ defmodule DiscordBot.Gateway.Heartbeat do
     {:reply, {:overwrote, state.target}, new_state}
   end
 
-  def handle_info(%Event{message: %{connection: pid, json: message}}, state) do
+  def handle_info(%Event{publisher: pid, message: message}, state) do
     interval = message.heartbeat_interval
     new_state = start_heartbeat(state, pid, interval)
     {:noreply, new_state}
