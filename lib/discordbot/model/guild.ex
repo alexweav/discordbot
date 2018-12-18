@@ -188,8 +188,7 @@ defmodule DiscordBot.Model.Guild do
   @typedoc """
   Channels in the guild
   """
-  @type channels :: list(map)
-  # TODO: channel struct
+  @type channels :: list(DiscordBot.Model.Channel.t())
 
   @typedoc """
   Presences of users in the guild
@@ -251,6 +250,11 @@ defmodule DiscordBot.Model.Guild do
       "roles",
       nil,
       &Enum.map(&1, fn role -> DiscordBot.Model.Role.from_map(role) end)
+    )
+    |> Map.update(
+      "channels",
+      nil,
+      &Enum.map(&1, fn channel -> DiscordBot.Model.Channel.from_map(channel) end)
     )
     |> Map.update(
       "voice_states",
