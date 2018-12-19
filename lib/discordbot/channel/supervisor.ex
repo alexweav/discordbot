@@ -11,7 +11,8 @@ defmodule DiscordBot.Channel.Supervisor do
 
   def init(:ok) do
     children = [
-      {DynamicSupervisor, name: DiscordBot.ChannelSupervisor, strategy: :one_for_one}
+      {DynamicSupervisor, name: DiscordBot.ChannelSupervisor, strategy: :one_for_one},
+      {DiscordBot.Channel.Registry, name: DiscordBot.ChannelRegistry}
     ]
 
     Supervisor.init(children, strategy: :one_for_all)
