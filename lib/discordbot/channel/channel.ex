@@ -22,6 +22,22 @@ defmodule DiscordBot.Channel.Channel do
     GenServer.call(channel, :model)
   end
 
+  @doc """
+  Returns the ID of the channel `channel`
+  """
+  @spec id?(pid) :: String.t()
+  def id?(channel) do
+    GenServer.call(channel, :id)
+  end
+
+  @doc """
+  Updates the channel `channel` with a new data `model`
+  """
+  @spec update(pid, DiscordBot.Model.Channel.t()) :: :ok
+  def update(channel, model) do
+    GenServer.call(channel, {:update, model})
+  end
+
   ## Handlers
 
   def init(state) do
@@ -30,5 +46,13 @@ defmodule DiscordBot.Channel.Channel do
 
   def handle_call(:model, _from, {model} = state) do
     {:reply, model, state}
+  end
+
+  def handle_call(:id, _from, {model} = state) do
+    {:reply, model.id, state}
+  end
+
+  def handle_call({:update, model}, _from, _state) do
+    {:reply, :ok, {model}}
   end
 end
