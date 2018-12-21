@@ -37,7 +37,8 @@ defmodule DiscordBot.Channel.Registry do
   def handle_call({:create, model}, _from, state) do
     case Map.fetch(state, model.id) do
       {:ok, pid} ->
-        {:reply, pid, state}
+        DiscordBot.Channel.Channel.update(pid, model)
+        {:reply, {:ok, pid}, state}
 
       :error ->
         {:ok, pid} =

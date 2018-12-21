@@ -2,24 +2,56 @@ defmodule DiscordBot.Model.ChannelTest do
   use ExUnit.Case, async: true
   doctest DiscordBot.Model.Channel
 
+  alias DiscordBot.Channel.Channel
+
   setup do
-    model = %DiscordBot.Model.Channel{}
-    channel = start_supervised!({DiscordBot.Channel.Channel, [channel: model]})
+    model = %DiscordBot.Model.Channel{
+      id: "test-id"
+    }
+    channel = start_supervised!({Channel, [channel: model]})
     %{model: model, channel: channel}
   end
 
   test "returns stored model", %{model: model, channel: channel} do
-    assert DiscordBot.Channel.Channel.model?(channel) == model
+    assert Channel.model?(channel) == model
   end
 
   test "updates internal model", %{channel: channel} do
-    assert DiscordBot.Channel.Channel.id?(channel) == nil
-
     model = %DiscordBot.Model.Channel{
-      id: "test-id"
+      id: "test-id",
+      name: "test-name"
     }
 
-    assert DiscordBot.Channel.Channel.update(channel, model) == :ok
-    assert DiscordBot.Channel.Channel.id?(channel) == "test-id"
+    assert Channel.update(channel, model) == :ok
+    assert Channel.model?(channel) == model
+  end
+
+  test "knows name", %{channel: channel} do
+    assert Channel.name?(channel) == nil
+
+    model = %DiscordBot.Model.Channel{
+      id: "test-id",
+      name: "my-name"
+    }
+
+    assert Channel.update(channel, model) == :ok
+    assert Channel.name?(channel) == "my-name"
+  end
+
+  test "wrong ID update returns error", %{channel: channel} do
+    model = %DiscordBot.Model.Channel{
+      id: "another-id"
+    }
+
+    assert Channel.update(channel, model) == {:error, :incorrect_id}
+  end
+
+  test "nil ID update always works", %{channel: channel} do
+    model = %DiscordBot.Model.Channel{
+      name: "changed name"
+    }
+    # TODO: the update should also "merge" and ignore nil values
+
+    assert Channel.update(channel, model) == :ok
   end
 end
