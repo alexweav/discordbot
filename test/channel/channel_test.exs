@@ -8,6 +8,7 @@ defmodule DiscordBot.Model.ChannelTest do
     model = %DiscordBot.Model.Channel{
       id: "test-id"
     }
+
     channel = start_supervised!({Channel, [channel: model]})
     %{model: model, channel: channel}
   end
@@ -20,9 +21,9 @@ defmodule DiscordBot.Model.ChannelTest do
     model = %DiscordBot.Model.Channel{
       id: nil
     }
-    
+
     assert_raise ArgumentError, fn ->
-      Channel.start_link([channel: model])
+      Channel.start_link(channel: model)
     end
   end
 
@@ -60,6 +61,7 @@ defmodule DiscordBot.Model.ChannelTest do
     model = %DiscordBot.Model.Channel{
       name: "changed name"
     }
+
     # TODO: the update should also "merge" and ignore nil values
 
     assert Channel.update(channel, model) == :ok
