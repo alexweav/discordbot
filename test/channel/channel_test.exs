@@ -16,6 +16,16 @@ defmodule DiscordBot.Model.ChannelTest do
     assert Channel.model?(channel) == model
   end
 
+  test "creating with nil ID throws" do
+    model = %DiscordBot.Model.Channel{
+      id: nil
+    }
+    
+    assert_raise ArgumentError, fn ->
+      Channel.start_link([channel: model])
+    end
+  end
+
   test "updates internal model", %{channel: channel} do
     model = %DiscordBot.Model.Channel{
       id: "test-id",

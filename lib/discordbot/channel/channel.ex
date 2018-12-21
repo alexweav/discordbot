@@ -10,6 +10,9 @@ defmodule DiscordBot.Channel.Channel do
   """
   def start_link(opts) do
     model = Keyword.fetch!(opts, :channel)
+    if model.id == nil do
+      raise ArgumentError, "ID cannot be nil"
+    end
     GenServer.start_link(__MODULE__, {model}, opts)
   end
 
@@ -47,7 +50,7 @@ defmodule DiscordBot.Channel.Channel do
   end
 
   ## Handlers
-
+  
   def init(state) do
     {:ok, state}
   end
