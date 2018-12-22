@@ -69,11 +69,27 @@ defmodule DiscordBot.Channel.Channel do
     {:reply, model.name, state}
   end
 
-  def handle_call({:update, model}, _from, {state}) do
-    if model.id == state.id do
-      {:reply, :ok, {model}}
+  def handle_call({:update, update}, _from, {state}) do
+    if is_nil(update.id) or update.id == state.id do
+      merged =
+        Map.merge(
+          Map.from_struct(state),
+          update
+          |> Map.from_struct()
+          |> drop_nils()
+        )
+
+      new_model = struct(DiscordBot.Model.Channel, merged)
+
+      {:reply, :ok, {new_model}}
     else
-      {:reply, {:error, :incorrect_id}, {model}}
+      {:reply, {:error, :incorrect_id}, {state}}
     end
+  end
+
+  defp drop_nils(map) do
+    map
+    |> Enum.reject(fn {_, value} -> is_nil(value) end)
+    |> Enum.into(%{})
   end
 end

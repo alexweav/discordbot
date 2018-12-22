@@ -62,8 +62,24 @@ defmodule DiscordBot.Model.ChannelTest do
       name: "changed name"
     }
 
-    # TODO: the update should also "merge" and ignore nil values
-
     assert Channel.update(channel, model) == :ok
+  end
+
+  test "update ignores nil values", %{channel: channel} do
+    model = %DiscordBot.Model.Channel{
+      name: "a name",
+      topic: "a topic"
+    }
+
+    Channel.update(channel, model)
+
+    other_model = %DiscordBot.Model.Channel{
+      topic: "a different topic"
+    }
+
+    Channel.update(channel, other_model)
+
+    assert Channel.model?(channel).name == "a name"
+    assert Channel.model?(channel).topic == "a different topic"
   end
 end
