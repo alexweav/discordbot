@@ -27,10 +27,12 @@ defmodule DiscordBot.Channel.ControllerTest do
       id: "test-id1",
       name: "name1"
     }
+
     model2 = %DiscordBot.Model.Channel{
       id: "test-id2",
       name: "name2"
     }
+
     assert {:ok, channel1} = Controller.create(DiscordBot.ChannelController, model1)
     assert {:ok, channel2} = Controller.create(DiscordBot.ChannelController, model2)
     assert channel1 != channel2

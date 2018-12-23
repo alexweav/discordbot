@@ -9,7 +9,7 @@ defmodule DiscordBot.Channel.Controller do
   Starts the controller
   """
   def start_link(opts) do
-    GenServer.start_link(__MODULE__, %{}, opts)
+    GenServer.start_link(__MODULE__, :ok, opts)
   end
 
   @doc """
@@ -30,12 +30,12 @@ defmodule DiscordBot.Channel.Controller do
 
   ## Handlers
 
-  def init(state) do
-    {:ok, state}
+  def init(:ok) do
+    {:ok, nil}
   end
 
   def handle_call({:create, model}, _from, state) do
-    case Map.fetch(state, model.id) do
+    case parse_lookup(Registry.lookup(DiscordBot.ChannelRegistry, model.id)) do
       {:ok, pid} ->
         DiscordBot.Channel.Channel.update(pid, model)
         {:reply, {:ok, pid}, state}
@@ -47,7 +47,7 @@ defmodule DiscordBot.Channel.Controller do
             {DiscordBot.Channel.Channel, [channel: model, name: via_tuple(model)]}
           )
 
-        {:reply, {:ok, pid}, Map.put(state, model.id, pid)}
+        {:reply, {:ok, pid}, state}
     end
   end
 
