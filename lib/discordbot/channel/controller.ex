@@ -1,4 +1,4 @@
-defmodule DiscordBot.Channel.Registry do
+defmodule DiscordBot.Channel.Controller do
   @moduledoc """
   Manages creation, deletion, and lookup of Channels
   """
@@ -6,7 +6,7 @@ defmodule DiscordBot.Channel.Registry do
   use GenServer
 
   @doc """
-  Starts the registry
+  Starts the controller
   """
   def start_link(opts) do
     GenServer.start_link(__MODULE__, %{}, opts)
@@ -16,16 +16,16 @@ defmodule DiscordBot.Channel.Registry do
   Creates a new channel for model `model`
   """
   @spec create(pid, DiscordBot.Model.Channel.t()) :: {:ok, pid} | :error
-  def create(registry, model) do
-    GenServer.call(registry, {:create, model})
+  def create(controller, model) do
+    GenServer.call(controller, {:create, model})
   end
 
   @doc """
   Gets a channel by its ID
   """
   @spec lookup_by_id(pid, String.t()) :: {:ok, pid} | :error
-  def lookup_by_id(registry, id) do
-    GenServer.call(registry, {:lookup_by_id, id})
+  def lookup_by_id(controller, id) do
+    GenServer.call(controller, {:lookup_by_id, id})
   end
 
   ## Handlers
@@ -52,7 +52,7 @@ defmodule DiscordBot.Channel.Registry do
   end
 
   def handle_call({:lookup_by_id, id}, _from, state) do
-    pids = IO.inspect(Registry.lookup(DiscordBot.ChannelRegistry, id))
+    pids = Registry.lookup(DiscordBot.ChannelRegistry, id)
     {:reply, parse_lookup(pids), state}
   end
 
