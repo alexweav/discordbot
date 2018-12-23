@@ -36,6 +36,14 @@ defmodule DiscordBot.Channel.Controller do
     GenServer.call(controller, {:lookup_by_id, id})
   end
 
+  @doc """
+  Closes the channel at ID `id`
+  """
+  @spec close(pid, String.t()) :: :ok | :error
+  def close(controller, id) do
+    GenServer.call(controller, {:close, id})
+  end
+
   ## Handlers
 
   def init(:ok) do
@@ -73,6 +81,17 @@ defmodule DiscordBot.Channel.Controller do
   def handle_call({:lookup_by_id, id}, _from, state) do
     pids = Registry.lookup(DiscordBot.ChannelRegistry, id)
     {:reply, parse_lookup(pids), state}
+  end
+
+  def handle_call({:close, id}, _from, state) do
+    case parse_lookup(Registry.lookup(DiscordBot.ChannelRegistry, id)) do
+      {:ok, pid} ->
+        GenServer.stop(pid, :normal)
+        {:reply, :ok, state}
+
+      :error ->
+        {:reply, :error, state}
+    end
   end
 
   defp parse_lookup([]) do

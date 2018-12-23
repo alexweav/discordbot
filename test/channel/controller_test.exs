@@ -76,4 +76,18 @@ defmodule DiscordBot.Channel.ControllerTest do
     assert Channel.name?(channel) == "Another name"
     assert Channel.model?(channel).topic == "Channel stuff"
   end
+
+  test "closes channels" do
+    assert Controller.close(DiscordBot.ChannelController, "channel-1") == :error
+
+    model = %DiscordBot.Model.Channel{
+      id: "channel-1",
+      name: "My Channel",
+      topic: "Channel stuff"
+    }
+
+    {:ok, pid} = Controller.create(DiscordBot.ChannelController, model)
+    assert Controller.close(DiscordBot.ChannelController, "channel-1") == :ok
+    assert Process.alive?(pid) == false
+  end
 end
