@@ -13,11 +13,19 @@ defmodule DiscordBot.Channel.Controller do
   end
 
   @doc """
-  Creates a new channel for model `model`
+  Creates or updates a new channel for model `model`
   """
   @spec create(pid, DiscordBot.Model.Channel.t()) :: {:ok, pid} | :error
   def create(controller, model) do
     GenServer.call(controller, {:create, model})
+  end
+
+  @doc """
+  Updates a channel at ID `id` with the new model `update`
+  """
+  @spec update(pid, String.t(), DiscordBot.Model.Channel.t()) :: :ok | :error
+  def update(controller, id, update) do
+    GenServer.call(controller, {:update, id, update})
   end
 
   @doc """
@@ -48,6 +56,17 @@ defmodule DiscordBot.Channel.Controller do
           )
 
         {:reply, {:ok, pid}, state}
+    end
+  end
+
+  def handle_call({:update, id, update}, _from, state) do
+    case parse_lookup(Registry.lookup(DiscordBot.ChannelRegistry, id)) do
+      {:ok, pid} ->
+        DiscordBot.Channel.Channel.update(pid, update)
+        {:reply, :ok, state}
+
+      :error ->
+        {:reply, :error, state}
     end
   end
 

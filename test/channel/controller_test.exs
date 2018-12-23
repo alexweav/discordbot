@@ -58,4 +58,22 @@ defmodule DiscordBot.Channel.ControllerTest do
     assert {:ok, channel_after} = Controller.create(DiscordBot.ChannelController, other_model)
     assert channel_previous == channel_after
   end
+
+  test "handles updates" do
+    model = %DiscordBot.Model.Channel{
+      id: "channel-1",
+      name: "My Channel",
+      topic: "Channel stuff"
+    }
+
+    assert {:ok, channel} = Controller.create(DiscordBot.ChannelController, model)
+
+    update = %DiscordBot.Model.Channel{
+      name: "Another name"
+    }
+
+    assert Controller.update(DiscordBot.ChannelController, "channel-1", update) == :ok
+    assert Channel.name?(channel) == "Another name"
+    assert Channel.model?(channel).topic == "Channel stuff"
+  end
 end
