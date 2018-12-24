@@ -16,7 +16,8 @@ defmodule DiscordBot do
 
     children = [
       {DiscordBot.Gateway, [url: url]},
-      {DiscordBot.Self, [name: Self]}
+      {DiscordBot.Self, [name: Self]},
+      {DiscordBot.Channel.Supervisor, []}
     ]
 
     Logger.info("Launching...")
