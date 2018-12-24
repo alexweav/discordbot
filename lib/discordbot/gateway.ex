@@ -15,7 +15,7 @@ defmodule DiscordBot.Gateway do
 
     children = [
       {DiscordBot.Broker, [name: Broker]},
-      {DiscordBot.Gateway.EventLogger,
+      {DiscordBot.Broker.EventLogger,
        [name: EventLogger, broker: Broker, topics: [:dispatch, :ready, :guild_create]]},
       {DiscordBot.Gateway.Heartbeat, []},
       Supervisor.child_spec(

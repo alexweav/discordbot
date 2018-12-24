@@ -1,8 +1,8 @@
-defmodule DiscordBot.Gateway.EventLoggerTest do
+defmodule DiscordBot.Broker.EventLoggerTest do
   use ExUnit.Case, async: true
 
   alias DiscordBot.Broker
-  alias DiscordBot.Gateway.EventLogger
+  alias DiscordBot.Broker.EventLogger
 
   setup do
     broker = start_supervised!({Broker, []})

@@ -1,4 +1,4 @@
-defmodule DiscordBot.Gateway.EventLogger do
+defmodule DiscordBot.Broker.EventLogger do
   @moduledoc """
   Utility for logging events on a broker
   """
