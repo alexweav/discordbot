@@ -1,7 +1,7 @@
 defmodule DiscordBot.Gateway.EventLoggerTest do
   use ExUnit.Case, async: true
 
-  alias DiscordBot.Gateway.Broker
+  alias DiscordBot.Broker
   alias DiscordBot.Gateway.EventLogger
 
   setup do

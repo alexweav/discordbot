@@ -6,7 +6,8 @@ defmodule DiscordBot.Gateway.EventLogger do
   use GenServer
   require Logger
 
-  alias DiscordBot.Gateway.Broker.Event
+  alias DiscordBot.Broker
+  alias DiscordBot.Broker.Event
 
   defmodule State do
     @enforce_keys [:broker, :topics, :name]
@@ -85,7 +86,7 @@ defmodule DiscordBot.Gateway.EventLogger do
 
   def init(state) do
     for topic <- state.topics do
-      DiscordBot.Gateway.Broker.subscribe(state.broker, topic)
+      Broker.subscribe(state.broker, topic)
     end
 
     {:ok, fallback_name(state)}

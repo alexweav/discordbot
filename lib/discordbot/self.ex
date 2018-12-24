@@ -5,7 +5,7 @@ defmodule DiscordBot.Self do
 
   use GenServer
 
-  alias DiscordBot.Gateway.Broker.Event
+  alias DiscordBot.Broker.Event
 
   defmodule State do
     defstruct [
@@ -116,7 +116,7 @@ defmodule DiscordBot.Self do
   ## Handlers
 
   def init(state) do
-    DiscordBot.Gateway.Broker.subscribe(state.broker, :ready)
+    DiscordBot.Broker.subscribe(state.broker, :ready)
     {:ok, state}
   end
 

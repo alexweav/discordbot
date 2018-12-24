@@ -14,7 +14,7 @@ defmodule DiscordBot.Gateway do
     token = DiscordBot.Token.token()
 
     children = [
-      {DiscordBot.Gateway.Broker, [name: Broker]},
+      {DiscordBot.Broker, [name: Broker]},
       {DiscordBot.Gateway.EventLogger,
        [name: EventLogger, broker: Broker, topics: [:dispatch, :ready, :guild_create]]},
       {DiscordBot.Gateway.Heartbeat, []},
