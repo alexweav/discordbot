@@ -15,6 +15,7 @@ defmodule DiscordBot do
     {:ok, %{"url" => url}} = request_gateway()
 
     children = [
+      {DiscordBot.Broker.Supervisor, [logged_topics: [:dispatch, :ready, :guild_create]]},
       {DiscordBot.Gateway, [url: url]},
       {DiscordBot.Self, [name: Self]},
       {DiscordBot.Channel.Supervisor, []}
