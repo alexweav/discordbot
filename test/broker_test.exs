@@ -1,8 +1,8 @@
-defmodule DiscordBot.Gateway.BrokerTest do
+defmodule DiscordBot.BrokerTest do
   use ExUnit.Case, async: true
 
-  alias DiscordBot.Gateway.Broker
-  alias DiscordBot.Gateway.Broker.Event
+  alias DiscordBot.Broker
+  alias DiscordBot.Broker.Event
 
   setup do
     broker = start_supervised!({Broker, []})

@@ -82,7 +82,7 @@ defmodule DiscordBot.Gateway.Connection do
   def handle_frame({:text, json}, state) do
     Logger.info("Got message.")
     message = DiscordBot.Model.Payload.from_json(json)
-    DiscordBot.Gateway.Broker.publish(Broker, event_name(message), message.data)
+    DiscordBot.Broker.publish(Broker, event_name(message), message.data)
 
     case message.sequence do
       nil -> {:ok, state}

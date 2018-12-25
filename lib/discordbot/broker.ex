@@ -1,4 +1,4 @@
-defmodule DiscordBot.Gateway.Broker do
+defmodule DiscordBot.Broker do
   @moduledoc """
   Event broker for a gateway instance
   """

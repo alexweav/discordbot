@@ -2,10 +2,11 @@ defmodule DiscordBot.Gateway.HeartbeatTest do
   use ExUnit.Case, async: true
 
   alias DiscordBot.Gateway.Heartbeat
+  alias DiscordBot.Broker
 
   setup do
-    broker = start_supervised!({DiscordBot.Gateway.Broker, []})
-    heartbeat = start_supervised!({DiscordBot.Gateway.Heartbeat, [broker: broker]})
+    broker = start_supervised!({Broker, []})
+    heartbeat = start_supervised!({Heartbeat, [broker: broker]})
     %{heartbeat: heartbeat, broker: broker}
   end
 
@@ -71,7 +72,7 @@ defmodule DiscordBot.Gateway.HeartbeatTest do
       heartbeat_interval: 10_000
     }
 
-    DiscordBot.Gateway.Broker.publish(broker, code, message)
+    Broker.publish(broker, code, message)
     assert Heartbeat.target?(heartbeat) == self()
     assert Heartbeat.interval?(heartbeat) == 10_000
   end

@@ -6,7 +6,7 @@ defmodule DiscordBot.Gateway.Heartbeat do
 
   use GenServer
 
-  alias DiscordBot.Gateway.Broker.Event
+  alias DiscordBot.Broker.Event
 
   defmodule State do
     @enforce_keys [:status, :broker]
@@ -100,7 +100,7 @@ defmodule DiscordBot.Gateway.Heartbeat do
   ## Handlers
 
   def init(state) do
-    DiscordBot.Gateway.Broker.subscribe(state.broker, :hello)
+    DiscordBot.Broker.subscribe(state.broker, :hello)
     {:ok, state}
   end
 

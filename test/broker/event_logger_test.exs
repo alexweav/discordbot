@@ -1,8 +1,8 @@
-defmodule DiscordBot.Gateway.EventLoggerTest do
+defmodule DiscordBot.Broker.EventLoggerTest do
   use ExUnit.Case, async: true
 
-  alias DiscordBot.Gateway.Broker
-  alias DiscordBot.Gateway.EventLogger
+  alias DiscordBot.Broker
+  alias DiscordBot.Broker.EventLogger
 
   setup do
     broker = start_supervised!({Broker, []})
@@ -26,5 +26,12 @@ defmodule DiscordBot.Gateway.EventLoggerTest do
     assert EventLogger.topics?(logger) == [:test, :topic]
     assert Enum.member?(Broker.subscribers?(broker, :test), logger)
     assert Enum.member?(Broker.subscribers?(broker, :topic), logger)
+  end
+
+  test "adds new topic subscriptions", %{broker: broker} do
+    logger = start_supervised!({EventLogger, [broker: broker, topics: [:test]]}, id: Test)
+    assert :ok = EventLogger.begin_logging(logger, :newtopic)
+    assert Enum.member?(EventLogger.topics?(logger), :newtopic)
+    assert Enum.member?(Broker.subscribers?(broker, :newtopic), logger)
   end
 end

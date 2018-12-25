@@ -1,4 +1,4 @@
-defmodule DiscordBot.Gateway.EventLogger do
+defmodule DiscordBot.Broker.EventLogger do
   @moduledoc """
   Utility for logging events on a broker
   """
@@ -6,7 +6,8 @@ defmodule DiscordBot.Gateway.EventLogger do
   use GenServer
   require Logger
 
-  alias DiscordBot.Gateway.Broker.Event
+  alias DiscordBot.Broker
+  alias DiscordBot.Broker.Event
 
   defmodule State do
     @enforce_keys [:broker, :topics, :name]
@@ -70,24 +71,31 @@ defmodule DiscordBot.Gateway.EventLogger do
   @doc """
   Returns the name of `logger`.
   """
+  @spec logger_name?(pid) :: String.t()
   def logger_name?(logger) do
     GenServer.call(logger, {:logger_name})
   end
 
   @doc """
-  Returns the list of topics that `logger` is outputting
+  Returns the list of topics that `logger` is tracking
   """
+  @spec topics?(pid) :: list(atom)
   def topics?(logger) do
     GenServer.call(logger, {:topics})
+  end
+
+  @doc """
+  Starts logging a topic
+  """
+  @spec begin_logging(pid, atom) :: :ok | :error
+  def begin_logging(logger, topic) do
+    GenServer.call(logger, {:begin, topic})
   end
 
   ## Handlers
 
   def init(state) do
-    for topic <- state.topics do
-      DiscordBot.Gateway.Broker.subscribe(state.broker, topic)
-    end
-
+    subscribe(state.broker, state.topics)
     {:ok, fallback_name(state)}
   end
 
@@ -99,9 +107,20 @@ defmodule DiscordBot.Gateway.EventLogger do
     {:reply, state.topics, state}
   end
 
+  def handle_call({:begin, topic}, _from, state) do
+    subscribe(state.broker, [topic])
+    {:reply, :ok, %State{state | topics: state.topics ++ [topic]}}
+  end
+
   def handle_info(%Event{topic: topic, message: msg}, state) do
     Logger.info("EventLogger [#{state.name}] Event | #{topic} | #{Kernel.inspect(msg)}")
     {:noreply, state}
+  end
+
+  defp subscribe(broker, topics) do
+    for topic <- topics do
+      Broker.subscribe(broker, topic)
+    end
   end
 
   defp fallback_name(%{name: nil} = state) do
