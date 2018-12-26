@@ -6,6 +6,7 @@ defmodule DiscordBot.Channel.Controller do
   use GenServer
 
   alias DiscordBot.Broker
+  alias DiscordBot.Broker.Event
 
   @doc """
   Starts the controller
@@ -70,31 +71,11 @@ defmodule DiscordBot.Channel.Controller do
   end
 
   def handle_call({:create, model}, _from, state) do
-    case parse_lookup(Registry.lookup(DiscordBot.ChannelRegistry, model.id)) do
-      {:ok, pid} ->
-        DiscordBot.Channel.Channel.update(pid, model)
-        {:reply, {:ok, pid}, state}
-
-      :error ->
-        {:ok, pid} =
-          DynamicSupervisor.start_child(
-            DiscordBot.ChannelSupervisor,
-            {DiscordBot.Channel.Channel, [channel: model, name: via_tuple(model)]}
-          )
-
-        {:reply, {:ok, pid}, state}
-    end
+    {:reply, create(model), state}
   end
 
   def handle_call({:update, id, update}, _from, state) do
-    case parse_lookup(Registry.lookup(DiscordBot.ChannelRegistry, id)) do
-      {:ok, pid} ->
-        DiscordBot.Channel.Channel.update(pid, update)
-        {:reply, :ok, state}
-
-      :error ->
-        {:reply, :error, state}
-    end
+    {:reply, update(id, update), state}
   end
 
   def handle_call({:lookup_by_id, id}, _from, state) do
@@ -113,12 +94,57 @@ defmodule DiscordBot.Channel.Controller do
     end
   end
 
+  def handle_info(%Event{topic: :channel_create, message: model}, state) do
+    {:ok, _} = create(model)
+    {:noreply, state}
+  end
+
+  def handle_info(%Event{topic: :channel_update, message: update}, state) do
+    :ok = update(update.id, update)
+    {:noreply, state}
+  end
+
+  defp create(model) do
+    case lookup_id(model.id) do
+      {:ok, pid} ->
+        DiscordBot.Channel.Channel.update(pid, model)
+        {:ok, pid}
+
+      :error ->
+        {:ok, pid} =
+          DynamicSupervisor.start_child(
+            DiscordBot.ChannelSupervisor,
+            {DiscordBot.Channel.Channel, [channel: model, name: via_tuple(model)]}
+          )
+
+        {:ok, pid}
+    end
+  end
+
+  defp update(id, update) do
+    case lookup_id(id) do
+      {:ok, pid} ->
+        DiscordBot.Channel.Channel.update(pid, update)
+
+      :error ->
+        :error
+    end
+  end
+
   defp parse_lookup([]) do
     :error
   end
 
   defp parse_lookup([{pid, _}]) when is_pid(pid) do
     {:ok, pid}
+  end
+
+  defp lookup_id(id) do
+    lookup_id(DiscordBot.ChannelRegistry, id)
+  end
+
+  defp lookup_id(registry, id) do
+    parse_lookup(Registry.lookup(registry, id))
   end
 
   defp via_tuple(%DiscordBot.Model.Channel{} = model) do

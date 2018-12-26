@@ -92,4 +92,51 @@ defmodule DiscordBot.Channel.ControllerTest do
     assert Controller.close(DiscordBot.ChannelController, "channel-1") == :ok
     assert Process.alive?(pid) == false
   end
+
+  test "creates channels from :channel_create events", %{broker: broker} do
+    event = %DiscordBot.Model.Channel{
+      id: "channel-asdf",
+      name: "Test Channel",
+      topic: "A test channel",
+      guild_id: "123-456",
+      owner_id: "789-012",
+      last_message_id: "345-678"
+    }
+
+    Broker.publish(broker, :channel_create, event)
+    assert {:ok, pid} = Controller.lookup_by_id(DiscordBot.ChannelController, "channel-asdf")
+    assert Channel.model?(pid) == event
+  end
+
+  test "updates channels from :channel_update events", %{broker: broker} do
+    model1 = %DiscordBot.Model.Channel{
+      id: "channel-asdf",
+      name: "Test Channel",
+      topic: "A test channel",
+      guild_id: "123-456",
+      owner_id: "789-012",
+      last_message_id: "345-678"
+    }
+
+    model2 = %DiscordBot.Model.Channel{
+      id: "another-channel",
+      name: "Another Channel"
+    }
+
+    {:ok, pid1} = Controller.create(DiscordBot.ChannelController, model1)
+    {:ok, pid2} = Controller.create(DiscordBot.ChannelController, model2)
+
+    event = %DiscordBot.Model.Channel{
+      id: "channel-asdf",
+      name: "A new name"
+    }
+
+    Broker.publish(broker, :channel_update, event)
+
+    # Do a lookup to synchronously ensure the controller has processed the event
+    _ = Controller.lookup_by_id(DiscordBot.ChannelController, "channel-asdf")
+
+    assert Channel.model?(pid1) == %DiscordBot.Model.Channel{model1 | name: "A new name"}
+    assert Channel.model?(pid2) == model2
+  end
 end
