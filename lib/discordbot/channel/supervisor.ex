@@ -6,14 +6,20 @@ defmodule DiscordBot.Channel.Supervisor do
   use Supervisor
 
   def start_link(opts) do
-    Supervisor.start_link(__MODULE__, :ok, opts)
+    broker =
+      case Keyword.fetch(opts, :broker) do
+        {:ok, pid} -> pid
+        :error -> Broker
+      end
+
+    Supervisor.start_link(__MODULE__, broker, opts)
   end
 
-  def init(:ok) do
+  def init(broker) do
     children = [
       {DynamicSupervisor, name: DiscordBot.ChannelSupervisor, strategy: :one_for_one},
       {Registry, keys: :unique, name: DiscordBot.ChannelRegistry},
-      {DiscordBot.Channel.Controller, name: DiscordBot.ChannelController}
+      {DiscordBot.Channel.Controller, name: DiscordBot.ChannelController, broker: broker}
     ]
 
     Supervisor.init(children, strategy: :one_for_all)

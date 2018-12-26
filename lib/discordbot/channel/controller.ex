@@ -5,11 +5,19 @@ defmodule DiscordBot.Channel.Controller do
 
   use GenServer
 
+  alias DiscordBot.Broker
+
   @doc """
   Starts the controller
   """
   def start_link(opts) do
-    GenServer.start_link(__MODULE__, :ok, opts)
+    broker =
+      case Keyword.fetch(opts, :broker) do
+        {:ok, pid} -> pid
+        :error -> Broker
+      end
+
+    GenServer.start_link(__MODULE__, broker, opts)
   end
 
   @doc """
@@ -46,7 +54,18 @@ defmodule DiscordBot.Channel.Controller do
 
   ## Handlers
 
-  def init(:ok) do
+  def init(broker) do
+    topics = [
+      :channel_create,
+      :channel_update,
+      :channel_delete,
+      :guild_create
+    ]
+
+    for topic <- topics do
+      Broker.subscribe(broker, topic)
+    end
+
     {:ok, nil}
   end
 

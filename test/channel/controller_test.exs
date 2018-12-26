@@ -2,12 +2,14 @@ defmodule DiscordBot.Channel.ControllerTest do
   use ExUnit.Case, async: true
   doctest DiscordBot.Channel.Controller
 
+  alias DiscordBot.Broker
   alias DiscordBot.Channel.Controller
   alias DiscordBot.Channel.Channel
 
   setup do
-    _ = start_supervised!(DiscordBot.Channel.Supervisor)
-    :ok
+    broker = start_supervised!(Broker)
+    _ = start_supervised!({DiscordBot.Channel.Supervisor, [broker: broker]})
+    %{broker: broker}
   end
 
   test "starts channels" do
