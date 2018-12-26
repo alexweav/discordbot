@@ -16,6 +16,8 @@ defmodule DiscordBot.Model.Dispatch do
       :guild_create -> DiscordBot.Model.Guild.from_map(map)
       :guild_update -> DiscordBot.Model.Guild.from_map(map)
       :guild_delete -> DiscordBot.Model.Guild.from_map(map)
+      :message_create -> DiscordBot.Model.Message.from_map(map)
+      :message_update -> DiscordBot.Model.Message.from_map(map)
       _ -> map
     end
   end
@@ -32,7 +34,9 @@ defmodule DiscordBot.Model.Dispatch do
       "CHANNEL_DELETE" => :channel_delete,
       "GUILD_CREATE" => :guild_create,
       "GUILD_UPDATE" => :guild_update,
-      "GUILD_DELETE" => :guild_delete
+      "GUILD_DELETE" => :guild_delete,
+      "MESSAGE_CREATE" => :message_create,
+      "MESSAGE_UPDATE" => :message_update
     }[name]
   end
 end
