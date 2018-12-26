@@ -139,4 +139,48 @@ defmodule DiscordBot.Channel.ControllerTest do
     assert Channel.model?(pid1) == %DiscordBot.Model.Channel{model1 | name: "A new name"}
     assert Channel.model?(pid2) == model2
   end
+
+  test "deletes channels from :channel_delete events", %{broker: broker} do
+    model = %DiscordBot.Model.Channel{
+      id: "test-channel",
+      name: "Test Channel"
+    }
+
+    {:ok, pid} = Controller.create(DiscordBot.ChannelController, model)
+
+    event = %DiscordBot.Model.Channel{
+      id: "test-channel"
+    }
+
+    Broker.publish(broker, :channel_delete, event)
+
+    # Do a lookup to synchronously ensure the controller has processed the event
+    # We're not looking up the deleted channel, because Elixir's default Registry
+    # may have a delayed response when processes close
+    _ = Controller.lookup_by_id(DiscordBot.ChannelController, "channel-asdf")
+
+    assert Process.alive?(pid) == false
+  end
+
+  test "creates channels embedded in :guild_create events", %{broker: broker} do
+    channel = %DiscordBot.Model.Channel{
+      id: "channel-asdf",
+      name: "Test Channel",
+      topic: "A test channel",
+      guild_id: "123-456",
+      owner_id: "789-012",
+      last_message_id: "345-678"
+    }
+
+    event = %DiscordBot.Model.Guild{
+      id: "asdf",
+      name: "My guild",
+      channels: [channel]
+    }
+
+    Broker.publish(broker, :guild_create, event)
+
+    assert {:ok, pid} = Controller.lookup_by_id(DiscordBot.ChannelController, "channel-asdf")
+    assert Channel.model?(pid) == channel
+  end
 end

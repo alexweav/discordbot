@@ -84,14 +84,7 @@ defmodule DiscordBot.Channel.Controller do
   end
 
   def handle_call({:close, id}, _from, state) do
-    case parse_lookup(Registry.lookup(DiscordBot.ChannelRegistry, id)) do
-      {:ok, pid} ->
-        GenServer.stop(pid, :normal)
-        {:reply, :ok, state}
-
-      :error ->
-        {:reply, :error, state}
-    end
+    {:reply, close(id), state}
   end
 
   def handle_info(%Event{topic: :channel_create, message: model}, state) do
@@ -102,6 +95,33 @@ defmodule DiscordBot.Channel.Controller do
   def handle_info(%Event{topic: :channel_update, message: update}, state) do
     :ok = update(update.id, update)
     {:noreply, state}
+  end
+
+  def handle_info(%Event{topic: :channel_delete, message: delete}, state) do
+    :ok = close(delete.id)
+    {:noreply, state}
+  end
+
+  def handle_info(%Event{topic: :guild_create, message: guild}, state) do
+    {:ok, _} = create(guild)
+    {:noreply, state}
+  end
+
+  defp create(nil) do
+    :ok
+  end
+
+  defp create(%DiscordBot.Model.Guild{channels: nil}) do
+    {:ok, []}
+  end
+
+  defp create(%DiscordBot.Model.Guild{channels: channels}) do
+    pids =
+      channels
+      |> Enum.map(&create(&1))
+      |> Enum.reduce([], fn {:ok, pid}, acc -> acc ++ [pid] end)
+
+    {:ok, pids}
   end
 
   defp create(model) do
@@ -125,6 +145,16 @@ defmodule DiscordBot.Channel.Controller do
     case lookup_id(id) do
       {:ok, pid} ->
         DiscordBot.Channel.Channel.update(pid, update)
+
+      :error ->
+        :error
+    end
+  end
+
+  defp close(id) do
+    case lookup_id(id) do
+      {:ok, pid} ->
+        GenServer.stop(pid, :normal)
 
       :error ->
         :error
