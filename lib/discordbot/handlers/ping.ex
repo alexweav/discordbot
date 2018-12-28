@@ -7,7 +7,7 @@ defmodule DiscordBot.Handlers.Ping do
   - `!source`: Responds with a link to the bot's GitHub repo
   """
 
-  use Task, restart: :transient
+  use Task, restart: :permanent
 
   alias DiscordBot.Broker
   alias DiscordBot.Broker.Event
