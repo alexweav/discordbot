@@ -33,7 +33,16 @@ defmodule DiscordBot.Api do
         "content" => content
       })
 
-    DiscordBot.Api.post(uri, body)
+    case DiscordBot.Api.post(uri, body) do
+      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+        {:ok, body}
+
+      {:ok, %HTTPoison.Response{body: body}} ->
+        {:error, body}
+
+      {:error, error} ->
+        {:error, error}
+    end
   end
 
   @doc """
