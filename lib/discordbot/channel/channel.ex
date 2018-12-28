@@ -51,6 +51,14 @@ defmodule DiscordBot.Channel.Channel do
     GenServer.call(channel, {:update, model})
   end
 
+  @doc """
+  Creates a message with content `content` on channel `channel`
+  """
+  @spec create_message(pid, String.t()) :: any
+  def create_message(channel, content) do
+    GenServer.call(channel, {:create_message, content})
+  end
+
   ## Handlers
 
   def init(state) do
@@ -85,6 +93,11 @@ defmodule DiscordBot.Channel.Channel do
     else
       {:reply, {:error, :incorrect_id}, {state}}
     end
+  end
+
+  def handle_call({:create_message, content}, _from, {state}) do
+    response = DiscordBot.Api.create_message(state.id, content)
+    {:reply, response, {state}}
   end
 
   defp drop_nils(map) do
