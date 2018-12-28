@@ -8,7 +8,9 @@ defmodule DiscordBot.Handlers.Supervisor do
   end
 
   def init(:ok) do
-    children = []
+    children = [
+      {DiscordBot.Handlers.Ping, Broker}
+    ]
 
     Supervisor.init(children, strategy: :one_for_one)
   end
