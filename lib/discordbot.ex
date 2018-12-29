@@ -19,7 +19,8 @@ defmodule DiscordBot do
        [logged_topics: [:dispatch, :ready, :guild_create, :message_create, :message_update]]},
       {DiscordBot.Gateway, [url: url]},
       {DiscordBot.Self, [name: Self]},
-      {DiscordBot.Channel.Supervisor, []}
+      {DiscordBot.Channel.Supervisor, []},
+      {DiscordBot.Handlers.Supervisor, []}
     ]
 
     Logger.info("Launching...")
