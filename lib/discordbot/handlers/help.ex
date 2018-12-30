@@ -5,6 +5,41 @@ defmodule DiscordBot.Handlers.Help do
 
   use GenServer
 
+  defmodule Info do
+    @moduledoc """
+    A struct which represents an entry of help text
+    """
+    @enforce_keys [:command_name]
+
+    defstruct [
+      :name,
+      :command_key,
+      :description
+    ]
+
+    @typedoc """
+    The full name of the entry, e.g. `Ping`
+    """
+    @type name :: String.t()
+
+    @typedoc """
+    The short prefix of the entry, e.g. `!ping`. This should
+    be unique among all helptext entries.
+    """
+    @type command_key :: String.t()
+
+    @typedoc """
+    A text description of the entry, e.g. "Responds with `Pong`"
+    """
+    @type description :: String.t()
+
+    @type t :: %__MODULE__{
+            name: name,
+            command_key: command_key,
+            description: description
+          }
+  end
+
   @doc """
   Starts the help handler
 
@@ -26,6 +61,6 @@ defmodule DiscordBot.Handlers.Help do
   ## Handlers
 
   def init(broker) do
-    {:ok, broker}
+    {:ok, {broker, %{}}}
   end
 end
