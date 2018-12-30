@@ -9,7 +9,7 @@ defmodule DiscordBot.Handlers.Help do
     @moduledoc """
     A struct which represents an entry of help text
     """
-    @enforce_keys [:command_name]
+    @enforce_keys [:command_key]
 
     defstruct [
       :name,
@@ -58,9 +58,35 @@ defmodule DiscordBot.Handlers.Help do
     GenServer.start_link(__MODULE__, broker, opts)
   end
 
+  @doc """
+  Registers a new entry of help info, `info`, to be formatted
+  and displayed when help is requested over Discord.
+  """
+  @spec register_info(pid, Info.t()) :: :ok
+  def register_info(help, info) do
+    GenServer.call(help, {:register, info})
+  end
+
+  @doc """
+  Returns the info struct registered for a given command key,
+  `key`. Returns `:error` if nothing is registered for the key.
+  """
+  @spec info?(pid, String.t()) :: {:ok, Info.t()} | :error
+  def info?(help, key) do
+    GenServer.call(help, {:lookup, key})
+  end
+
   ## Handlers
 
   def init(broker) do
     {:ok, {broker, %{}}}
+  end
+
+  def handle_call({:register, %Info{} = info}, _from, {broker, registry}) do
+    {:reply, :ok, {broker, Map.put(registry, info.command_key, info)}}
+  end
+
+  def handle_call({:lookup, key}, _from, {_, registry} = state) do
+    {:reply, Map.fetch(registry, key), state}
   end
 end
