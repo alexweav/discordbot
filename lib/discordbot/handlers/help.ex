@@ -128,8 +128,11 @@ defmodule DiscordBot.Handlers.Help do
     {:noreply, {broker, registry}}
   end
 
-  defp build_message(_info) do
-    help_message_header()
+  defp build_message(info_list) do
+    help_message_header() <>
+      Enum.reduce(info_list, "", fn info, str ->
+        str <> "`#{info.command_key}`: #{info.description}\n"
+      end)
   end
 
   defp help_message_header do
