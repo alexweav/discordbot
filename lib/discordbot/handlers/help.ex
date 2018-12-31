@@ -5,6 +5,9 @@ defmodule DiscordBot.Handlers.Help do
 
   use GenServer
 
+  alias DiscordBot.Broker
+  alias DiscordBot.Broker.Event
+
   defmodule Info do
     @moduledoc """
     A struct which represents an entry of help text
@@ -76,9 +79,18 @@ defmodule DiscordBot.Handlers.Help do
     GenServer.call(help, {:lookup, key})
   end
 
+  @doc """
+  Returns the formatted help response
+  """
+  @spec help_message(pid) :: String.t()
+  def help_message(help) do
+    GenServer.call(help, :help)
+  end
+
   ## Handlers
 
   def init(broker) do
+    Broker.subscribe(broker, :message_create)
     {:ok, {broker, %{}}}
   end
 
@@ -88,5 +100,30 @@ defmodule DiscordBot.Handlers.Help do
 
   def handle_call({:lookup, key}, _from, {_, registry} = state) do
     {:reply, Map.fetch(registry, key), state}
+  end
+
+  def handle_call(:help, _from, {broker, registry}) do
+    {:reply, build_message(Map.values(registry)), {broker, registry}}
+  end
+
+  def handle_info(%Event{message: message}, {broker, registry}) do
+    %DiscordBot.Model.Message{channel_id: channel_id, content: content} = message
+
+    if content == "!help" do
+      {:ok, channel} =
+        DiscordBot.Channel.Controller.lookup_by_id(DiscordBot.ChannelController, channel_id)
+
+      DiscordBot.Channel.Channel.create_message(channel, build_message(Map.values(registry)))
+    end
+
+    {:noreply, {broker, registry}}
+  end
+
+  defp build_message(_info) do
+    help_message_header()
+  end
+
+  defp help_message_header do
+    "**Available Commands**\n"
   end
 end

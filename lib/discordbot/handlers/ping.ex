@@ -27,7 +27,7 @@ defmodule DiscordBot.Handlers.Ping do
   """
   @spec handle(Broker.t()) :: :ok
   def handle(broker) do
-    DiscordBot.Broker.subscribe(broker, :message_create)
+    Broker.subscribe(broker, :message_create)
     loop_handle()
   end
 
