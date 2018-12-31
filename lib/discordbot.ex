@@ -16,7 +16,7 @@ defmodule DiscordBot do
 
     children = [
       {DiscordBot.Broker.Supervisor,
-       [logged_topics: [:dispatch, :ready, :guild_create, :message_create, :message_update]]},
+       [logged_topics: [:dispatch, :ready, :guild_create, :message_create, :message_update, :resume, :reconnect, :invalid_session]]},
       {DiscordBot.Gateway, [url: url]},
       {DiscordBot.Self, [name: Self]},
       {DiscordBot.Channel.Supervisor, []},
