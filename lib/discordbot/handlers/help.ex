@@ -91,7 +91,16 @@ defmodule DiscordBot.Handlers.Help do
 
   def init(broker) do
     Broker.subscribe(broker, :message_create)
-    {:ok, {broker, %{}}}
+
+    registry = %{
+      "!help" => %Info{
+        command_key: "!help",
+        name: "Help",
+        description: "Replies with this help message"
+      }
+    }
+
+    {:ok, {broker, registry}}
   end
 
   def handle_call({:register, %Info{} = info}, _from, {broker, registry}) do
