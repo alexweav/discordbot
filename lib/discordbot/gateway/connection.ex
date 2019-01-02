@@ -80,7 +80,6 @@ defmodule DiscordBot.Gateway.Connection do
   end
 
   def handle_frame({:text, json}, state) do
-    Logger.info("Got message.")
     message = DiscordBot.Model.Payload.from_json(json)
     DiscordBot.Broker.publish(Broker, event_name(message), message.data)
 
@@ -106,7 +105,6 @@ defmodule DiscordBot.Gateway.Connection do
   end
 
   def handle_cast({:heartbeat}, state) do
-    Logger.info("Send heartbeat.")
     message = DiscordBot.Model.Payload.heartbeat(nil)
 
     {:ok, json} =

@@ -11,6 +11,7 @@ defmodule DiscordBot.Handlers.Ping do
 
   alias DiscordBot.Broker
   alias DiscordBot.Broker.Event
+  alias DiscordBot.Handlers.Help
 
   @doc """
   Starts this handler inside a new process. Takes a broker
@@ -27,7 +28,20 @@ defmodule DiscordBot.Handlers.Ping do
   """
   @spec handle(Broker.t()) :: :ok
   def handle(broker) do
-    DiscordBot.Broker.subscribe(broker, :message_create)
+    Broker.subscribe(broker, :message_create)
+
+    Help.register_info(DiscordBot.Help, %Help.Info{
+      command_key: "!ping",
+      name: "Ping",
+      description: "Replies with \"Pong\""
+    })
+
+    Help.register_info(DiscordBot.Help, %Help.Info{
+      command_key: "!source",
+      name: "Source",
+      description: "Replies with a link to this bot's source"
+    })
+
     loop_handle()
   end
 
