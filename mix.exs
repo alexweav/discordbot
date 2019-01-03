@@ -12,7 +12,9 @@ defmodule DiscordBot.MixProject do
       source_url: "https://github.com/alexweav/discordbot",
       docs: [
         main: "DiscordBot"
-      ]
+      ],
+      test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: [coveralls: :text, "coveralls.detail": :test]
     ]
   end
 
@@ -28,6 +30,7 @@ defmodule DiscordBot.MixProject do
       {:credo, "~> 1.0.0", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.0.0-rc.4", only: [:dev, :test], runtime: false},
       {:distillery, "~> 2.0"},
+      {:excoveralls, "~> 0.10", only: :test},
       {:ex_doc, "~> 0.19", only: :dev, runtime: false},
       {:httpoison, "~> 1.4"},
       {:poison, "~>3.1"},
