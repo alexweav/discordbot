@@ -4,13 +4,19 @@ defmodule DiscordBot.Handlers.TtsSplitter.Supervisor do
   use Supervisor
 
   def start_link(opts) do
-    Supervisor.start_link(__MODULE__, :ok, opts)
+    broker =
+      case Keyword.fetch(opts, :broker) do
+        {:ok, pid} -> pid
+        :error -> Broker
+      end
+
+    Supervisor.start_link(__MODULE__, broker, opts)
   end
 
-  def init(:ok) do
+  def init(broker) do
     children = [
       {Task.Supervisor, name: DiscordBot.TtsSplitter.TaskSupervisor},
-      {DiscordBot.Handlers.TtsSplitter.Server, []}
+      {DiscordBot.Handlers.TtsSplitter.Server, broker: broker}
     ]
 
     Supervisor.init(children, strategy: :one_for_one)

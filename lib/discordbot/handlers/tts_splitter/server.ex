@@ -9,12 +9,18 @@ defmodule DiscordBot.Handlers.TtsSplitter.Server do
   Starts the TTS-splitter handler
   """
   def start_link(opts) do
-    GenServer.start_link(__MODULE__, :ok, opts)
+    broker =
+      case Keyword.fetch(opts, :broker) do
+        {:ok, pid} -> pid
+        :error -> Broker
+      end
+
+    GenServer.start_link(__MODULE__, broker, opts)
   end
 
   ## Handlers
 
-  def init(:ok) do
-    {:ok, nil}
+  def init(broker) do
+    {:ok, broker}
   end
 end

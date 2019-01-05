@@ -8,5 +8,9 @@ defmodule DiscordBot.Handlers.TtsSplitter do
   a long paragraph of text into segments short enough to be
   read by Discord's TTS feature. It will then post the segments
   with TTS enabled, sequentially.
+
+  The module `DiscordBot.Handlers.TtsSplitter.Supervisor` is a
+  supervisable process for this functionality, which will automatically
+  host a handler for the logic in this module.
   """
 end
