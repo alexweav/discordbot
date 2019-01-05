@@ -5,6 +5,8 @@ defmodule DiscordBot.Handlers.TtsSplitter.Server do
 
   use GenServer
 
+  require Logger
+
   alias DiscordBot.Broker
   alias DiscordBot.Broker.Event
   alias DiscordBot.Handlers.Help
@@ -36,7 +38,19 @@ defmodule DiscordBot.Handlers.TtsSplitter.Server do
     {:ok, broker}
   end
 
-  def handle_info(%Event{}, broker) do
+  def handle_info(%Event{message: message}, broker) do
+    %DiscordBot.Model.Message{channel_id: channel_id, content: content} = message
+    handle_content(content, channel_id)
     {:noreply, broker}
   end
+
+  defp handle_content("!tts_split " <> text, channel_id) do
+    {:ok, channel} =
+      DiscordBot.Channel.Controller.lookup_by_id(DiscordBot.ChannelController, channel_id)
+
+    [message] = DiscordBot.Handlers.TtsSplitter.tts_split(text)
+    DiscordBot.Channel.Channel.create_message(channel, message, tts: true)
+  end
+
+  defp handle_content(_, _), do: nil
 end

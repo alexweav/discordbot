@@ -46,6 +46,31 @@ defmodule DiscordBot.Api do
   end
 
   @doc """
+  Posts a message with TTS enabled, with content `content`
+  to the channel with ID `channel`.
+  """
+  def create_tts_message(channel_id, content) do
+    uri = "/v7/channels/" <> channel_id <> "/messages"
+
+    body =
+      Poison.encode!(%{
+        "content" => content,
+        "tts" => true
+      })
+
+    case DiscordBot.Api.post(uri, body) do
+      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+        {:ok, body}
+
+      {:ok, %HTTPoison.Response{body: body}} ->
+        {:error, body}
+
+      {:error, error} ->
+        {:error, error}
+    end
+  end
+
+  @doc """
   Appends the base URL onto a short-form URI
   """
   def process_request_url("/" <> uri) do

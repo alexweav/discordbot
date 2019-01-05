@@ -54,9 +54,9 @@ defmodule DiscordBot.Channel.Channel do
   @doc """
   Creates a message with content `content` on channel `channel`
   """
-  @spec create_message(pid, String.t()) :: any
-  def create_message(channel, content) do
-    GenServer.call(channel, {:create_message, content})
+  @spec create_message(pid, String.t(), tts: boolean) :: any
+  def create_message(channel, content, opts \\ []) do
+    GenServer.call(channel, {:create_message, content, opts})
   end
 
   ## Handlers
@@ -95,7 +95,12 @@ defmodule DiscordBot.Channel.Channel do
     end
   end
 
-  def handle_call({:create_message, content}, _from, {state}) do
+  def handle_call({:create_message, content, [tts: true]}, _from, {state}) do
+    response = DiscordBot.Api.create_tts_message(state.id, content)
+    {:reply, response, {state}}
+  end
+
+  def handle_call({:create_message, content, _opts}, _from, {state}) do
     response = DiscordBot.Api.create_message(state.id, content)
     {:reply, response, {state}}
   end

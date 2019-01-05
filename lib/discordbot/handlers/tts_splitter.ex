@@ -13,4 +13,8 @@ defmodule DiscordBot.Handlers.TtsSplitter do
   supervisable process for this functionality, which will automatically
   host a handler for the logic in this module.
   """
+
+  def tts_split(text) do
+    [text]
+  end
 end
