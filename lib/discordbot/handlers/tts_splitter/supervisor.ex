@@ -16,7 +16,8 @@ defmodule DiscordBot.Handlers.TtsSplitter.Supervisor do
   def init(broker) do
     children = [
       {Task.Supervisor, name: DiscordBot.TtsSplitter.TaskSupervisor},
-      {DiscordBot.Handlers.TtsSplitter.Server, broker: broker}
+      {DiscordBot.Handlers.TtsSplitter.Server,
+       name: DiscordBot.TtsSplitter.Server, broker: broker}
     ]
 
     Supervisor.init(children, strategy: :one_for_one)

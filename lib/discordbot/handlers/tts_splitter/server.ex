@@ -5,6 +5,9 @@ defmodule DiscordBot.Handlers.TtsSplitter.Server do
 
   use GenServer
 
+  alias DiscordBot.Broker
+  alias DiscordBot.Broker.Event
+
   @doc """
   Starts the TTS-splitter handler
   """
@@ -21,6 +24,11 @@ defmodule DiscordBot.Handlers.TtsSplitter.Server do
   ## Handlers
 
   def init(broker) do
+    Broker.subscribe(broker, :message_create)
     {:ok, broker}
+  end
+
+  def handle_info(%Event{}, broker) do
+    {:noreply, broker}
   end
 end
