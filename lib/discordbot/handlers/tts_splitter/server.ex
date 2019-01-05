@@ -48,8 +48,11 @@ defmodule DiscordBot.Handlers.TtsSplitter.Server do
     {:ok, channel} =
       DiscordBot.Channel.Controller.lookup_by_id(DiscordBot.ChannelController, channel_id)
 
-    [message] = DiscordBot.Handlers.TtsSplitter.tts_split(text)
-    DiscordBot.Channel.Channel.create_message(channel, message, tts: true)
+    chunks = DiscordBot.Handlers.TtsSplitter.tts_split(text)
+
+    for chunk <- chunks do
+      DiscordBot.Channel.Channel.create_message(channel, chunk, tts: true)
+    end
   end
 
   defp handle_content(_, _), do: nil
