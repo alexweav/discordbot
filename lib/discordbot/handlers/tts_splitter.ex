@@ -9,16 +9,4 @@ defmodule DiscordBot.Handlers.TtsSplitter do
   read by Discord's TTS feature. It will then post the segments
   with TTS enabled, sequentially.
   """
-
-  use GenServer
-
-  def start_link(opts) do
-    GenServer.start_link(__MODULE__, :ok, opts)
-  end
-
-  ## Handlers
-
-  def init(:ok) do
-    {:ok, nil}
-  end
 end

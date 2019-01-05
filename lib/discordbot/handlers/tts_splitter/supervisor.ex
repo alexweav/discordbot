@@ -1,4 +1,4 @@
-defmodule DiscordBot.Handlers.Supervisor do
+defmodule DiscordBot.Handlers.TtsSplitter.Supervisor do
   @moduledoc false
 
   use Supervisor
@@ -9,9 +9,8 @@ defmodule DiscordBot.Handlers.Supervisor do
 
   def init(:ok) do
     children = [
-      {DiscordBot.Handlers.Help, [broker: Broker, name: DiscordBot.Help]},
-      {DiscordBot.Handlers.Ping, Broker},
-      {DiscordBot.Handlers.TtsSplitter.Supervisor, []}
+      {Task.Supervisor, name: DiscordBot.TtsSplitter.TaskSupervisor},
+      {DiscordBot.Handlers.TtsSplitter.Server, []}
     ]
 
     Supervisor.init(children, strategy: :one_for_one)
