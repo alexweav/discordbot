@@ -7,6 +7,7 @@ defmodule DiscordBot.Handlers.TtsSplitter.Server do
 
   alias DiscordBot.Broker
   alias DiscordBot.Broker.Event
+  alias DiscordBot.Handlers.Help
 
   @doc """
   Starts the TTS-splitter handler
@@ -25,6 +26,13 @@ defmodule DiscordBot.Handlers.TtsSplitter.Server do
 
   def init(broker) do
     Broker.subscribe(broker, :message_create)
+
+    Help.register_info(DiscordBot.Help, %Help.Info{
+      command_key: "!tts_split",
+      name: "TTS Split",
+      description: "Splits long text into segments and repeats them using /tts"
+    })
+
     {:ok, broker}
   end
 
