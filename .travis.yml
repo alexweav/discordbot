@@ -22,5 +22,7 @@ jobs:
         - docker --version
         - pip install --user awscli
         - export PATH=$PATH:$HOME/.local/bin
+        - eval $(aws ecr get-login --no-include-email --region us-east-2)
+        - export AWS_ACCOUNT_ID="$(aws sts get-caller-identity --output text --query 'Account')"
       script:
         - docker build -t discordbot .
