@@ -6,6 +6,9 @@ elixir:
 services:
   - docker
 
+env:
+  - APP_NAME=discordbot
+
 jobs:
   include:
     - stage: test
@@ -25,6 +28,7 @@ jobs:
         - eval $(aws ecr get-login --no-include-email --region us-east-2)
         - export AWS_ACCOUNT_ID="$(aws sts get-caller-identity --output text --query 'Account')"
       script:
-        - docker build -t discordbot .
-        - docker tag discordbot:latest "${AWS_ACCOUNT_ID}".dkr.ecr.us-east-2.amazonaws.com/discordbot:latest
-        - docker push "${AWS_ACCOUNT_ID}".dkr.ecr.us-east-2.amazonaws.com/discordbot:latest
+        - docker build -t "${APP_NAME}" .
+        - docker tag "${APP_NAME}":latest "${AWS_ACCOUNT_ID}".dkr.ecr.us-east-2.amazonaws.com/"${APP_NAME}":latest
+        - docker push "${AWS_ACCOUNT_ID}".dkr.ecr.us-east-2.amazonaws.com/"${APP_NAME}":latest
+
