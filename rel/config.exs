@@ -14,8 +14,8 @@ environment :dev do
   # Ideally, this would be provided through a config provider
   set cookie: :crypto.strong_rand_bytes(32) |> Base.encode16
   set config_providers: [
-    {Mix.Releases.Config.Providers.Elixir, ["${RELEASE_ROOT_DIR}/etc/config.exs"]},
-    {Mix.Releases.Config.Providers.Elixir, ["${RELEASE_ROOT_DIR}/etc/dev.config.exs"]}
+    {DiscordBot.ConfigProvider, ["${RELEASE_ROOT_DIR}/etc/config.exs"]},
+    {DiscordBot.ConfigProvider, ["${RELEASE_ROOT_DIR}/etc/dev.config.exs"]}
   ]
   set overlays: [
     {:copy, "rel/config", "etc"}
@@ -29,8 +29,8 @@ environment :prod do
   # Ideally, this would be provided through a config provider
   set cookie: :crypto.strong_rand_bytes(32) |> Base.encode16
   set config_providers: [
-    {Mix.Releases.Config.Providers.Elixir, ["${RELEASE_ROOT_DIR}/etc/config.exs"]},
-    {Mix.Releases.Config.Providers.Elixir, ["${RELEASE_ROOT_DIR}/etc/prod.config.exs"]}
+    {DiscordBot.ConfigProvider, ["${RELEASE_ROOT_DIR}/etc/config.exs"]},
+    {DiscordBot.ConfigProvider, ["${RELEASE_ROOT_DIR}/etc/prod.config.exs"]}
   ]
   set overlays: [
     {:copy, "rel/config", "etc"}
