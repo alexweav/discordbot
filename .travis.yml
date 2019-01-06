@@ -8,6 +8,7 @@ services:
 
 env:
   - APP_NAME=discordbot
+  - AWS_REGION=us-east-2
 
 jobs:
   include:
@@ -25,10 +26,10 @@ jobs:
         - docker --version
         - pip install --user awscli
         - export PATH=$PATH:$HOME/.local/bin
-        - eval $(aws ecr get-login --no-include-email --region us-east-2)
+        - eval $(aws ecr get-login --no-include-email --region "${AWS_REGION}")
         - export AWS_ACCOUNT_ID="$(aws sts get-caller-identity --output text --query 'Account')"
       script:
         - docker build -t "${APP_NAME}" .
-        - docker tag "${APP_NAME}":latest "${AWS_ACCOUNT_ID}".dkr.ecr.us-east-2.amazonaws.com/"${APP_NAME}":latest
-        - docker push "${AWS_ACCOUNT_ID}".dkr.ecr.us-east-2.amazonaws.com/"${APP_NAME}":latest
+        - docker tag "${APP_NAME}":latest "${AWS_ACCOUNT_ID}".dkr.ecr."${AWS_REGION}".amazonaws.com/"${APP_NAME}":latest
+        - docker push "${AWS_ACCOUNT_ID}".dkr.ecr."${AWS_REGION}".amazonaws.com/"${APP_NAME}":latest
 
