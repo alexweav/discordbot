@@ -21,13 +21,14 @@ jobs:
         - mix test --no-start
 
     - stage: deploy
+      before_install:
+        - echo -e "use Mix.Config\n\nconfig :discordbot,\n  token: "${DISCORD_TOKEN}"" > rel/config/config.exs
       install:
         - docker --version
         - pip install --user awscli
         - export PATH=$PATH:$HOME/.local/bin
         - eval $(aws ecr get-login --no-include-email --region "${AWS_REGION}")
         - export AWS_ACCOUNT_ID="$(aws sts get-caller-identity --output text --query 'Account')"
-        - echo -e "use Mix.Config\n\nconfig :discordbot,\n  token: \"${DISCORD_TOKEN}\"" > rel/config/config.exs
       script:
         - docker build -t "${APP_NAME}" .
         - docker tag "${APP_NAME}":latest "${AWS_ACCOUNT_ID}".dkr.ecr."${AWS_REGION}".amazonaws.com/"${APP_NAME}":latest
