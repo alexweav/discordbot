@@ -31,5 +31,5 @@ jobs:
         - docker build -t "${APP_NAME}" .
         - docker tag "${APP_NAME}":latest "${AWS_ACCOUNT_ID}".dkr.ecr."${AWS_REGION}".amazonaws.com/"${APP_NAME}":latest
         - docker push "${AWS_ACCOUNT_ID}".dkr.ecr."${AWS_REGION}".amazonaws.com/"${APP_NAME}":latest
-        - aws ecs update-service --cluster "${CLUSTER_NAME}" --service "${SERVICE_NAME}" --force-new-deployment
+        - aws ecs update-service --cluster "${CLUSTER_NAME}" --service "${SERVICE_NAME}" --region "${AWS_REGION}" --force-new-deployment
 
