@@ -26,3 +26,5 @@ jobs:
         - export AWS_ACCOUNT_ID="$(aws sts get-caller-identity --output text --query 'Account')"
       script:
         - docker build -t discordbot .
+        - docker tag discordbot:latest "${AWS_ACCOUNT_ID}".dkr.ecr.us-east-2.amazonaws.com/discordbot:latest
+        - docker push "${AWS_ACCOUNT_ID}".dkr.ecr.us-east-2.amazonaws.com/discordbot:latest
