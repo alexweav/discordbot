@@ -64,7 +64,7 @@ defmodule DiscordBot.Handlers.TtsSplitter.Server do
   defp send_tts_chunks(chunks, channel) do
     for chunk <- chunks do
       DiscordBot.Channel.Channel.create_message(channel, chunk, tts: true)
-      Process.sleep(100)
+      Process.sleep(3_000)
     end
   end
 end
