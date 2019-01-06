@@ -63,6 +63,9 @@ defmodule DiscordBot.Handlers.TtsSplitter do
           done ->
             {parsed, accumulated_length, done}
 
+          parsed == [] and adjusted_length >= total_length ->
+            {[word], adjusted_length, true}
+
           accumulated_length + adjusted_length >= total_length ->
             {parsed, accumulated_length, true}
 

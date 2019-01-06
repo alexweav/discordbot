@@ -22,4 +22,10 @@ defmodule DiscordBot.Handlers.TtsSplitterTest do
     text = "a string"
     assert TtsSplitter.tts_split(text) == [text]
   end
+
+  test "words longer than threshold end up in their own chunk" do
+    text = "a b test asdfasdfasdf done"
+    chunks = TtsSplitter.tts_split(text, 5)
+    assert chunks == ["a b", "test", "asdfasdfasdf", "done"]
+  end
 end

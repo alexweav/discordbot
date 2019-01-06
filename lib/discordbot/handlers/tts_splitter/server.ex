@@ -45,15 +45,26 @@ defmodule DiscordBot.Handlers.TtsSplitter.Server do
   end
 
   defp handle_content("!tts_split " <> text, channel_id) do
+    Task.Supervisor.start_child(
+      DiscordBot.TtsSplitter.TaskSupervisor,
+      fn -> lookup_and_send(text, channel_id) end
+    )
+  end
+
+  defp handle_content(_, _), do: nil
+
+  defp lookup_and_send(text, channel_id) do
     {:ok, channel} =
       DiscordBot.Channel.Controller.lookup_by_id(DiscordBot.ChannelController, channel_id)
 
     chunks = DiscordBot.Handlers.TtsSplitter.tts_split(text)
-
-    for chunk <- chunks do
-      DiscordBot.Channel.Channel.create_message(channel, chunk, tts: true)
-    end
+    send_tts_chunks(chunks, channel)
   end
 
-  defp handle_content(_, _), do: nil
+  defp send_tts_chunks(chunks, channel) do
+    for chunk <- chunks do
+      DiscordBot.Channel.Channel.create_message(channel, chunk, tts: true)
+      Process.sleep(100)
+    end
+  end
 end
