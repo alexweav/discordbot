@@ -30,3 +30,6 @@ discordbot-*.tar
 
 # VI/VIM swap files
 *.swp
+
+# Log files
+*.log

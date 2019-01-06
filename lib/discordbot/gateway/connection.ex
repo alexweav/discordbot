@@ -89,13 +89,13 @@ defmodule DiscordBot.Gateway.Connection do
     end
   end
 
-  def handle_frame(_frame, state) do
-    Logger.info("Got other frame.")
+  def handle_frame(frame, state) do
+    Logger.error("Got other frame: #{frame}")
     {:ok, state}
   end
 
-  def handle_disconnect(_reason, state) do
-    Logger.info("Disconnected.")
+  def handle_disconnect(reason, state) do
+    Logger.error("Disconnected. Reason: #{reason}")
     {:ok, state}
   end
 
@@ -151,7 +151,7 @@ defmodule DiscordBot.Gateway.Connection do
   end
 
   defp log_gateway_close({_, code, msg}) do
-    Logger.info("Connection was closed with event #{code}: #{msg}")
+    Logger.error("Connection was closed with event #{code}: #{msg}")
   end
 
   defp apply_sequence(payload, sequence) do

@@ -33,6 +33,7 @@ defmodule DiscordBot.MixProject do
       {:excoveralls, "~> 0.10", only: :test},
       {:ex_doc, "~> 0.19", only: :dev, runtime: false},
       {:httpoison, "~> 1.4"},
+      {:logger_file_backend, "~> 0.0.10"},
       {:poison, "~>3.1"},
       {:websockex, "~> 0.4.0"}
     ]
