@@ -3,6 +3,9 @@ language: elixir
 elixir:
   - '1.7.3'
 
+services:
+  - docker
+
 jobs:
   include:
     - stage: test
@@ -13,3 +16,7 @@ jobs:
       script:
         - mix format --check-formatted
         - mix test --no-start
+
+    - stage: deploy
+      script:
+        - docker build -t discordbot .
