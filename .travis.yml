@@ -18,5 +18,9 @@ jobs:
         - mix test --no-start
 
     - stage: deploy
+      install:
+        - docker --version
+        - pip install --user awscli
+        - export PATH=$PATH:$HOME/.local/bin
       script:
         - docker build -t discordbot .
