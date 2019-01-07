@@ -61,7 +61,7 @@ defmodule DiscordBot.Handlers.Ping do
     {:ok, channel} =
       DiscordBot.Channel.Controller.lookup_by_id(DiscordBot.ChannelController, channel_id)
 
-    DiscordBot.Channel.Channel.create_message(channel, "Chungus")
+    DiscordBot.Channel.Channel.create_message(channel, "Pong")
   end
 
   defp handle_content("!source", channel_id) do
