@@ -11,7 +11,8 @@ defmodule DiscordBot.Handlers.Supervisor do
     children = [
       {DiscordBot.Handlers.Help, [broker: Broker, name: DiscordBot.Help]},
       {DiscordBot.Handlers.Ping, Broker},
-      {DiscordBot.Handlers.TtsSplitter.Supervisor, []}
+      {DiscordBot.Handlers.TtsSplitter.Supervisor, [broker: Broker]},
+      {DiscordBot.Handlers.Search.Supervisor, [broker: Broker]}
     ]
 
     Supervisor.init(children, strategy: :one_for_one)
