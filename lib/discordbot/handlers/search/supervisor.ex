@@ -13,9 +13,10 @@ defmodule DiscordBot.Handlers.Search.Supervisor do
     Supervisor.start_link(__MODULE__, broker, opts)
   end
 
-  def init(_broker) do
+  def init(broker) do
     children = [
-      {Task.Supervisor, name: DiscordBot.Search.TaskSupervisor}
+      {Task.Supervisor, name: DiscordBot.Search.TaskSupervisor},
+      {DiscordBot.Handlers.Search.Server, name: DiscordBot.Search.Server, broker: broker}
     ]
 
     Supervisor.init(children, strategy: :one_for_one)
