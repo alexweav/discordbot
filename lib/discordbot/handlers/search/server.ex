@@ -27,7 +27,13 @@ defmodule DiscordBot.Handlers.Search.Server do
     Help.register_info(DiscordBot.Help, %Help.Info{
       command_key: "!wiki",
       name: "Search Wikipedia",
-      description: "Searches wikipedia for the given text"
+      description: "Searches Wikipedia for the given text"
+    })
+
+    Help.register_info(DiscordBot.Help, %Help.Info{
+      command_key: "!youtube",
+      name: "Search YouTube",
+      description: "Searches YouTube videos for the given text"
     })
 
     {:ok, broker}
