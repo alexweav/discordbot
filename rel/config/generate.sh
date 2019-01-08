@@ -7,6 +7,7 @@ FILE="$DIR/config.exs"
 use Mix.Config
 
 config :discordbot,
-  token: "${DISCORD_TOKEN}"
+  token: "${DISCORD_TOKEN}",
+  youtube_data_api_key: "${YOUTUBE_DATA_API_KEY}"
 
 EOM

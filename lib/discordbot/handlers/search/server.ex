@@ -46,6 +46,13 @@ defmodule DiscordBot.Handlers.Search.Server do
     )
   end
 
+  defp handle_content("!youtube " <> text, channel_id) do
+    Task.Supervisor.start_child(
+      DiscordBot.Search.TaskSupervisor,
+      fn -> search_youtube(text, channel_id) end
+    )
+  end
+
   defp handle_content(_, _), do: nil
 
   defp search_wiki(text, channel_id) do
@@ -54,6 +61,19 @@ defmodule DiscordBot.Handlers.Search.Server do
 
     response =
       case DiscordBot.Handlers.Search.search_wikipedia(text) do
+        nil -> "Nothing found :("
+        link -> link
+      end
+
+    DiscordBot.Channel.Channel.create_message(channel, response)
+  end
+
+  defp search_youtube(text, channel_id) do
+    {:ok, channel} =
+      DiscordBot.Channel.Controller.lookup_by_id(DiscordBot.ChannelController, channel_id)
+
+    response =
+      case DiscordBot.Handlers.Search.search_youtube(text) do
         nil -> "Nothing found :("
         link -> link
       end
