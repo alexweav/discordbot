@@ -7,7 +7,7 @@ defmodule DiscordBot.Handlers.HelpTest do
 
   setup do
     broker = start_supervised!({Broker, []})
-    help = start_supervised!({Help, [broker: broker]})
+    help = start_supervised!({Help, [broker: broker, name: DiscordBot.Help]}, restart: :transient)
     %{broker: broker, help: help}
   end
 
@@ -37,10 +37,14 @@ defmodule DiscordBot.Handlers.HelpTest do
 
     Help.register_info(help, info)
 
-    ref = Process.monitor(help)
     GenServer.stop(help, :normal)
-    new_info = start_supervised!({Help, [broker: broker]}, id: :test)
 
-    assert Help.info?(new_info, "!command") == {:ok, info}
+    new_help =
+      start_supervised!({Help, [broker: broker, name: DiscordBot.Help]},
+        id: :test,
+        restart: :transient
+      )
+
+    assert Help.info?(new_help, "!command") == {:ok, info}
   end
 end

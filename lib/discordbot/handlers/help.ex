@@ -58,7 +58,9 @@ defmodule DiscordBot.Handlers.Help do
         :error -> Broker
       end
 
-    GenServer.start_link(__MODULE__, broker, opts)
+    name = Keyword.fetch!(opts, :name)
+
+    GenServer.start_link(__MODULE__, {broker, name}, opts)
   end
 
   @doc """
@@ -89,7 +91,7 @@ defmodule DiscordBot.Handlers.Help do
 
   ## Handlers
 
-  def init(broker) do
+  def init({broker, _name}) do
     Broker.subscribe(broker, :message_create)
 
     registry = %{
