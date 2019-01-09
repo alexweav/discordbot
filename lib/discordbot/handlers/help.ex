@@ -91,30 +91,41 @@ defmodule DiscordBot.Handlers.Help do
 
   ## Handlers
 
-  def init({broker, _name}) do
+  def init({broker, name}) do
     Broker.subscribe(broker, :message_create)
 
-    registry = %{
-      "!help" => %Info{
-        command_key: "!help",
-        name: "Help",
-        description: "Replies with this help message"
-      }
-    }
+    registry = setup_ets_table(name)
+
+    :ets.insert(
+      registry,
+      {"!help",
+       %Info{
+         command_key: "!help",
+         name: "Help",
+         description: "Replies with this help message"
+       }}
+    )
 
     {:ok, {broker, registry}}
   end
 
   def handle_call({:register, %Info{} = info}, _from, {broker, registry}) do
-    {:reply, :ok, {broker, Map.put(registry, info.command_key, info)}}
+    :ets.insert(registry, {info.command_key, info})
+    {:reply, :ok, {broker, registry}}
   end
 
   def handle_call({:lookup, key}, _from, {_, registry} = state) do
-    {:reply, Map.fetch(registry, key), state}
+    result =
+      case :ets.lookup(registry, key) do
+        [{^key, info}] -> {:ok, info}
+        [] -> :error
+      end
+
+    {:reply, result, state}
   end
 
   def handle_call(:help, _from, {broker, registry}) do
-    {:reply, build_message(Map.values(registry)), {broker, registry}}
+    {:reply, build_message(value_stream(registry)), {broker, registry}}
   end
 
   def handle_info(%Event{message: message}, {broker, registry}) do
@@ -124,20 +135,53 @@ defmodule DiscordBot.Handlers.Help do
       {:ok, channel} =
         DiscordBot.Channel.Controller.lookup_by_id(DiscordBot.ChannelController, channel_id)
 
-      DiscordBot.Channel.Channel.create_message(channel, build_message(Map.values(registry)))
+      DiscordBot.Channel.Channel.create_message(channel, build_message(value_stream(registry)))
     end
 
     {:noreply, {broker, registry}}
   end
 
-  defp build_message(info_list) do
+  defp build_message(info_stream) do
     help_message_header() <>
-      Enum.reduce(info_list, "", fn info, str ->
+      Enum.reduce(info_stream, "", fn info, str ->
         str <> "`#{info.command_key}`: #{info.description}\n"
       end)
   end
 
   defp help_message_header do
     "**Available Commands**\n"
+  end
+
+  defp setup_ets_table(name) do
+    case :ets.whereis(name) do
+      :undefined ->
+        :ets.new(name, [:named_table, read_concurrency: true])
+        name
+
+      _ ->
+        name
+    end
+  end
+
+  defp key_stream(table) do
+    Stream.resource(
+      fn -> :ets.first(table) end,
+      fn
+        :"$end_of_table" -> {:halt, nil}
+        previous_key -> {[previous_key], :ets.next(table, previous_key)}
+      end,
+      fn _ -> :ok end
+    )
+  end
+
+  defp value_stream(table) do
+    table
+    |> key_stream()
+    |> Stream.map(fn key ->
+      case :ets.lookup(table, key) do
+        [{^key, info}] -> info
+        [] -> nil
+      end
+    end)
   end
 end
