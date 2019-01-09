@@ -23,4 +23,24 @@ defmodule DiscordBot.Handlers.HelpTest do
     assert Help.register_info(help, info) == :ok
     assert Help.info?(help, "!command") == {:ok, info}
   end
+
+  test "always registers help command", %{help: help} do
+    assert Help.info?(help, "!help") != :error
+  end
+
+  test "keeps things registered if process restarts", %{help: help, broker: broker} do
+    info = %Help.Info{
+      command_key: "!command",
+      name: "Command",
+      description: "A command"
+    }
+
+    Help.register_info(help, info)
+
+    ref = Process.monitor(help)
+    GenServer.stop(help, :normal)
+    new_info = start_supervised!({Help, [broker: broker]}, id: :test)
+
+    assert Help.info?(new_info, "!command") == {:ok, info}
+  end
 end
