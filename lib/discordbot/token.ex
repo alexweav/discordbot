@@ -1,43 +1,40 @@
 defmodule DiscordBot.Token do
   @moduledoc """
-  Agent for keeping track of the bot token
+  Helpers for keeping track of the bot token
   """
 
-  use Agent
+  @token_env_var_key "TOKEN"
 
-  def start_link(_opts) do
-    Agent.start_link(fn -> nil end, name: __MODULE__)
-  end
-
-  @doc "Obtains the bot token"
-  @spec token :: String.t()
+  @doc """
+  Returns the Discord bot token given the various configuration inputs.
+  """
+  @spec token() :: String.t()
   def token do
-    case Agent.get(__MODULE__, fn state -> state end) do
-      nil ->
-        token = token_fallback()
-        Agent.update(__MODULE__, fn _ -> token end)
-        token
-
-      token ->
-        token
+    with nil <- token_env(),
+         nil <- token_config() do
+      raise(
+        "No token found. Please provide a bot token, either by environment variable (TOKEN) or via confix.exs."
+      )
+    else
+      token -> token
     end
   end
 
-  defp token_fallback do
-    case Map.get(System.get_env(), "TOKEN") do
-      nil ->
-        case Application.get_env(:discordbot, :token) do
-          nil ->
-            raise(
-              "No token found. Please provide a bot token, either by environment variable (TOKEN) or via confix.exs."
-            )
+  @doc """
+  Returns the discord bot token, if it is defined via environment variable,
+  or `nil` otherwise.
+  """
+  @spec token_env() :: String.t() | nil
+  def token_env do
+    Map.get(System.get_env(), @token_env_var_key)
+  end
 
-          token ->
-            token
-        end
-
-      token ->
-        token
-    end
+  @doc """
+  Returns the discord bot token, if it is defined via application configuration,
+  or `nil` otherwise.
+  """
+  @spec token_config() :: String.t() | nil
+  def token_config do
+    Application.get_env(:discordbot, :token)
   end
 end
