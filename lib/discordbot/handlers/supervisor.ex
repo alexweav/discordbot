@@ -15,6 +15,6 @@ defmodule DiscordBot.Handlers.Supervisor do
       {DiscordBot.Handlers.Search.Supervisor, [broker: Broker]}
     ]
 
-    Supervisor.init(children, strategy: :one_for_one)
+    Supervisor.init(children, strategy: :rest_for_one)
   end
 end
