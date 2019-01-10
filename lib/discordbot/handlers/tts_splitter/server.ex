@@ -21,15 +21,17 @@ defmodule DiscordBot.Handlers.TtsSplitter.Server do
         :error -> Broker
       end
 
-    GenServer.start_link(__MODULE__, broker, opts)
+    help = Help.from_arg(opts)
+
+    GenServer.start_link(__MODULE__, {broker, help}, opts)
   end
 
   ## Handlers
 
-  def init(broker) do
+  def init({broker, help}) do
     Broker.subscribe(broker, :message_create)
 
-    Help.register_info(DiscordBot.Help, %Help.Info{
+    Help.register_info(help, %Help.Info{
       command_key: "!tts_split",
       name: "TTS Split",
       description: "Splits long text into segments and repeats them using /tts"

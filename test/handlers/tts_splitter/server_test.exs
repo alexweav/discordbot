@@ -5,10 +5,13 @@ defmodule DiscordBot.Handlers.TtsSplitter.ServerTest do
   alias DiscordBot.Broker
   alias DiscordBot.Handlers.Help
 
-  setup do
+  setup context do
     broker = start_supervised!({Broker, []})
-    help = start_supervised!({Help, [broker: broker, name: DiscordBot.Help]})
-    _ = start_supervised!({DiscordBot.Handlers.TtsSplitter.Supervisor, broker: broker})
+    help = start_supervised!({Help, [broker: broker, name: context.test]})
+
+    _ =
+      start_supervised!({DiscordBot.Handlers.TtsSplitter.Supervisor, broker: broker, help: help})
+
     %{broker: broker, help: help}
   end
 
