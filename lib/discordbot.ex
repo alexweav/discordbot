@@ -12,7 +12,15 @@ defmodule DiscordBot do
 
   def init(:ok) do
     DiscordBot.Api.start()
-    {:ok, %{"url" => url}} = DiscordBot.Api.request_gateway()
+
+    url =
+      case DiscordBot.Api.request_gateway() do
+        {:ok, %{"url" => url}} ->
+          url
+
+        {:error, :invalid_token} ->
+          raise("The provided token was rejected by Discord. Please ensure your token is valid.")
+      end
 
     children = [
       {DiscordBot.Broker.Supervisor,
