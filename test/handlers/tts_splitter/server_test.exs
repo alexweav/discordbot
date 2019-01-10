@@ -1,5 +1,5 @@
 defmodule DiscordBot.Handlers.TtsSplitter.ServerTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
   doctest DiscordBot.Handlers.TtsSplitter.Server
 
   alias DiscordBot.Broker

@@ -7,7 +7,7 @@ defmodule DiscordBot.Handlers.HelpTest do
 
   setup do
     broker = start_supervised!({Broker, []})
-    help = start_supervised!({Help, [broker: broker]})
+    help = start_supervised!({Help, [broker: broker, name: DiscordBot.Help]}, restart: :transient)
     %{broker: broker, help: help}
   end
 
@@ -22,5 +22,9 @@ defmodule DiscordBot.Handlers.HelpTest do
 
     assert Help.register_info(help, info) == :ok
     assert Help.info?(help, "!command") == {:ok, info}
+  end
+
+  test "always registers help command", %{help: help} do
+    assert Help.info?(help, "!help") != :error
   end
 end
