@@ -64,6 +64,19 @@ defmodule DiscordBot.Handlers.Help do
   end
 
   @doc """
+  Parses a help handler PID from a keyword list, under the key `:help`
+  Returns the default name of a help handler process if
+  the key is not found
+  """
+  @spec from_arg(help: pid) :: pid | DiscordBot.Help
+  def from_arg(keyword_list) do
+    case Keyword.fetch(keyword_list, :help) do
+      {:ok, pid} -> pid
+      :error -> DiscordBot.Help
+    end
+  end
+
+  @doc """
   Registers a new entry of help info, `info`, to be formatted
   and displayed when help is requested over Discord.
   """

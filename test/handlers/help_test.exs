@@ -5,9 +5,9 @@ defmodule DiscordBot.Handlers.HelpTest do
   alias DiscordBot.Broker
   alias DiscordBot.Handlers.Help
 
-  setup do
+  setup context do
     broker = start_supervised!({Broker, []})
-    help = start_supervised!({Help, [broker: broker, name: DiscordBot.Help]}, restart: :transient)
+    help = start_supervised!({Help, [broker: broker, name: context.test]}, restart: :transient)
     %{broker: broker, help: help}
   end
 

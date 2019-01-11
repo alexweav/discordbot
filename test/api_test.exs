@@ -2,11 +2,6 @@ defmodule DiscordBot.ApiTest do
   use ExUnit.Case, async: true
   doctest DiscordBot.Api
 
-  setup do
-    token = start_supervised!(DiscordBot.Token)
-    %{token: token}
-  end
-
   test "produces a fully qualified URL" do
     expected = "https://discordapp.com/api/v/test"
     assert DiscordBot.Api.process_request_url("v/test") == expected
