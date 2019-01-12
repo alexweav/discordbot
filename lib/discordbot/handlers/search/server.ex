@@ -64,21 +64,22 @@ defmodule DiscordBot.Handlers.Search.Server do
 
   defp search_wiki(text, message) do
     response =
-      case DiscordBot.Handlers.Search.search_wikipedia(text) do
-        nil -> "Nothing found :("
-        link -> link
-      end
+      text
+      |> DiscordBot.Handlers.Search.search_wikipedia()
+      |> format_message()
 
     DiscordBot.Channel.Controller.reply(message, response)
   end
 
   defp search_youtube(text, message) do
     response =
-      case DiscordBot.Handlers.Search.search_youtube(text) do
-        nil -> "Nothing found :("
-        link -> link
-      end
+      text
+      |> DiscordBot.Handlers.Search.search_youtube()
+      |> format_message()
 
     DiscordBot.Channel.Controller.reply(message, response)
   end
+
+  defp format_message(nil), do: "Nothing found :("
+  defp format_message(text), do: text
 end
