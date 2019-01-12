@@ -8,6 +8,7 @@ defmodule DiscordBot.Handlers.Search.Server do
   alias DiscordBot.Broker
   alias DiscordBot.Broker.Event
   alias DiscordBot.Handlers.Help
+  alias DiscordBot.Handlers.Search
   alias DiscordBot.Model.Message
 
   def start_link(opts) do
@@ -47,39 +48,16 @@ defmodule DiscordBot.Handlers.Search.Server do
   end
 
   defp handle_content("!wiki " <> text, message) do
-    Task.Supervisor.start_child(
-      DiscordBot.Search.TaskSupervisor,
-      fn -> search_wiki(text, message) end
-    )
+    handle_supervised(fn -> Search.reply_wikipedia(text, message) end)
   end
 
   defp handle_content("!youtube " <> text, message) do
-    Task.Supervisor.start_child(
-      DiscordBot.Search.TaskSupervisor,
-      fn -> search_youtube(text, message) end
-    )
+    handle_supervised(fn -> Search.reply_youtube(text, message) end)
   end
 
   defp handle_content(_, _), do: nil
 
-  defp search_wiki(text, message) do
-    response =
-      text
-      |> DiscordBot.Handlers.Search.search_wikipedia()
-      |> format_message()
-
-    DiscordBot.Channel.Controller.reply(message, response)
+  defp handle_supervised(func) do
+    Task.Supervisor.start_child(DiscordBot.Search.TaskSupervisor, func)
   end
-
-  defp search_youtube(text, message) do
-    response =
-      text
-      |> DiscordBot.Handlers.Search.search_youtube()
-      |> format_message()
-
-    DiscordBot.Channel.Controller.reply(message, response)
-  end
-
-  defp format_message(nil), do: "Nothing found :("
-  defp format_message(text), do: text
 end
