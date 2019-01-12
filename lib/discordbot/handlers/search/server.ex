@@ -8,6 +8,8 @@ defmodule DiscordBot.Handlers.Search.Server do
   alias DiscordBot.Broker
   alias DiscordBot.Broker.Event
   alias DiscordBot.Handlers.Help
+  alias DiscordBot.Handlers.Search
+  alias DiscordBot.Model.Message
 
   def start_link(opts) do
     broker =
@@ -40,50 +42,22 @@ defmodule DiscordBot.Handlers.Search.Server do
   end
 
   def handle_info(%Event{message: message}, broker) do
-    %DiscordBot.Model.Message{channel_id: channel_id, content: content} = message
-    handle_content(content, channel_id)
+    %Message{content: content} = message
+    handle_content(content, message)
     {:noreply, broker}
   end
 
-  defp handle_content("!wiki " <> text, channel_id) do
-    Task.Supervisor.start_child(
-      DiscordBot.Search.TaskSupervisor,
-      fn -> search_wiki(text, channel_id) end
-    )
+  defp handle_content("!wiki " <> text, message) do
+    handle_supervised(fn -> Search.reply_wikipedia(text, message) end)
   end
 
-  defp handle_content("!youtube " <> text, channel_id) do
-    Task.Supervisor.start_child(
-      DiscordBot.Search.TaskSupervisor,
-      fn -> search_youtube(text, channel_id) end
-    )
+  defp handle_content("!youtube " <> text, message) do
+    handle_supervised(fn -> Search.reply_youtube(text, message) end)
   end
 
   defp handle_content(_, _), do: nil
 
-  defp search_wiki(text, channel_id) do
-    {:ok, channel} =
-      DiscordBot.Channel.Controller.lookup_by_id(DiscordBot.ChannelController, channel_id)
-
-    response =
-      case DiscordBot.Handlers.Search.search_wikipedia(text) do
-        nil -> "Nothing found :("
-        link -> link
-      end
-
-    DiscordBot.Channel.Channel.create_message(channel, response)
-  end
-
-  defp search_youtube(text, channel_id) do
-    {:ok, channel} =
-      DiscordBot.Channel.Controller.lookup_by_id(DiscordBot.ChannelController, channel_id)
-
-    response =
-      case DiscordBot.Handlers.Search.search_youtube(text) do
-        nil -> "Nothing found :("
-        link -> link
-      end
-
-    DiscordBot.Channel.Channel.create_message(channel, response)
+  defp handle_supervised(func) do
+    Task.Supervisor.start_child(DiscordBot.Search.TaskSupervisor, func)
   end
 end

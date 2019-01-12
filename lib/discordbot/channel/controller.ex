@@ -53,6 +53,16 @@ defmodule DiscordBot.Channel.Controller do
     GenServer.call(controller, {:close, id})
   end
 
+  @doc """
+  Sends a reply to the given message with the provided content
+  """
+  @spec reply(DiscordBot.Model.Message.t(), String.t()) :: any
+  def reply(message, content, opts \\ []) do
+    %DiscordBot.Model.Message{channel_id: channel_id} = message
+    {:ok, channel} = lookup_by_id(DiscordBot.ChannelController, channel_id)
+    DiscordBot.Channel.Channel.create_message(channel, content, opts)
+  end
+
   ## Handlers
 
   def init(broker) do
