@@ -72,7 +72,8 @@ defmodule DiscordBot.Handlers.Search do
   end
 
   def request_spotify_access_token do
-    Spotify.request_temporary_token()
+    {:ok, data} = Spotify.request_temporary_token()
+    data
   end
 
   @spec format_message(String.t() | nil) :: String.t()
