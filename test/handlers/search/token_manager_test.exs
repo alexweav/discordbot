@@ -8,4 +8,16 @@ defmodule DiscordBot.Handlers.Search.TokenManagerTest do
     manager = start_supervised!(TokenManager)
     %{manager: manager}
   end
+
+  test "defines new tokens from a static value", %{manager: manager} do
+    assert TokenManager.define_temporary(manager, :token, 123, "newvalue") == "newvalue"
+  end
+
+  test "defines new tokens from a generator", %{manager: manager} do
+    assert TokenManager.define(manager, :token, 123, fn -> "newvalue" end) == "newvalue"
+  end
+
+  test "doesn't generate on definition if initial provided", %{manager: manager} do
+    assert TokenManager.define(manager, :token, 123, fn -> "newvalue" end, "initial") == "initial"
+  end
 end
