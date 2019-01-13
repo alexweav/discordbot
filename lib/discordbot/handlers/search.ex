@@ -5,6 +5,7 @@ defmodule DiscordBot.Handlers.Search do
 
   alias DiscordBot.Handlers.Search.Wikipedia
   alias DiscordBot.Handlers.Search.Youtube
+  alias DiscordBot.Handlers.Search.Spotify
 
   @doc """
   Searches Wikipedia for `text`, and returns the search
@@ -68,6 +69,10 @@ defmodule DiscordBot.Handlers.Search do
   @spec youtube_video_link(String.t()) :: String.t()
   def youtube_video_link(id) do
     "https://www.youtube.com/watch?v=#{id}"
+  end
+
+  def request_spotify_access_token do
+    Spotify.request_temporary_token()
   end
 
   @spec format_message(String.t() | nil) :: String.t()
