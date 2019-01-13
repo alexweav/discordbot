@@ -72,6 +72,7 @@ defmodule DiscordBot.Handlers.Search.TokenManager do
   be regenerated, and will be deleted automatically after `expiry_seconds`
   passes.
   """
+  @spec define_temporary(pid, atom, integer, String.t()) :: String.t()
   def define_temporary(manager, name, expiry_seconds, token) do
     GenServer.call(manager, {:define_temporary, name, expiry_seconds, token})
   end
