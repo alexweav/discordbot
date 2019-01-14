@@ -23,4 +23,35 @@ defmodule DiscordBot.Handlers.Search.TokenManagerTest do
     assert TokenManager.define(manager, :token, 123, fn -> "newvalue" end, "initial") == "initial"
     assert TokenManager.token?(manager, :token) == "initial"
   end
+
+  test "undefined token returns error", %{manager: manager} do
+    assert TokenManager.token?(manager, :undefined) == :error
+  end
+
+  test "tokens are deletable", %{manager: manager} do
+    TokenManager.define_temporary(manager, :token, 1, "value")
+    assert TokenManager.token?(manager, :token) == "value"
+    assert TokenManager.undefine(manager, :token) == :ok
+    assert TokenManager.token?(manager, :token) == :error
+  end
+
+  test "temp token undefined after time expires", %{manager: manager} do
+    TokenManager.define_temporary(manager, :token, 1, "mytoken")
+    assert TokenManager.token?(manager, :token) == "mytoken"
+    Process.sleep(1500)
+
+    # Do a lookup to synchronously wait for the manager to process the expiry message
+    TokenManager.token?(manager, :undefined)
+    assert TokenManager.token?(manager, :token) == :error
+  end
+
+  test "generated token redefined after time expires", %{manager: manager} do
+    TokenManager.define(manager, :token, 1, fn -> "newvalue" end, "initial")
+    assert TokenManager.token?(manager, :token) == "initial"
+    Process.sleep(1500)
+
+    # Do a lookup to synchronously wait for the manager to process the expiry message
+    TokenManager.token?(manager, :undefined)
+    assert TokenManager.token?(manager, :token) == "newvalue"
+  end
 end
