@@ -15,7 +15,8 @@ defmodule DiscordBot.Handlers.Search.Supervisor do
 
   def init(broker) do
     children = [
-      {DiscordBot.Handlers.Search.TokenManager, name: DiscordBot.Search.TokenManager},
+      {DiscordBot.Handlers.Search.TokenManager,
+       name: DiscordBot.Search.TokenManager, strategy: :one_for_all},
       {Task.Supervisor, name: DiscordBot.Search.TaskSupervisor},
       {DiscordBot.Handlers.Search.Server, name: DiscordBot.Search.Server, broker: broker}
     ]
