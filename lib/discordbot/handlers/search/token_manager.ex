@@ -77,6 +77,14 @@ defmodule DiscordBot.Handlers.Search.TokenManager do
     GenServer.call(manager, {:define_temporary, name, expiry_seconds, token})
   end
 
+  @doc """
+  Obtains the token value defined under a name. Returns `:error` if
+  no token is defined.
+  """
+  def token?(manager, name) do
+    GenServer.call(manager, {:lookup, name})
+  end
+
   ## Handlers
 
   def init(registry) do
@@ -91,6 +99,13 @@ defmodule DiscordBot.Handlers.Search.TokenManager do
   def handle_call({:define_temporary, name, expiry_seconds, token}, _from, registry) do
     definition = define_internal(name, expiry_seconds, token)
     {:reply, definition.current_value, Map.put(registry, name, definition)}
+  end
+
+  def handle_call({:lookup, name}, _from, registry) do
+    case Map.get(registry, name) do
+      nil -> {:reply, :error, registry}
+      definition -> {:reply, definition.current_value, registry}
+    end
   end
 
   defp define_internal(name, expiry_seconds, current_value) do
