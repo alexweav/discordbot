@@ -83,11 +83,40 @@ defmodule DiscordBot.Handlers.Search.TokenManager do
     {:ok, registry}
   end
 
-  def handle_call({:define, _name, _expiry_seconds, _generator, _initial}, _from, registry) do
-    {:reply, :ok, registry}
+  def handle_call({:define, name, expiry_seconds, generator, initial}, _from, registry) do
+    definition = define_internal(name, expiry_seconds, generator, initial)
+    {:reply, definition.current_value, Map.put(registry, name, definition)}
   end
 
-  def handle_call({:define_temporary, _name, _expiry_seconds, _token}, _from, registry) do
-    {:reply, :ok, registry}
+  def handle_call({:define_temporary, name, expiry_seconds, token}, _from, registry) do
+    definition = define_internal(name, expiry_seconds, token)
+    {:reply, definition.current_value, Map.put(registry, name, definition)}
+  end
+
+  defp define_internal(name, expiry_seconds, current_value) do
+    %TokenDefinition{
+      name: name,
+      expiry_seconds: expiry_seconds,
+      current_value: current_value,
+      generator: nil
+    }
+  end
+
+  defp define_internal(name, expiry_seconds, generator, nil) do
+    %TokenDefinition{
+      name: name,
+      expiry_seconds: expiry_seconds,
+      generator: generator,
+      current_value: generator.()
+    }
+  end
+
+  defp define_internal(name, expiry_seconds, generator, current_value) do
+    %TokenDefinition{
+      name: name,
+      expiry_seconds: expiry_seconds,
+      current_value: current_value,
+      generator: generator
+    }
   end
 end
