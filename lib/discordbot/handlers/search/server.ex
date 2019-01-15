@@ -38,6 +38,8 @@ defmodule DiscordBot.Handlers.Search.Server do
       description: "Searches YouTube videos for the given text"
     })
 
+    :ok = Search.setup_handler()
+
     {:ok, broker}
   end
 

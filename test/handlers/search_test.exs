@@ -10,6 +10,6 @@ defmodule DiscordBot.Handlers.SearchTest do
   end
 
   test "parses Spotify access token" do
-    assert %{"access_token" => _, "expires_in" => _} = Search.request_spotify_access_token()
+    assert is_binary(Search.request_spotify_access_token())
   end
 end

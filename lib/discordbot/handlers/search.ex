@@ -6,6 +6,9 @@ defmodule DiscordBot.Handlers.Search do
   alias DiscordBot.Handlers.Search.Wikipedia
   alias DiscordBot.Handlers.Search.Youtube
   alias DiscordBot.Handlers.Search.Spotify
+  alias DiscordBot.Handlers.Search.TokenManager
+
+  @default_spotify_token_timeout 3600
 
   @doc """
   Searches Wikipedia for `text`, and returns the search
@@ -71,9 +74,20 @@ defmodule DiscordBot.Handlers.Search do
     "https://www.youtube.com/watch?v=#{id}"
   end
 
+  def setup_handler do
+    TokenManager.define(
+      DiscordBot.Search.TokenManager,
+      :spotify,
+      @default_spotify_token_timeout,
+      fn -> request_spotify_access_token() end
+    )
+
+    :ok
+  end
+
   def request_spotify_access_token do
-    {:ok, data} = Spotify.request_temporary_token()
-    data
+    {:ok, %{"access_token" => token}} = Spotify.request_temporary_token()
+    token
   end
 
   @spec format_message(String.t() | nil) :: String.t()
