@@ -67,6 +67,32 @@ defmodule DiscordBot.Handlers.Search do
   end
 
   @doc """
+  Searches Spotify for the given term and returns
+  a link to the first album result. Returns `nil` if no result
+  is found, or if Spotify cannot be reached.
+  """
+  @spec search_spotify_albums(String.t()) :: String.t() | nil
+  def search_spotify_albums(term) do
+    case Spotify.search_albums(term) do
+      {:ok, %{"albums" => %{"items" => [%{"external_urls" => %{"spotify" => url}}]}}} -> url
+      _ -> nil
+    end
+  end
+
+  @doc """
+  Searches Spotify for the given term and returns
+  a link to the first track result. Returns `nil` if no result
+  is found, or if Spotify cannot be reached.
+  """
+  @spec search_spotify_tracks(String.t()) :: String.t() | nil
+  def search_spotify_tracks(term) do
+    case Spotify.search_tracks(term) do
+      {:ok, %{"tracks" => %{"items" => [%{"external_urls" => %{"spotify" => url}}]}}} -> url
+      _ -> nil
+    end
+  end
+
+  @doc """
   Returns a link to a YouTube video given the video's ID
   """
   @spec youtube_video_link(String.t()) :: String.t()

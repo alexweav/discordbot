@@ -6,6 +6,7 @@ defmodule DiscordBot.Handlers.Search.Spotify do
   use HTTPoison.Base
 
   alias DiscordBot.Handlers.Search.Spotify
+  alias DiscordBot.Handlers.Search.TokenManager
 
   def request_temporary_token do
     url = "https://accounts.spotify.com/api/token"
@@ -27,6 +28,42 @@ defmodule DiscordBot.Handlers.Search.Spotify do
       response ->
         {:error, response}
     end
+  end
+
+  def search_albums(term, take \\ 1) do
+    url =
+      "https://api.spotify.com/v1/search?type=album"
+      |> apply_query(term)
+      |> apply_take(take)
+
+    header = [
+      {"Authorization", auth_header()}
+    ]
+
+    case Spotify.get(url, header) do
+      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+        {:ok, body}
+    end
+  end
+
+  def search_tracks(term, take \\ 1) do
+    url =
+      "https://api.spotify.com/v1/search?type=track"
+      |> apply_query(term)
+      |> apply_take(take)
+
+    header = [
+      {"Authorization", auth_header()}
+    ]
+
+    case Spotify.get(url, header) do
+      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+        {:ok, body}
+    end
+  end
+
+  def access_token do
+    TokenManager.token?(DiscordBot.Search.TokenManager, :spotify)
   end
 
   def client_id do
@@ -55,5 +92,17 @@ defmodule DiscordBot.Handlers.Search.Spotify do
   def process_response_body(body) do
     body
     |> Poison.decode!()
+  end
+
+  defp apply_query(url, term) do
+    url <> "&q=#{URI.encode(term)}"
+  end
+
+  defp apply_take(url, take) do
+    url <> "&limit=#{take}"
+  end
+
+  defp auth_header do
+    "Bearer #{access_token()}"
   end
 end
