@@ -67,6 +67,20 @@ defmodule DiscordBot.Handlers.Search do
   end
 
   @doc """
+  Searches Spotify albums for `text`, and returns the search
+  result as a response to `message`
+  """
+  @spec reply_spotify_albums(String.t(), DiscordBot.Model.Message.t()) :: any
+  def reply_spotify_albums(text, message) do
+    response =
+      text
+      |> search_spotify_albums()
+      |> format_message()
+
+    DiscordBot.Channel.Controller.reply(message, response)
+  end
+
+  @doc """
   Searches Spotify for the given term and returns
   a link to the first album result. Returns `nil` if no result
   is found, or if Spotify cannot be reached.
@@ -77,6 +91,20 @@ defmodule DiscordBot.Handlers.Search do
       {:ok, %{"albums" => %{"items" => [%{"external_urls" => %{"spotify" => url}}]}}} -> url
       _ -> nil
     end
+  end
+
+  @doc """
+  Searches Spotify tracks for `text`, and returns the search
+  result as a response to `message`
+  """
+  @spec reply_spotify_tracks(String.t(), DiscordBot.Model.Message.t()) :: any
+  def reply_spotify_tracks(text, message) do
+    response =
+      text
+      |> search_spotify_albums()
+      |> format_message()
+
+    DiscordBot.Channel.Controller.reply(message, response)
   end
 
   @doc """
