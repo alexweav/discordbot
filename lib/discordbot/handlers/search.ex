@@ -5,6 +5,10 @@ defmodule DiscordBot.Handlers.Search do
 
   alias DiscordBot.Handlers.Search.Wikipedia
   alias DiscordBot.Handlers.Search.Youtube
+  alias DiscordBot.Handlers.Search.Spotify
+  alias DiscordBot.Handlers.Search.TokenManager
+
+  @default_spotify_token_timeout 3600
 
   @doc """
   Searches Wikipedia for `text`, and returns the search
@@ -63,11 +67,81 @@ defmodule DiscordBot.Handlers.Search do
   end
 
   @doc """
+  Searches Spotify albums for `text`, and returns the search
+  result as a response to `message`
+  """
+  @spec reply_spotify_albums(String.t(), DiscordBot.Model.Message.t()) :: any
+  def reply_spotify_albums(text, message) do
+    response =
+      text
+      |> search_spotify_albums()
+      |> format_message()
+
+    DiscordBot.Channel.Controller.reply(message, response)
+  end
+
+  @doc """
+  Searches Spotify for the given term and returns
+  a link to the first album result. Returns `nil` if no result
+  is found, or if Spotify cannot be reached.
+  """
+  @spec search_spotify_albums(String.t()) :: String.t() | nil
+  def search_spotify_albums(term) do
+    case Spotify.search_albums(term) do
+      {:ok, %{"albums" => %{"items" => [%{"external_urls" => %{"spotify" => url}}]}}} -> url
+      _ -> nil
+    end
+  end
+
+  @doc """
+  Searches Spotify tracks for `text`, and returns the search
+  result as a response to `message`
+  """
+  @spec reply_spotify_tracks(String.t(), DiscordBot.Model.Message.t()) :: any
+  def reply_spotify_tracks(text, message) do
+    response =
+      text
+      |> search_spotify_albums()
+      |> format_message()
+
+    DiscordBot.Channel.Controller.reply(message, response)
+  end
+
+  @doc """
+  Searches Spotify for the given term and returns
+  a link to the first track result. Returns `nil` if no result
+  is found, or if Spotify cannot be reached.
+  """
+  @spec search_spotify_tracks(String.t()) :: String.t() | nil
+  def search_spotify_tracks(term) do
+    case Spotify.search_tracks(term) do
+      {:ok, %{"tracks" => %{"items" => [%{"external_urls" => %{"spotify" => url}}]}}} -> url
+      _ -> nil
+    end
+  end
+
+  @doc """
   Returns a link to a YouTube video given the video's ID
   """
   @spec youtube_video_link(String.t()) :: String.t()
   def youtube_video_link(id) do
     "https://www.youtube.com/watch?v=#{id}"
+  end
+
+  def setup_handler do
+    TokenManager.define(
+      DiscordBot.Search.TokenManager,
+      :spotify,
+      @default_spotify_token_timeout,
+      fn -> request_spotify_access_token() end
+    )
+
+    :ok
+  end
+
+  def request_spotify_access_token do
+    {:ok, %{"access_token" => token}} = Spotify.request_temporary_token()
+    token
   end
 
   @spec format_message(String.t() | nil) :: String.t()
