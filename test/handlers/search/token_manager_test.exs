@@ -54,4 +54,24 @@ defmodule DiscordBot.Handlers.Search.TokenManagerTest do
     TokenManager.token?(manager, :undefined)
     assert TokenManager.token?(manager, :token) == "newvalue"
   end
+
+  test "generated token redefined multiple times", %{manager: manager} do
+    {:ok, counter} = Agent.start_link(fn -> 0 end)
+
+    TokenManager.define(
+      manager,
+      :token,
+      1,
+      fn ->
+        Agent.update(counter, fn val -> val + 1 end)
+        Agent.get(counter, fn val -> val end)
+      end
+    )
+
+    Process.sleep(5)
+    assert TokenManager.token?(manager, :token) > 0
+    updated = TokenManager.token?(manager, :token)
+    Process.sleep(5)
+    assert TokenManager.token?(manager, :token) > updated
+  end
 end
