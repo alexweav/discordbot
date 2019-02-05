@@ -38,7 +38,7 @@ defmodule DiscordBot.Handlers.Search.TokenManagerTest do
   test "temp token undefined after time expires", %{manager: manager} do
     TokenManager.define_temporary(manager, :token, 1, "mytoken")
     assert TokenManager.token?(manager, :token) == "mytoken"
-    Process.sleep(1500)
+    Process.sleep(10)
 
     # Do a lookup to synchronously wait for the manager to process the expiry message
     TokenManager.token?(manager, :undefined)
@@ -48,7 +48,7 @@ defmodule DiscordBot.Handlers.Search.TokenManagerTest do
   test "generated token redefined after time expires", %{manager: manager} do
     TokenManager.define(manager, :token, 1, fn -> "newvalue" end, "initial")
     assert TokenManager.token?(manager, :token) == "initial"
-    Process.sleep(1500)
+    Process.sleep(10)
 
     # Do a lookup to synchronously wait for the manager to process the expiry message
     TokenManager.token?(manager, :undefined)
