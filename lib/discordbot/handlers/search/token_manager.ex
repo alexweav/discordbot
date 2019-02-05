@@ -3,6 +3,8 @@ defmodule DiscordBot.Handlers.Search.TokenManager do
   Manages and refreshes access tokens which have a defined expiry period.
   """
 
+  require Logger
+
   defmodule TokenDefinition do
     @moduledoc """
     Represents a token with an expiry period, along with a method
@@ -133,6 +135,8 @@ defmodule DiscordBot.Handlers.Search.TokenManager do
   end
 
   def handle_info({:expired, name}, registry) do
+    Logger.debug("Token #{name} expired.")
+
     case expire(Map.get(registry, name)) do
       nil -> {:noreply, Map.delete(registry, name)}
       definition -> {:noreply, Map.put(registry, name, definition)}
@@ -177,8 +181,10 @@ defmodule DiscordBot.Handlers.Search.TokenManager do
     nil
   end
 
-  defp expire(%TokenDefinition{generator: generator} = definition) do
-    %{definition | current_value: generator.()}
+  defp expire(
+         %TokenDefinition{generator: generator, name: name, expiry_seconds: expiry} = definition
+       ) do
+    %{definition | current_value: generator.(), timer: start_timer(name, expiry)}
   end
 
   defp start_timer(name, expiry_seconds) do
