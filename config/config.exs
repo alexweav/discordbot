@@ -4,6 +4,7 @@ config :discordbot,
   token: "TOKEN"
 
 config :logger,
+  level: :info,
   backends: [
     :console,
     {LoggerFileBackend, :info},

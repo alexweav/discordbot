@@ -8,7 +8,7 @@ defmodule DiscordBot.Handlers.Search do
   alias DiscordBot.Handlers.Search.Spotify
   alias DiscordBot.Handlers.Search.TokenManager
 
-  @default_spotify_token_timeout 3600
+  @default_spotify_token_timeout 1000 * 60 * 60
 
   @doc """
   Searches Wikipedia for `text`, and returns the search
