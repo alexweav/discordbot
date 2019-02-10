@@ -19,3 +19,17 @@ erl_crash.dump
 # Also ignore archive artifacts (built via "mix archive.build").
 *.ez
 
+# Ignore package tarball (built via "mix hex.build").
+discordbot-*.tar
+
+# Ignore config files containing secret keys
+/config/*secret.exs
+
+# Ignore base runtime distillery config file, as well as override files
+/rel/config/*config.exs
+
+# VI/VIM swap files
+*.swp
+
+# Log files
+*.log
