@@ -14,7 +14,7 @@ RUN rm -rf _build && \
     mix release
 
 # Extract distillery tarball
-RUN APP_NAME="discordbot" && \
+RUN APP_NAME="discordbot_umbrella" && \
     RELEASE_DIR=`ls -d _build/prod/rel/$APP_NAME/releases/*/` && \
     mkdir /export && \
     tar -xf "$RELEASE_DIR/$APP_NAME.tar.gz" -C /export
@@ -29,5 +29,5 @@ COPY --from=build /export/ .
 USER default
 
 # Launch generated application
-ENTRYPOINT ["/opt/app/bin/discordbot"]
+ENTRYPOINT ["/opt/app/bin/discordbot_umbrella"]
 CMD ["foreground"]
