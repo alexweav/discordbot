@@ -1,9 +1,9 @@
-defmodule DiscordBot.Handlers.HelpTest do
+defmodule Services.HelpTest do
   use ExUnit.Case, async: true
-  doctest DiscordBot.Handlers.Help
+  doctest Services.Help
 
   alias DiscordBot.Broker
-  alias DiscordBot.Handlers.Help
+  alias Services.Help
 
   setup context do
     broker = start_supervised!({Broker, []})

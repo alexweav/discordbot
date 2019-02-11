@@ -1,4 +1,4 @@
-defmodule DiscordBot.Handlers.TtsSplitter.Server do
+defmodule Services.TtsSplitter.Server do
   @moduledoc """
   GenServer for the TTS splitter command
   """
@@ -9,7 +9,7 @@ defmodule DiscordBot.Handlers.TtsSplitter.Server do
 
   alias DiscordBot.Broker
   alias DiscordBot.Broker.Event
-  alias DiscordBot.Handlers.Help
+  alias Services.Help
 
   @doc """
   Starts the TTS-splitter handler
@@ -48,7 +48,7 @@ defmodule DiscordBot.Handlers.TtsSplitter.Server do
 
   defp handle_content("!tts_split " <> text, channel_id) do
     Task.Supervisor.start_child(
-      DiscordBot.TtsSplitter.TaskSupervisor,
+      Services.TtsSplitter.TaskSupervisor,
       fn -> lookup_and_send(text, channel_id) end
     )
   end
@@ -59,7 +59,7 @@ defmodule DiscordBot.Handlers.TtsSplitter.Server do
     {:ok, channel} =
       DiscordBot.Channel.Controller.lookup_by_id(DiscordBot.ChannelController, channel_id)
 
-    chunks = DiscordBot.Handlers.TtsSplitter.tts_split(text)
+    chunks = Services.TtsSplitter.tts_split(text)
     send_tts_chunks(chunks, channel)
   end
 

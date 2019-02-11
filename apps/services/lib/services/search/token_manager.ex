@@ -1,4 +1,4 @@
-defmodule DiscordBot.Handlers.Search.TokenManager do
+defmodule Services.Search.TokenManager do
   @moduledoc """
   Manages and refreshes access tokens which have a defined expiry period.
   """

@@ -1,4 +1,4 @@
-defmodule DiscordBot.Handlers.Ping do
+defmodule Services.Ping do
   @moduledoc """
   Responds to basic commands via text.
 
@@ -11,7 +11,7 @@ defmodule DiscordBot.Handlers.Ping do
 
   alias DiscordBot.Broker
   alias DiscordBot.Broker.Event
-  alias DiscordBot.Handlers.Help
+  alias Services.Help
 
   @doc """
   Starts this handler inside a new process. Takes a broker
@@ -30,13 +30,13 @@ defmodule DiscordBot.Handlers.Ping do
   def handle(broker) do
     Broker.subscribe(broker, :message_create)
 
-    Help.register_info(DiscordBot.Help, %Help.Info{
+    Help.register_info(Services.Help, %Help.Info{
       command_key: "!ping",
       name: "Ping",
       description: "Replies with \"Pong\""
     })
 
-    Help.register_info(DiscordBot.Help, %Help.Info{
+    Help.register_info(Services.Help, %Help.Info{
       command_key: "!source",
       name: "Source",
       description: "Replies with a link to this bot's source"

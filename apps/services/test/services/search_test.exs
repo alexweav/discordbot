@@ -1,14 +1,11 @@
-defmodule DiscordBot.Handlers.SearchTest do
+defmodule Services.SearchTest do
   use ExUnit.Case, async: true
-  doctest DiscordBot.Handlers.Search
+  doctest Services.Search
 
-  alias DiscordBot.Handlers.Search
+  alias Services.Search
 
   setup do
-    _ =
-      start_supervised!(
-        {DiscordBot.Handlers.Search.TokenManager, name: DiscordBot.Search.TokenManager}
-      )
+    _ = start_supervised!({Services.Search.TokenManager, name: Services.Search.TokenManager})
 
     Search.Spotify.start()
     Search.setup_handler()
