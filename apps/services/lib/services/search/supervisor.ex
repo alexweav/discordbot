@@ -15,8 +15,7 @@ defmodule Services.Search.Supervisor do
 
   def init(broker) do
     children = [
-      {Services.Search.TokenManager,
-       name: Services.Search.TokenManager, strategy: :one_for_all},
+      {Services.Search.TokenManager, name: Services.Search.TokenManager, strategy: :one_for_all},
       {Task.Supervisor, name: Services.Search.TaskSupervisor},
       {Services.Search.Server, name: Services.Search.Server, broker: broker}
     ]
