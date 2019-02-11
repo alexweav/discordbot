@@ -1,4 +1,4 @@
-defmodule DiscordBot.Handlers.Help do
+defmodule Services.Help do
   @moduledoc """
   Provides help-text on demand in a discord chat channel.
   """
@@ -68,11 +68,11 @@ defmodule DiscordBot.Handlers.Help do
   Returns the default name of a help handler process if
   the key is not found
   """
-  @spec from_arg(help: pid) :: pid | DiscordBot.Help
+  @spec from_arg(help: pid) :: pid | Services.Help
   def from_arg(keyword_list) do
     case Keyword.fetch(keyword_list, :help) do
       {:ok, pid} -> pid
-      :error -> DiscordBot.Help
+      :error -> Services.Help
     end
   end
 

@@ -1,12 +1,12 @@
-defmodule DiscordBot.Handlers.Search do
+defmodule Services.Search do
   @moduledoc """
   Logic for the search commands
   """
 
-  alias DiscordBot.Handlers.Search.Wikipedia
-  alias DiscordBot.Handlers.Search.Youtube
-  alias DiscordBot.Handlers.Search.Spotify
-  alias DiscordBot.Handlers.Search.TokenManager
+  alias Services.Search.Wikipedia
+  alias Services.Search.Youtube
+  alias Services.Search.Spotify
+  alias Services.Search.TokenManager
 
   @default_spotify_token_timeout 1000 * 60 * 60
 
@@ -130,7 +130,7 @@ defmodule DiscordBot.Handlers.Search do
 
   def setup_handler do
     TokenManager.define(
-      DiscordBot.Search.TokenManager,
+      Services.Search.TokenManager,
       :spotify,
       @default_spotify_token_timeout,
       fn -> request_spotify_access_token() end

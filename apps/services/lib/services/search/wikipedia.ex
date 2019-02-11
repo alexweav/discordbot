@@ -1,11 +1,11 @@
-defmodule DiscordBot.Handlers.Search.Wikipedia do
+defmodule Services.Search.Wikipedia do
   @moduledoc """
   API client for Wikipedia
   """
 
   use HTTPoison.Base
 
-  alias DiscordBot.Handlers.Search.Wikipedia
+  alias Services.Search.Wikipedia
 
   @doc """
   Searches articles on Wikipedia given a term.

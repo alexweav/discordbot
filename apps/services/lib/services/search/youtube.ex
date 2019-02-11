@@ -1,11 +1,11 @@
-defmodule DiscordBot.Handlers.Search.Youtube do
+defmodule Services.Search.Youtube do
   @moduledoc """
   API client for YouTube
   """
 
   use HTTPoison.Base
 
-  alias DiscordBot.Handlers.Search.Youtube
+  alias Services.Search.Youtube
 
   @doc """
   Searches videos on YouTube given a term.

@@ -1,12 +1,12 @@
-defmodule DiscordBot.Handlers.Search.Spotify do
+defmodule Services.Search.Spotify do
   @moduledoc """
   API client for Spotify
   """
 
   use HTTPoison.Base
 
-  alias DiscordBot.Handlers.Search.Spotify
-  alias DiscordBot.Handlers.Search.TokenManager
+  alias Services.Search.Spotify
+  alias Services.Search.TokenManager
 
   def request_temporary_token do
     url = "https://accounts.spotify.com/api/token"
@@ -63,7 +63,7 @@ defmodule DiscordBot.Handlers.Search.Spotify do
   end
 
   def access_token do
-    TokenManager.token?(DiscordBot.Search.TokenManager, :spotify)
+    TokenManager.token?(Services.Search.TokenManager, :spotify)
   end
 
   def client_id do

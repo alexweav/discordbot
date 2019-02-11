@@ -1,4 +1,4 @@
-defmodule DiscordBot.Handlers.Search.Server do
+defmodule Services.Search.Server do
   @moduledoc false
 
   use GenServer
@@ -7,8 +7,8 @@ defmodule DiscordBot.Handlers.Search.Server do
 
   alias DiscordBot.Broker
   alias DiscordBot.Broker.Event
-  alias DiscordBot.Handlers.Help
-  alias DiscordBot.Handlers.Search
+  alias Services.Help
+  alias Services.Search
   alias DiscordBot.Model.Message
 
   def start_link(opts) do
@@ -26,25 +26,25 @@ defmodule DiscordBot.Handlers.Search.Server do
   def init(broker) do
     Broker.subscribe(broker, :message_create)
 
-    Help.register_info(DiscordBot.Help, %Help.Info{
+    Help.register_info(Services.Help, %Help.Info{
       command_key: "!wiki",
       name: "Search Wikipedia",
       description: "Searches Wikipedia for the given text"
     })
 
-    Help.register_info(DiscordBot.Help, %Help.Info{
+    Help.register_info(Services.Help, %Help.Info{
       command_key: "!youtube",
       name: "Search YouTube",
       description: "Searches YouTube videos for the given text"
     })
 
-    Help.register_info(DiscordBot.Help, %Help.Info{
+    Help.register_info(Services.Help, %Help.Info{
       command_key: "!spotify album",
       name: "Search Spotify albums",
       description: "Searches Spotify albums for the given text"
     })
 
-    Help.register_info(DiscordBot.Help, %Help.Info{
+    Help.register_info(Services.Help, %Help.Info{
       command_key: "!spotify track",
       name: "Search Spotify tracks",
       description: "Searches Spotify tracks for the given text"
@@ -80,6 +80,6 @@ defmodule DiscordBot.Handlers.Search.Server do
   defp handle_content(_, _), do: nil
 
   defp handle_supervised(func) do
-    Task.Supervisor.start_child(DiscordBot.Search.TaskSupervisor, func)
+    Task.Supervisor.start_child(Services.Search.TaskSupervisor, func)
   end
 end

@@ -1,22 +1,21 @@
-defmodule DiscordBot.Handlers.TtsSplitter.ServerTest do
+defmodule Services.TtsSplitter.ServerTest do
   use ExUnit.Case, async: false
-  doctest DiscordBot.Handlers.TtsSplitter.Server
+  doctest Services.TtsSplitter.Server
 
   alias DiscordBot.Broker
-  alias DiscordBot.Handlers.Help
+  alias Services.Help
 
   setup context do
     broker = start_supervised!({Broker, []})
     help = start_supervised!({Help, [broker: broker, name: context.test]})
 
-    _ =
-      start_supervised!({DiscordBot.Handlers.TtsSplitter.Supervisor, broker: broker, help: help})
+    _ = start_supervised!({Services.TtsSplitter.Supervisor, broker: broker, help: help})
 
     %{broker: broker, help: help}
   end
 
   test "subscribes to provided broker", %{broker: broker} do
-    pid = Process.whereis(DiscordBot.TtsSplitter.Server)
+    pid = Process.whereis(Services.TtsSplitter.Server)
     assert Enum.member?(Broker.subscribers?(broker, :message_create), pid)
   end
 
