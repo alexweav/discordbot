@@ -1,31 +1,17 @@
+# This file is responsible for configuring your application
+# and its dependencies with the aid of the Mix.Config module.
 use Mix.Config
 
-config :discordbot,
-  token: "TOKEN"
+# By default, the umbrella project as well as each child
+# application will require this configuration file, ensuring
+# they all use the same configuration. While one could
+# configure all applications here, we prefer to delegate
+# back to each application for organization purposes.
+import_config "../apps/*/config/config.exs"
 
-config :logger,
-  level: :info,
-  backends: [
-    :console,
-    {LoggerFileBackend, :info},
-    {LoggerFileBackend, :error}
-  ]
-
-config :logger, :info,
-  path: "logs/info.log",
-  level: :info
-
-config :logger, :error,
-  path: "logs/error.log",
-  level: :error
-
-# The configuration in this file is set at compile time.
-# Building this project from source via mix will use the
-# configuration in this file. Building this project via distillery
-# using `mix release` means that the configuration in rel/config
-# will be applied on top of the configuration stored here, at runtime.
+# Sample configuration (overrides the imported configuration above):
 #
-# If you are building and running this project from source, the bot token
-# should be included in this directory. Otherwise, it should be
-# set in the config files in rel/config instead.
-import_config "*.secret.exs"
+#     config :logger, :console,
+#       level: :info,
+#       format: "$date $time [$level] $metadata$message\n",
+#       metadata: [:user_id]

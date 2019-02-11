@@ -38,10 +38,11 @@ environment :prod do
   set vm_args: "rel/vm.args"
 end
 
-release :discordbot do
-  set version: current_version(:discordbot)
+release :discordbot_umbrella do
+  set version: "0.1.0"
   set applications: [
-    :runtime_tools
+    :runtime_tools,
+    discordbot: :permanent
   ]
 end
 
