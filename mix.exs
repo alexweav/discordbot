@@ -3,9 +3,12 @@ defmodule DiscordbotUmbrella.MixProject do
 
   def project do
     [
+      app: :discordbot_umbrella,
       apps_path: "apps",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      name: "DiscordBot Umbrella",
+      source_url: "https://github.com/alexweav/discordbot"
     ]
   end
 
@@ -16,15 +19,7 @@ defmodule DiscordbotUmbrella.MixProject do
   # Run "mix help deps" for examples and options.
   defp deps do
     [
-      {:credo, "~> 1.0.0", only: [:dev, :test], runtime: false},
-      {:dialyxir, "~> 1.0.0-rc.4", only: [:dev, :test], runtime: false},
-      {:distillery, "~> 2.0"},
-      {:excoveralls, "~> 0.10", only: :test},
-      {:ex_doc, "~> 0.19", only: :dev, runtime: false},
-      {:httpoison, "~> 1.4"},
-      {:logger_file_backend, "~> 0.0.10"},
-      {:poison, "~>3.1"},
-      {:websockex, "~> 0.4.0"}
+      {:distillery, "~> 2.0"}
     ]
   end
 end
