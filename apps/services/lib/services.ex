@@ -13,7 +13,8 @@ defmodule Services do
   def init(:ok) do
     children = [
       {Services.Help, [broker: Broker, name: Services.Help]},
-      {Services.Ping, Broker}
+      {Services.Ping, Broker},
+      {Services.TtsSplitter.Supervisor, [broker: Broker]}
     ]
 
     Logger.info("Launching services...")

@@ -10,7 +10,6 @@ defmodule DiscordBot.Handlers.Supervisor do
   def init(:ok) do
     children = [
       {DiscordBot.Handlers.Help, [broker: Broker, name: DiscordBot.Help]},
-      {DiscordBot.Handlers.TtsSplitter.Supervisor, [broker: Broker]},
       {DiscordBot.Handlers.Search.Supervisor, [broker: Broker]}
     ]
 

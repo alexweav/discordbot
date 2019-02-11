@@ -1,4 +1,4 @@
-defmodule DiscordBot.Handlers.TtsSplitter do
+defmodule Services.TtsSplitter do
   @moduledoc """
   Discord normally truncates messages sent with `/tts`
   to 200-300 characters. This can make it annoying to read
