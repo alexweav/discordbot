@@ -11,7 +11,10 @@ defmodule Services do
   end
 
   def init(:ok) do
-    children = []
+    children = [
+      {Services.Help, [broker: Broker, name: Services.Help]},
+      {Services.Ping, Broker}
+    ]
 
     Logger.info("Launching services...")
     Supervisor.init(children, strategy: :one_for_one)
