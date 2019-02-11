@@ -42,7 +42,7 @@ defmodule DiscordBot do
       {DiscordBot.Handlers.Supervisor, []}
     ]
 
-    Logger.info("Launching...")
+    Logger.info("Launching core app and establishing connection...")
     Supervisor.init(children, strategy: :one_for_one)
   end
 end
