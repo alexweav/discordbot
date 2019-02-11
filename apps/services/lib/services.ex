@@ -14,7 +14,8 @@ defmodule Services do
     children = [
       {Services.Help, [broker: Broker, name: Services.Help]},
       {Services.Ping, Broker},
-      {Services.TtsSplitter.Supervisor, [broker: Broker]}
+      {Services.TtsSplitter.Supervisor, [broker: Broker]},
+      {Services.Search.Supervisor, [broker: Broker]}
     ]
 
     Logger.info("Launching services...")

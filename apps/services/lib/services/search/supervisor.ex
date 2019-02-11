@@ -1,4 +1,4 @@
-defmodule DiscordBot.Handlers.Search.Supervisor do
+defmodule Services.Search.Supervisor do
   @moduledoc false
 
   use Supervisor
@@ -15,10 +15,10 @@ defmodule DiscordBot.Handlers.Search.Supervisor do
 
   def init(broker) do
     children = [
-      {DiscordBot.Handlers.Search.TokenManager,
-       name: DiscordBot.Search.TokenManager, strategy: :one_for_all},
-      {Task.Supervisor, name: DiscordBot.Search.TaskSupervisor},
-      {DiscordBot.Handlers.Search.Server, name: DiscordBot.Search.Server, broker: broker}
+      {Services.Search.TokenManager,
+       name: Services.Search.TokenManager, strategy: :one_for_all},
+      {Task.Supervisor, name: Services.Search.TaskSupervisor},
+      {Services.Search.Server, name: Services.Search.Server, broker: broker}
     ]
 
     Supervisor.init(children, strategy: :one_for_one)
