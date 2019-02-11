@@ -42,7 +42,8 @@ release :discordbot_umbrella do
   set version: "0.1.0"
   set applications: [
     :runtime_tools,
-    discordbot: :permanent
+    discordbot: :permanent,
+    services: :permanent
   ]
 end
 
