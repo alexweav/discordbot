@@ -1,8 +1,8 @@
-defmodule DiscordBot.Handlers.Search.TokenManagerTest do
+defmodule Services.Search.TokenManagerTest do
   use ExUnit.Case, async: true
-  doctest DiscordBot.Handlers.Search.TokenManager
+  doctest Services.Search.TokenManager
 
-  alias DiscordBot.Handlers.Search.TokenManager
+  alias Services.Search.TokenManager
 
   setup do
     manager = start_supervised!(TokenManager)

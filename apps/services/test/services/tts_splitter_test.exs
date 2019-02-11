@@ -1,8 +1,8 @@
-defmodule DiscordBot.Handlers.TtsSplitterTest do
+defmodule Services.TtsSplitterTest do
   use ExUnit.Case, async: true
-  doctest DiscordBot.Handlers.TtsSplitter
+  doctest Services.TtsSplitter
 
-  alias DiscordBot.Handlers.TtsSplitter
+  alias Services.TtsSplitter
 
   test "splits text into words" do
     text1 = "test string wew"
