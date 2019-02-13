@@ -1,20 +1,72 @@
 defmodule DiscordBot.Api do
   @moduledoc """
-  API module for Discord
+  This module is a thin wrapper for Discord's HTTP API.
+  Its functions directly result in HTTP calls to Discord.
   """
 
   use HTTPoison.Base
+  alias HTTPoison.Response
 
+  @callback request_gateway() ::
+              {:ok, map}
+              | {:error, :invalid_token}
+              | {:error, Response.t()}
+
+  @callback create_message(String.t(), String.t()) ::
+              {:ok, Response.t()}
+              | {:error, Response.t()}
+              | {:error, any}
+
+  @callback create_tts_message(String.t(), String.t()) ::
+              {:ok, Response.t()}
+              | {:error, Response.t()}
+              | {:error, any}
+
+  ## Implementation
+
+  @doc """
+  Requests Gateway (websocket) access to Discord.
+
+  Users are authenticated via the API key given by `DiscordBot.Token.token/0`.
+  If gateway access is granted, this call returns a map containing the following fields:
+  - `"url"`: the websocket address to connect to.
+  - `"shards"`: the recommended number of shards to use.
+  - `"session_start_limit"`: an object containing information regarding the maximum number of requests which can be made.
+
+  In the event that the token given by `DiscordBot.Token.token/0` is rejected,
+  this call returns `{:ok, :invalid_token}`.
+
+  ## Examples
+
+      DiscordBot.Api.request_gateway()
+      {:ok,
+        {
+          "url" => "wss://gateway.discord.gg/",
+          "shards" => 9,
+          "session_start_limit" => {
+            "total" => 1000,
+            "remaining" => 999,
+            "reset_after" => 14400000
+          }
+        }
+      }
+
+      DiscordBot.Api.request_gateway()
+      {:error, :invalid_token}
+
+  """
   @spec request_gateway() ::
-          {:ok, map} | {:error, :invalid_token} | {:error, HTTPoison.Response.t()}
+          {:ok, map}
+          | {:error, :invalid_token}
+          | {:error, Response.t()}
   def request_gateway do
-    get_gateway_bot_uri = "/v7/gateway/bot"
+    uri = "/v7/gateway/bot"
 
-    case DiscordBot.Api.get!(get_gateway_bot_uri) do
-      %HTTPoison.Response{status_code: 200, body: body} ->
+    case DiscordBot.Api.get!(uri) do
+      %Response{status_code: 200, body: body} ->
         {:ok, body}
 
-      %HTTPoison.Response{status_code: 401} ->
+      %Response{status_code: 401} ->
         {:error, :invalid_token}
 
       response ->
@@ -34,10 +86,10 @@ defmodule DiscordBot.Api do
       })
 
     case DiscordBot.Api.post(uri, body) do
-      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+      {:ok, %Response{status_code: 200, body: body}} ->
         {:ok, body}
 
-      {:ok, %HTTPoison.Response{body: body}} ->
+      {:ok, %Response{body: body}} ->
         {:error, body}
 
       {:error, error} ->
@@ -59,10 +111,10 @@ defmodule DiscordBot.Api do
       })
 
     case DiscordBot.Api.post(uri, body) do
-      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+      {:ok, %Response{status_code: 200, body: body}} ->
         {:ok, body}
 
-      {:ok, %HTTPoison.Response{body: body}} ->
+      {:ok, %Response{body: body}} ->
         {:error, body}
 
       {:error, error} ->
@@ -70,9 +122,9 @@ defmodule DiscordBot.Api do
     end
   end
 
-  @doc """
-  Appends the base URL onto a short-form URI
-  """
+  ## HTTPoison.Base Callbacks
+
+  @doc false
   def process_request_url("/" <> uri) do
     process_request_url(uri)
   end
@@ -81,9 +133,7 @@ defmodule DiscordBot.Api do
     "https://discordapp.com/api/" <> uri
   end
 
-  @doc """
-  Appends global request headers to an existing set
-  """
+  @doc false
   def process_request_headers(existing) do
     token = DiscordBot.Token.token()
 
@@ -94,6 +144,7 @@ defmodule DiscordBot.Api do
     ]
   end
 
+  @doc false
   def process_response_body(body) do
     body
     |> Poison.decode!()
