@@ -7,23 +7,6 @@ defmodule DiscordBot.Api do
   use HTTPoison.Base
   alias HTTPoison.Response
 
-  @callback request_gateway() ::
-              {:ok, map}
-              | {:error, :invalid_token}
-              | {:error, Response.t()}
-
-  @callback create_message(String.t(), String.t()) ::
-              {:ok, Response.t()}
-              | {:error, Response.t()}
-              | {:error, any}
-
-  @callback create_tts_message(String.t(), String.t()) ::
-              {:ok, Response.t()}
-              | {:error, Response.t()}
-              | {:error, any}
-
-  ## Implementation
-
   @doc """
   Requests Gateway (websocket) access to Discord.
 
@@ -55,6 +38,29 @@ defmodule DiscordBot.Api do
       {:error, :invalid_token}
 
   """
+  @callback request_gateway() ::
+              {:ok, map}
+              | {:error, :invalid_token}
+              | {:error, Response.t()}
+
+  @doc """
+  Posts a message with content `content` to the channel with ID `channel_id`.
+  """
+  @callback create_message(String.t(), String.t()) ::
+              {:ok, Response.t()}
+              | {:error, Response.t()}
+              | {:error, any}
+
+  @doc """
+  Posts a message with TTS enabled, with content `content` to the channel with ID `channel`.
+  """
+  @callback create_tts_message(String.t(), String.t()) ::
+              {:ok, Response.t()}
+              | {:error, Response.t()}
+              | {:error, any}
+
+  ## Implementation
+
   @spec request_gateway() ::
           {:ok, map}
           | {:error, :invalid_token}
@@ -74,9 +80,6 @@ defmodule DiscordBot.Api do
     end
   end
 
-  @doc """
-  Posts a message with content `content` to the channel with ID `channel_id`
-  """
   def create_message(channel_id, content) do
     uri = "/v7/channels/" <> channel_id <> "/messages"
 
