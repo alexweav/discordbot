@@ -50,6 +50,18 @@ defmodule DiscordBot.Entity.ChannelTest do
     assert Channel.name?(channel) == "my-name"
   end
 
+  test "knows guild ID", %{channel: channel} do
+    assert Channel.guild_id?(channel) == nil
+
+    model = %ChannelModel{
+      id: "test-id",
+      guild_id: "test-guild-id"
+    }
+
+    assert Channel.update(channel, model) == :ok
+    assert Channel.guild_id?(channel) == "test-guild-id"
+  end
+
   test "wrong ID update returns error", %{channel: channel} do
     model = %ChannelModel{
       id: "another-id"

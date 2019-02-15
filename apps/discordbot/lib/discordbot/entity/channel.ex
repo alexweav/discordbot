@@ -46,6 +46,14 @@ defmodule DiscordBot.Entity.Channel do
   end
 
   @doc """
+  Returns the guild ID of the channel `channel`.
+  """
+  @spec name?(pid) :: String.t()
+  def guild_id?(channel) do
+    GenServer.call(channel, :guild_id)
+  end
+
+  @doc """
   Updates the channel `channel` with a new data model `model`
   """
   @spec update(pid, ChannelModel.t()) :: :ok
@@ -77,6 +85,10 @@ defmodule DiscordBot.Entity.Channel do
 
   def handle_call(:name, _from, {model} = state) do
     {:reply, model.name, state}
+  end
+
+  def handle_call(:guild_id, _from, {model} = state) do
+    {:reply, model.guild_id, state}
   end
 
   def handle_call({:update, update}, _from, {state}) do
