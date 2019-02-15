@@ -13,11 +13,17 @@ defmodule DiscordBot.Entity.Channel do
   def start_link(opts) do
     model = Keyword.fetch!(opts, :channel)
 
+    api =
+      case Keyword.fetch(opts, :api) do
+        {:ok, name} -> name
+        :error -> DiscordBot.Api
+      end
+
     if model.id == nil do
       raise ArgumentError, "ID cannot be nil"
     end
 
-    GenServer.start_link(__MODULE__, {model}, opts)
+    GenServer.start_link(__MODULE__, %{model: model, api: api}, opts)
   end
 
   @doc """
@@ -75,27 +81,27 @@ defmodule DiscordBot.Entity.Channel do
     {:ok, state}
   end
 
-  def handle_call(:model, _from, {model} = state) do
+  def handle_call(:model, _from, %{model: model} = state) do
     {:reply, model, state}
   end
 
-  def handle_call(:id, _from, {model} = state) do
+  def handle_call(:id, _from, %{model: model} = state) do
     {:reply, model.id, state}
   end
 
-  def handle_call(:name, _from, {model} = state) do
+  def handle_call(:name, _from, %{model: model} = state) do
     {:reply, model.name, state}
   end
 
-  def handle_call(:guild_id, _from, {model} = state) do
+  def handle_call(:guild_id, _from, %{model: model} = state) do
     {:reply, model.guild_id, state}
   end
 
-  def handle_call({:update, update}, _from, {state}) do
-    if is_nil(update.id) or update.id == state.id do
+  def handle_call({:update, update}, _from, %{model: old_model} = state) do
+    if is_nil(update.id) or update.id == old_model.id do
       merged =
         Map.merge(
-          Map.from_struct(state),
+          Map.from_struct(old_model),
           update
           |> Map.from_struct()
           |> drop_nils()
@@ -103,20 +109,24 @@ defmodule DiscordBot.Entity.Channel do
 
       new_model = struct(ChannelModel, merged)
 
-      {:reply, :ok, {new_model}}
+      {:reply, :ok, %{state | model: new_model}}
     else
-      {:reply, {:error, :incorrect_id}, {state}}
+      {:reply, {:error, :incorrect_id}, state}
     end
   end
 
-  def handle_call({:create_message, content, [tts: true]}, _from, {state}) do
-    response = DiscordBot.Api.create_tts_message(state.id, content)
-    {:reply, response, {state}}
+  def handle_call(
+        {:create_message, content, [tts: true]},
+        _from,
+        %{model: model, api: api} = state
+      ) do
+    response = api.create_tts_message(model.id, content)
+    {:reply, response, state}
   end
 
-  def handle_call({:create_message, content, _opts}, _from, {state}) do
-    response = DiscordBot.Api.create_message(state.id, content)
-    {:reply, response, {state}}
+  def handle_call({:create_message, content, _opts}, _from, %{model: model, api: api} = state) do
+    response = api.create_message(model.id, content)
+    {:reply, response, state}
   end
 
   defp drop_nils(map) do

@@ -2,6 +2,8 @@ defmodule DiscordBot.Entity.ChannelTest do
   use ExUnit.Case, async: true
   doctest DiscordBot.Entity.Channel
 
+  import Mox
+
   alias DiscordBot.Entity.Channel
   alias DiscordBot.Model.Channel, as: ChannelModel
 
@@ -10,7 +12,7 @@ defmodule DiscordBot.Entity.ChannelTest do
       id: "test-id"
     }
 
-    channel = start_supervised!({Channel, [channel: model]})
+    channel = start_supervised!({Channel, [channel: model, api: DiscordBot.ApiMock]})
     %{model: model, channel: channel}
   end
 
@@ -94,5 +96,35 @@ defmodule DiscordBot.Entity.ChannelTest do
 
     assert Channel.model?(channel).name == "a name"
     assert Channel.model?(channel).topic == "a different topic"
+  end
+
+  test "sends messages", %{channel: channel} do
+    DiscordBot.ApiMock
+    |> expect(:create_message, fn _content, _id -> {:ok, %HTTPoison.Response{}} end)
+    |> allow(self(), channel)
+
+    model = %ChannelModel{
+      id: "channel-id",
+      name: "test-name"
+    }
+
+    Channel.update(channel, model)
+
+    assert {:ok, _} = Channel.create_message(channel, "Test Message")
+  end
+
+  test "sends messages with TTS", %{channel: channel} do
+    DiscordBot.ApiMock
+    |> expect(:create_tts_message, fn _content, _id -> {:ok, %HTTPoison.Response{}} end)
+    |> allow(self(), channel)
+
+    model = %ChannelModel{
+      id: "channel-id",
+      name: "test-name"
+    }
+
+    Channel.update(channel, model)
+
+    assert {:ok, _} = Channel.create_message(channel, "Test Message", tts: true)
   end
 end
