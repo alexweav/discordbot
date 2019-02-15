@@ -8,7 +8,14 @@ defmodule DiscordbotUmbrella.MixProject do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       name: "DiscordBot Umbrella",
-      source_url: "https://github.com/alexweav/discordbot"
+      source_url: "https://github.com/alexweav/discordbot",
+      test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: [
+        coveralls: :test,
+        "coveralls.detail": :test,
+        "coveralls.post": :test,
+        "coveralls.html": :test
+      ]
     ]
   end
 
@@ -19,7 +26,8 @@ defmodule DiscordbotUmbrella.MixProject do
   # Run "mix help deps" for examples and options.
   defp deps do
     [
-      {:distillery, "~> 2.0"}
+      {:distillery, "~> 2.0"},
+      {:excoveralls, "~> 0.10", only: :test}
     ]
   end
 end
