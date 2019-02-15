@@ -13,11 +13,7 @@ defmodule DiscordBot.Entity.Channel do
   def start_link(opts) do
     model = Keyword.fetch!(opts, :channel)
 
-    api =
-      case Keyword.fetch(opts, :api) do
-        {:ok, name} -> name
-        :error -> DiscordBot.Api
-      end
+    api = Keyword.get(opts, :api, DiscordBot.Api)
 
     if model.id == nil do
       raise ArgumentError, "ID cannot be nil"
