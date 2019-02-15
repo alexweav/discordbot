@@ -52,6 +52,10 @@ defmodule DiscordBot.Entity.ChannelTest do
     assert Channel.name?(channel) == "my-name"
   end
 
+  test "knows ID", %{channel: channel} do
+    assert Channel.id?(channel) == "test-id"
+  end
+
   test "knows guild ID", %{channel: channel} do
     assert Channel.guild_id?(channel) == nil
 
