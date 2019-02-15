@@ -66,7 +66,7 @@ defmodule DiscordBot.Gateway.Connection do
   @doc """
   Updates the bot's status to `status`, and sets its activity
   over `connection`. Also updates their status activity given
-  the activity's `type` and `name.
+  the activity's `type` and `name`.
   """
   def update_status(connection, status, type, name) do
     WebSockex.cast(connection, {:update_status, status, type, name})
