@@ -9,12 +9,14 @@ defmodule DiscordbotUmbrella.MixProject do
       deps: deps(),
       name: "DiscordBot Umbrella",
       source_url: "https://github.com/alexweav/discordbot",
+      test_paths: test_paths(),
       test_coverage: [tool: ExCoveralls],
       preferred_cli_env: [
         coveralls: :test,
         "coveralls.detail": :test,
         "coveralls.post": :test,
-        "coveralls.html": :test
+        "coveralls.html": :test,
+        "coveralls.json": :test
       ]
     ]
   end
@@ -29,5 +31,9 @@ defmodule DiscordbotUmbrella.MixProject do
       {:distillery, "~> 2.0"},
       {:excoveralls, "~> 0.10", only: :test}
     ]
+  end
+
+  defp test_paths do
+    "apps/*/test" |> Path.wildcard |> Enum.sort
   end
 end
