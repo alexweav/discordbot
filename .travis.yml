@@ -21,7 +21,9 @@ jobs:
       script:
         - mix format --check-formatted
         - mix test --no-start
-        - MIX_ENV=test mix coveralls.travis -u --no-start
+      after_success:
+        - MIX_ENV=test mix coveralls.json --umbrella --no-start
+        - bash <(curl -s https://codecov.io/bash)
 
     - stage: deploy
       if: branch = master AND type = push AND fork = false
