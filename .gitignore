@@ -36,3 +36,6 @@ discordbot-*.tar
 
 # VS Code extension files
 .elixir_ls/
+
+# Code coverage reports
+**/cover/

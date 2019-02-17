@@ -22,6 +22,7 @@ jobs:
         - mix format --check-formatted
         - mix test --no-start
       after_success:
+        - mix coveralls.json --no-start
         - bash <(curl -s https://codecov.io/bash)
 
     - stage: deploy
