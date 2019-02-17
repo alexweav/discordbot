@@ -50,7 +50,7 @@ defmodule DiscordBot.Entity.Channel do
   @doc """
   Returns the guild ID of the channel `channel`.
   """
-  @spec name?(pid) :: String.t()
+  @spec guild_id?(pid) :: String.t()
   def guild_id?(channel) do
     GenServer.call(channel, :guild_id)
   end

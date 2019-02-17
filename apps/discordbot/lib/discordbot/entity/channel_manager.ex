@@ -64,7 +64,7 @@ defmodule DiscordBot.Entity.ChannelManager do
   - `manager` - the manager to perform the lookup.
   - `id` - the ID of the channel to find.
   """
-  @spec lookup_by_id(pid, String.t()) :: {:ok, pid} | :error
+  @spec lookup_by_id(atom | pid, String.t()) :: {:ok, pid} | :error
   def lookup_by_id(manager, id) do
     GenServer.call(manager, {:lookup_by_id, id})
   end

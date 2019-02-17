@@ -10,7 +10,7 @@ defmodule DiscordBot.Model.Serializable do
       @doc """
       Serializes the provided instance of this type `struct` into JSON
       """
-      @spec to_json(__MODULE__.t()) :: {:ok, iodata}
+      @spec to_json(__MODULE__.t()) :: {:ok, iodata} | {:error, term} | :error
       def to_json(struct) do
         Poison.encode(struct)
       end
@@ -18,6 +18,7 @@ defmodule DiscordBot.Model.Serializable do
       @doc """
       Deserializes a JSON blob `json` into an instance of this type
       """
+      @spec from_json(iodata) :: term | {:error, term} | :error
       def from_json(json) do
         {:ok, map} = Poison.decode(json)
         from_map(map)
@@ -28,16 +29,25 @@ defmodule DiscordBot.Model.Serializable do
     end
   end
 
+  @doc """
+  Creates an instance of this struct from JSON.
+  """
   @callback from_json(json :: iodata) ::
-              {:ok, deserialized :: term}
+              deserialized :: term
               | {:error, reason :: term}
               | :error
 
+  @doc """
+  Creates an instance of this struct from a string-keyed JSON-style map.
+  """
   @callback from_map(map :: map) ::
-              {:ok, deserialized :: term}
+              deserialized :: term
               | {:error, reason :: term}
               | :error
 
+  @doc """
+  Returns a JSON representation of this struct.
+  """
   @callback to_json(object :: term) ::
               {:ok, json :: iodata}
               | {:error, reason :: term}
