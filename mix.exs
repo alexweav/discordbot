@@ -34,6 +34,6 @@ defmodule DiscordbotUmbrella.MixProject do
   end
 
   defp test_paths do
-    "apps/*/test" |> Path.wildcard |> Enum.sort
+    "apps/*/test" |> Path.wildcard() |> Enum.sort()
   end
 end
