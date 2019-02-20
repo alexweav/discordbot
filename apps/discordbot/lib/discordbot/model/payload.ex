@@ -15,7 +15,7 @@ defmodule DiscordBot.Model.Payload do
   @typedoc """
   The numeric opcode for the payload
   """
-  @type opcode :: number
+  @type opcode :: atom | number
 
   @typedoc """
   The body of the payload

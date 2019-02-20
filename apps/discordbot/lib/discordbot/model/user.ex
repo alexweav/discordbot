@@ -92,7 +92,7 @@ defmodule DiscordBot.Model.User do
   @doc """
   Converts a plain map-represented JSON object `map` into a user
   """
-  @spec from_map(map) :: __MODULE__.t()
+  @spec from_map(map) :: __MODULE__.t() | {:error, term} | :error
   def from_map(map) do
     DiscordBot.Model.Serializable.struct_from_map(map, as: %__MODULE__{})
   end

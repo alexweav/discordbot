@@ -3,12 +3,9 @@ defmodule DiscordBot.Broker.Supervisor do
 
   use Supervisor
 
-  def start_link([logged_topics: topics] = opts) when is_list(topics) do
-    Supervisor.start_link(__MODULE__, topics, opts)
-  end
-
   def start_link(opts) do
-    Supervisor.start_link(__MODULE__, [], opts)
+    topics = Keyword.get(opts, :logged_topics, [])
+    Supervisor.start_link(__MODULE__, topics, opts)
   end
 
   def init(topics) do

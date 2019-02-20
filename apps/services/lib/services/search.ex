@@ -21,7 +21,7 @@ defmodule Services.Search do
       |> search_wikipedia()
       |> format_message()
 
-    DiscordBot.Channel.Controller.reply(message, response)
+    DiscordBot.Entity.ChannelManager.reply(message, response)
   end
 
   @doc """
@@ -49,7 +49,7 @@ defmodule Services.Search do
       |> search_youtube()
       |> format_message()
 
-    DiscordBot.Channel.Controller.reply(message, response)
+    DiscordBot.Entity.ChannelManager.reply(message, response)
   end
 
   @doc """
@@ -77,7 +77,7 @@ defmodule Services.Search do
       |> search_spotify_albums()
       |> format_message()
 
-    DiscordBot.Channel.Controller.reply(message, response)
+    DiscordBot.Entity.ChannelManager.reply(message, response)
   end
 
   @doc """
@@ -104,7 +104,7 @@ defmodule Services.Search do
       |> search_spotify_albums()
       |> format_message()
 
-    DiscordBot.Channel.Controller.reply(message, response)
+    DiscordBot.Entity.ChannelManager.reply(message, response)
   end
 
   @doc """
