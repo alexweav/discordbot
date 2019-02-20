@@ -175,7 +175,7 @@ defmodule DiscordBot.Entity.ChannelManager do
       :error ->
         {:ok, pid} =
           DynamicSupervisor.start_child(
-            DiscordBot.ChannelSupervisor,
+            DiscordBot.EntitySupervisor,
             {Channel, [channel: model, name: via_tuple(model)]}
           )
 
