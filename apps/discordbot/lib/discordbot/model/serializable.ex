@@ -33,7 +33,8 @@ defmodule DiscordBot.Model.Serializable do
   Creates an instance of this struct from JSON.
   """
   @callback from_json(json :: iodata) ::
-              deserialized :: term
+              deserialized ::
+              term
               | {:error, reason :: term}
               | :error
 
@@ -41,7 +42,8 @@ defmodule DiscordBot.Model.Serializable do
   Creates an instance of this struct from a string-keyed JSON-style map.
   """
   @callback from_map(map :: map) ::
-              deserialized :: term
+              deserialized ::
+              term
               | {:error, reason :: term}
               | :error
 
