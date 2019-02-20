@@ -22,10 +22,12 @@ defmodule DiscordBot.Entity.ChannelManager do
 
   Options (optional):
   - `:broker` - a process (pid or name) acting as a `DiscordBot.Broker` to use for communication.
+  - `:api` - an implementation of `DiscordBot.Api` to use for communication.
   """
   def start_link(opts) do
     broker = Keyword.get(opts, :broker, Broker)
-    GenServer.start_link(__MODULE__, broker, opts)
+    api = Keyword.get(opts, :api, DiscordBot.Api)
+    GenServer.start_link(__MODULE__, {broker, api}, opts)
   end
 
   @doc """
@@ -97,7 +99,7 @@ defmodule DiscordBot.Entity.ChannelManager do
 
   ## Handlers
 
-  def init(broker) do
+  def init({broker, api}) do
     topics = [
       :channel_create,
       :channel_update,
@@ -109,64 +111,64 @@ defmodule DiscordBot.Entity.ChannelManager do
       Broker.subscribe(broker, topic)
     end
 
-    {:ok, nil}
+    {:ok, api}
   end
 
-  def handle_call({:create, model}, _from, state) do
-    {:reply, create(model), state}
+  def handle_call({:create, model}, _from, api) do
+    {:reply, create_internal(model, api), api}
   end
 
-  def handle_call({:update, id, update}, _from, state) do
-    {:reply, update(id, update), state}
+  def handle_call({:update, id, update}, _from, api) do
+    {:reply, update(id, update), api}
   end
 
-  def handle_call({:lookup_by_id, id}, _from, state) do
+  def handle_call({:lookup_by_id, id}, _from, api) do
     pids = Registry.lookup(DiscordBot.ChannelRegistry, id)
-    {:reply, parse_lookup(pids), state}
+    {:reply, parse_lookup(pids), api}
   end
 
-  def handle_call({:close, id}, _from, state) do
-    {:reply, close(id), state}
+  def handle_call({:close, id}, _from, api) do
+    {:reply, close(id), api}
   end
 
-  def handle_info(%Event{topic: :channel_create, message: model}, state) do
-    {:ok, _} = create(model)
-    {:noreply, state}
+  def handle_info(%Event{topic: :channel_create, message: model}, api) do
+    {:ok, _} = create_internal(model, api)
+    {:noreply, api}
   end
 
-  def handle_info(%Event{topic: :channel_update, message: update}, state) do
+  def handle_info(%Event{topic: :channel_update, message: update}, api) do
     :ok = update(update.id, update)
-    {:noreply, state}
+    {:noreply, api}
   end
 
-  def handle_info(%Event{topic: :channel_delete, message: delete}, state) do
+  def handle_info(%Event{topic: :channel_delete, message: delete}, api) do
     :ok = close(delete.id)
-    {:noreply, state}
+    {:noreply, api}
   end
 
-  def handle_info(%Event{topic: :guild_create, message: guild}, state) do
-    {:ok, _} = create(guild)
-    {:noreply, state}
+  def handle_info(%Event{topic: :guild_create, message: guild}, api) do
+    {:ok, _} = create_internal(guild, api)
+    {:noreply, api}
   end
 
-  defp create(nil) do
+  defp create_internal(nil, _api) do
     :ok
   end
 
-  defp create(%DiscordBot.Model.Guild{channels: nil}) do
+  defp create_internal(%DiscordBot.Model.Guild{channels: nil}, _api) do
     {:ok, []}
   end
 
-  defp create(%DiscordBot.Model.Guild{channels: channels}) do
+  defp create_internal(%DiscordBot.Model.Guild{channels: channels}, api) do
     pids =
       channels
-      |> Enum.map(&create(&1))
+      |> Enum.map(&create_internal(&1, api))
       |> Enum.reduce([], fn {:ok, pid}, acc -> acc ++ [pid] end)
 
     {:ok, pids}
   end
 
-  defp create(model) do
+  defp create_internal(model, api) do
     case lookup_id(model.id) do
       {:ok, pid} ->
         Channel.update(pid, model)
@@ -176,7 +178,7 @@ defmodule DiscordBot.Entity.ChannelManager do
         {:ok, pid} =
           DynamicSupervisor.start_child(
             DiscordBot.EntitySupervisor,
-            {Channel, [channel: model, name: via_tuple(model)]}
+            {Channel, [channel: model, name: via_tuple(model), api: api]}
           )
 
         {:ok, pid}
@@ -221,9 +223,5 @@ defmodule DiscordBot.Entity.ChannelManager do
 
   defp via_tuple(%ChannelModel{} = model) do
     {:via, Registry, {DiscordBot.ChannelRegistry, model.id}}
-  end
-
-  defp via_tuple(id) do
-    {:via, Registry, {DiscordBot.ChannelRegistry, id}}
   end
 end

@@ -2,13 +2,18 @@ defmodule DiscordBot.Entity.ChannelManagerTest do
   use ExUnit.Case, async: true
   doctest DiscordBot.Entity.ChannelManager
 
+  import Mox
+
   alias DiscordBot.Broker
   alias DiscordBot.Entity.ChannelManager
   alias DiscordBot.Entity.Channel
 
   setup do
     broker = start_supervised!(Broker)
-    _ = start_supervised!({DiscordBot.Entity.Supervisor, [broker: broker]})
+
+    _ =
+      start_supervised!({DiscordBot.Entity.Supervisor, [broker: broker, api: DiscordBot.ApiMock]})
+
     %{broker: broker}
   end
 
@@ -182,5 +187,43 @@ defmodule DiscordBot.Entity.ChannelManagerTest do
 
     assert {:ok, pid} = ChannelManager.lookup_by_id(DiscordBot.ChannelManager, "channel-asdf")
     assert Channel.model?(pid) == channel
+  end
+
+  test "replies to messages on a known channel" do
+    model = %DiscordBot.Model.Channel{
+      id: "channel-asdf"
+    }
+
+    {:ok, pid} = ChannelManager.create(DiscordBot.ChannelManager, model)
+
+    message = %DiscordBot.Model.Message{
+      channel_id: "channel-asdf"
+    }
+
+    DiscordBot.ApiMock
+    |> expect(:create_message, fn _content, _id -> {:ok, %HTTPoison.Response{}} end)
+    |> allow(self(), pid)
+
+    ChannelManager.reply(message, "response")
+    verify!()
+  end
+
+  test "replies to messages with TTS on a known channel" do
+    model = %DiscordBot.Model.Channel{
+      id: "channel-asdf"
+    }
+
+    {:ok, pid} = ChannelManager.create(DiscordBot.ChannelManager, model)
+
+    message = %DiscordBot.Model.Message{
+      channel_id: "channel-asdf"
+    }
+
+    DiscordBot.ApiMock
+    |> expect(:create_tts_message, fn _content, _id -> {:ok, %HTTPoison.Response{}} end)
+    |> allow(self(), pid)
+
+    ChannelManager.reply(message, "response", tts: true)
+    verify!()
   end
 end
