@@ -223,7 +223,7 @@ defmodule DiscordBot.Entity.ChannelManager do
     {:via, Registry, {DiscordBot.ChannelRegistry, model.id}}
   end
 
-  defp via_tuple(id) when is_binary(id) do
+  defp via_tuple(id) do
     {:via, Registry, {DiscordBot.ChannelRegistry, id}}
   end
 end

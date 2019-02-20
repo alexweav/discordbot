@@ -40,7 +40,7 @@ defmodule DiscordBot.Channel.Controller do
   @doc """
   Gets a channel by its ID
   """
-  @spec lookup_by_id(pid, String.t()) :: {:ok, pid} | :error
+  @spec lookup_by_id(atom | pid, String.t()) :: {:ok, pid} | :error
   def lookup_by_id(controller, id) do
     GenServer.call(controller, {:lookup_by_id, id})
   end
@@ -59,7 +59,13 @@ defmodule DiscordBot.Channel.Controller do
   @spec reply(DiscordBot.Model.Message.t(), String.t()) :: any
   def reply(message, content, opts \\ []) do
     %DiscordBot.Model.Message{channel_id: channel_id} = message
-    {:ok, channel} = lookup_by_id(DiscordBot.ChannelController, channel_id)
+    # {:ok, channel} = lookup_by_id(DiscordBot.ChannelController, channel_id)
+    channel =
+      case lookup_by_id(DiscordBot.ChannelController, channel_id) do
+        {:ok, channel} -> channel
+        :error -> raise "Could not find channel #{inspect(channel_id)}"
+      end
+
     DiscordBot.Channel.Channel.create_message(channel, content, opts)
   end
 
@@ -191,7 +197,7 @@ defmodule DiscordBot.Channel.Controller do
     {:via, Registry, {DiscordBot.ChannelRegistry, model.id}}
   end
 
-  defp via_tuple(id) when is_binary(id) do
+  defp via_tuple(id) do
     {:via, Registry, {DiscordBot.ChannelRegistry, id}}
   end
 end

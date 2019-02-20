@@ -21,7 +21,7 @@ defmodule DiscordBot.Model.Activity do
   - `1`: Streaming - Displays as `Streaming {name}`, e.g. "Streaming Rocket League"
   - `2`: Listening - Displays as `Listening to {name}`, e.g. "Listening to Spotify"
   """
-  @type type :: number
+  @type type :: atom
 
   @type t :: %__MODULE__{
           name: name,
