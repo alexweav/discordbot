@@ -57,7 +57,7 @@ defmodule Services.TtsSplitter.Server do
 
   defp lookup_and_send(text, channel_id) do
     {:ok, channel} =
-      DiscordBot.Channel.Controller.lookup_by_id(DiscordBot.ChannelController, channel_id)
+      DiscordBot.Entity.ChannelManager.lookup_by_id(DiscordBot.ChannelManager, channel_id)
 
     chunks = Services.TtsSplitter.tts_split(text)
     send_tts_chunks(chunks, channel)
@@ -65,7 +65,7 @@ defmodule Services.TtsSplitter.Server do
 
   defp send_tts_chunks(chunks, channel) do
     for chunk <- chunks do
-      DiscordBot.Channel.Channel.create_message(channel, chunk, tts: true)
+      DiscordBot.Entity.Channel.create_message(channel, chunk, tts: true)
       Process.sleep(3_000)
     end
   end

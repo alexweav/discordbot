@@ -59,16 +59,16 @@ defmodule Services.Ping do
 
   defp handle_content("!ping", channel_id) do
     {:ok, channel} =
-      DiscordBot.Channel.Controller.lookup_by_id(DiscordBot.ChannelController, channel_id)
+      DiscordBot.Entity.ChannelManager.lookup_by_id(DiscordBot.ChannelManager, channel_id)
 
-    DiscordBot.Channel.Channel.create_message(channel, "Pong")
+    DiscordBot.Entity.Channel.create_message(channel, "Pong")
   end
 
   defp handle_content("!source", channel_id) do
     {:ok, channel} =
-      DiscordBot.Channel.Controller.lookup_by_id(DiscordBot.ChannelController, channel_id)
+      DiscordBot.Entity.ChannelManager.lookup_by_id(DiscordBot.ChannelManager, channel_id)
 
-    DiscordBot.Channel.Channel.create_message(channel, "https://github.com/alexweav/discordbot")
+    DiscordBot.Entity.Channel.create_message(channel, "https://github.com/alexweav/discordbot")
   end
 
   defp handle_content(_, _) do

@@ -146,9 +146,9 @@ defmodule Services.Help do
 
     if content == "!help" do
       {:ok, channel} =
-        DiscordBot.Channel.Controller.lookup_by_id(DiscordBot.ChannelController, channel_id)
+        DiscordBot.Entity.ChannelManager.lookup_by_id(DiscordBot.ChannelManager, channel_id)
 
-      DiscordBot.Channel.Channel.create_message(channel, build_message(value_stream(registry)))
+      DiscordBot.Entity.Channel.create_message(channel, build_message(value_stream(registry)))
     end
 
     {:noreply, {broker, registry}}

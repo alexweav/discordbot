@@ -38,7 +38,7 @@ defmodule DiscordBot do
        ]},
       {DiscordBot.Gateway, [url: url]},
       {DiscordBot.Self, [name: Self]},
-      {DiscordBot.Channel.Supervisor, []}
+      {DiscordBot.Entity.Supervisor, []}
     ]
 
     Logger.info("Launching core app and establishing connection...")
