@@ -15,7 +15,8 @@ defmodule DiscordBot.Entity.Supervisor do
       {DynamicSupervisor, name: DiscordBot.EntitySupervisor, strategy: :one_for_one},
       {Registry, keys: :unique, name: DiscordBot.ChannelRegistry},
       {DiscordBot.Entity.ChannelManager,
-       name: DiscordBot.ChannelManager, broker: broker, api: api}
+       name: DiscordBot.ChannelManager, broker: broker, api: api},
+      {DiscordBot.Entity.Guild, name: DiscordBot.Guild, broker: broker, api: api}
     ]
 
     Supervisor.init(children, strategy: :one_for_all)
