@@ -7,6 +7,7 @@ defmodule DiscordBot.Entity.Guild do
 
   alias DiscordBot.Broker
   alias DiscordBot.Broker.Event
+  alias DiscordBot.Model.Guild, as: GuildModel
 
   @doc """
   Starts the guild registry.
@@ -26,9 +27,34 @@ defmodule DiscordBot.Entity.Guild do
     GenServer.start_link(__MODULE__, {broker, api}, opts)
   end
 
+  @doc """
+  Creates a new guild in the cache.
+
+  The guild is added to the cache `cache` if a guild does not already
+  exist with the ID provided in `model`. Otherwise, the existing guild
+  will be updated with the new data in `model`.
+  """
+  @spec create(pid | atom, GuildModel.t()) :: :ok | :error
+  def create(cache, model) do
+    GenServer.call(cache, {:create, model})
+  end
+
+  @doc """
+  Gets a guild by its ID.
+
+  The returned guild will be an instance of `DiscordBot.Model.Guild`.
+  """
+  @spec lookup_by_id(String.t()) :: {:ok, GuildModel.t()} | :error
+  def lookup_by_id(id) do
+    case :ets.lookup(:guilds, id) do
+      [{^id, model}] -> {:ok, model}
+      [] -> :error
+    end
+  end
+
   ## Callbacks
 
-  def init({broker, _api}) do
+  def init({broker, api}) do
     guilds = :ets.new(:guilds, [:named_table, read_concurrency: true])
 
     topics = [
@@ -41,7 +67,11 @@ defmodule DiscordBot.Entity.Guild do
       Broker.subscribe(broker, topic)
     end
 
-    {:ok, guilds}
+    {:ok, {guilds, api}}
+  end
+
+  def handle_call({:create, model}, _from, {guilds, _} = state) do
+    {:reply, create_internal(guilds, model), state}
   end
 
   def handle_info(%Event{topic: :guild_create}, state) do
@@ -54,5 +84,9 @@ defmodule DiscordBot.Entity.Guild do
 
   def handle_info(%Event{topic: :guild_delete}, state) do
     {:noreply, state}
+  end
+
+  defp create_internal(_table, _model) do
+    nil
   end
 end
