@@ -47,4 +47,27 @@ defmodule DiscordBot.Entity.GuildTest do
     Guild.create(guild, %DiscordBot.Model.Guild{})
     assert Guild.lookup_by_id(event.id) == {:ok, event}
   end
+
+  test "updates cached guilds on Guild Update event", %{guild: guild, broker: broker} do
+    initial = %DiscordBot.Model.Guild{
+      id: "yet-another-test-id",
+      name: "An existing guild"
+    }
+
+    Broker.publish(broker, :guild_create, initial)
+
+    event = %DiscordBot.Model.Guild{
+      id: initial.id,
+      name: "A different name"
+    }
+
+    Broker.publish(broker, :guild_update, event)
+
+    # Perform a synchronous call on the registry to ensure that
+    # it has processed the event before we proceed.
+    # This is necessary because lookup_by_id does not communicate
+    # with the registry.
+    Guild.create(guild, %DiscordBot.Model.Guild{})
+    assert Guild.lookup_by_id(initial.id) == {:ok, event}
+  end
 end

@@ -33,6 +33,8 @@ defmodule DiscordBot.Entity.Guild do
   The guild is added to the cache `cache` if a guild does not already
   exist with the ID provided in `model`. Otherwise, the existing guild
   will be updated with the new data in `model`.
+
+  Returns `:ok` if the creation is successful, otherwise `:error`.
   """
   @spec create(pid | atom, GuildModel.t()) :: :ok | :error
   def create(cache, model) do
@@ -79,7 +81,8 @@ defmodule DiscordBot.Entity.Guild do
     {:noreply, state}
   end
 
-  def handle_info(%Event{topic: :guild_update}, state) do
+  def handle_info(%Event{topic: :guild_update, message: model}, {guilds, _} = state) do
+    create_internal(guilds, model)
     {:noreply, state}
   end
 
