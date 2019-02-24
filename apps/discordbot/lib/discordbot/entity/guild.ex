@@ -42,6 +42,17 @@ defmodule DiscordBot.Entity.Guild do
   end
 
   @doc """
+  Deletes a cached guild.
+
+  Always returns `:ok` if the deletion is performed, even if the
+  provided ID is not present in the cache.
+  """
+  @spec delete(pid | atom, String.t()) :: :ok
+  def delete(cache, id) do
+    GenServer.call(cache, {:delete, id})
+  end
+
+  @doc """
   Gets a guild by its ID.
 
   The returned guild will be an instance of `DiscordBot.Model.Guild`.
@@ -76,6 +87,10 @@ defmodule DiscordBot.Entity.Guild do
     {:reply, create_internal(guilds, model), state}
   end
 
+  def handle_call({:delete, id}, _from, {guilds, _} = state) do
+    {:reply, delete_internal(guilds, id), state}
+  end
+
   def handle_info(%Event{topic: :guild_create, message: model}, {guilds, _} = state) do
     create_internal(guilds, model)
     {:noreply, state}
@@ -86,7 +101,8 @@ defmodule DiscordBot.Entity.Guild do
     {:noreply, state}
   end
 
-  def handle_info(%Event{topic: :guild_delete}, state) do
+  def handle_info(%Event{topic: :guild_delete, message: model}, {guilds, _} = state) do
+    delete_internal(guilds, model.id)
     {:noreply, state}
   end
 
@@ -98,6 +114,11 @@ defmodule DiscordBot.Entity.Guild do
 
   defp create_internal(table, model) do
     :ets.insert(table, {model.id, model})
+    :ok
+  end
+
+  defp delete_internal(table, id) do
+    :ets.delete(table, id)
     :ok
   end
 end

@@ -32,6 +32,16 @@ defmodule DiscordBot.Entity.GuildTest do
     assert Guild.lookup_by_id(model.id) == {:ok, model}
   end
 
+  test "can delete guilds in cache", %{guild: guild} do
+    model = %DiscordBot.Model.Guild{
+      id: "some-other-test-id"
+    }
+    Guild.create(guild, model)
+
+    assert Guild.delete(guild, model.id) == :ok
+    assert Guild.lookup_by_id(model.id) == :error
+  end
+
   test "creates cached guilds on Guild Create event", %{guild: guild, broker: broker} do
     event = %DiscordBot.Model.Guild{
       id: "another-test-id",
@@ -69,5 +79,23 @@ defmodule DiscordBot.Entity.GuildTest do
     # with the registry.
     Guild.create(guild, %DiscordBot.Model.Guild{})
     assert Guild.lookup_by_id(initial.id) == {:ok, event}
+  end
+
+  test "deletes cached guilds on Guild Delete event", %{guild: guild, broker: broker} do
+    initial = %DiscordBot.Model.Guild{
+      id: "one-more-test-id",
+      name: "Some guild"
+    }
+
+    Broker.publish(broker, :guild_create, initial)
+
+    Broker.publish(broker, :guild_delete, %DiscordBot.Model.Guild{id: initial.id})
+
+    # Perform a synchronous call on the registry to ensure that
+    # it has processed the event before we proceed.
+    # This is necessary because lookup_by_id does not communicate
+    # with the registry.
+    Guild.create(guild, %DiscordBot.Model.Guild{})
+    assert Guild.lookup_by_id(initial.id) == :error
   end
 end
