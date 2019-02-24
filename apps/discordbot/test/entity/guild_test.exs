@@ -36,6 +36,7 @@ defmodule DiscordBot.Entity.GuildTest do
     model = %DiscordBot.Model.Guild{
       id: "some-other-test-id"
     }
+
     Guild.create(guild, model)
 
     assert Guild.delete(guild, model.id) == :ok
