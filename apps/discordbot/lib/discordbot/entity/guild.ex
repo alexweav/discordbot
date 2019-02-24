@@ -46,7 +46,7 @@ defmodule DiscordBot.Entity.Guild do
   """
   @spec lookup_by_id(String.t()) :: {:ok, GuildModel.t()} | :error
   def lookup_by_id(id) do
-    case :ets.lookup(:guilds, id) do
+    case :ets.lookup(__MODULE__, id) do
       [{^id, model}] -> {:ok, model}
       [] -> :error
     end
@@ -55,7 +55,7 @@ defmodule DiscordBot.Entity.Guild do
   ## Callbacks
 
   def init({broker, api}) do
-    guilds = :ets.new(:guilds, [:named_table, read_concurrency: true])
+    guilds = :ets.new(__MODULE__, [:named_table, read_concurrency: true])
 
     topics = [
       :guild_create,
@@ -74,7 +74,8 @@ defmodule DiscordBot.Entity.Guild do
     {:reply, create_internal(guilds, model), state}
   end
 
-  def handle_info(%Event{topic: :guild_create}, state) do
+  def handle_info(%Event{topic: :guild_create, message: model}, {guilds, _} = state) do
+    create_internal(guilds, model)
     {:noreply, state}
   end
 
@@ -86,7 +87,14 @@ defmodule DiscordBot.Entity.Guild do
     {:noreply, state}
   end
 
-  defp create_internal(_table, _model) do
-    nil
+  defp create_internal(_, nil), do: :error
+
+  defp create_internal(_, %DiscordBot.Model.Guild{id: nil}) do
+    :error
+  end
+
+  defp create_internal(table, model) do
+    :ets.insert(table, {model.id, model})
+    :ok
   end
 end
