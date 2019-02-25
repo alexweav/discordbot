@@ -7,24 +7,28 @@ defmodule DiscordBot.Gateway.Connection do
   require Logger
 
   defmodule State do
+    @moduledoc false
     @enforce_keys [:url, :token]
 
     defstruct [
       :url,
       :token,
       :connection,
-      :sequence
+      :sequence,
+      :broker
     ]
 
     @type url :: String.t()
     @type token :: String.t()
     @type connection :: map | nil
     @type sequence :: number
+    @type broker :: pid | atom
     @type t :: %__MODULE__{
             url: url,
             token: token,
             connection: connection,
-            sequence: sequence
+            sequence: sequence,
+            broker: broker
           }
   end
 
@@ -32,11 +36,29 @@ defmodule DiscordBot.Gateway.Connection do
   Starts a gateway connection with Discord, connecting
   via `url` and authenticating with `token`
   """
-  def start_link([url, token]) do
+  def start_link(opts) do
+    url =
+      case Keyword.fetch(opts, :url) do
+        {:ok, url} -> url
+        :error -> raise ArgumentError, message: "#{__MODULE__} is missing required parameter :url"
+      end
+
+    token =
+      case Keyword.fetch(opts, :token) do
+        {:ok, token} ->
+          token
+
+        :error ->
+          raise ArgumentError, message: "#{__MODULE__} is missing required parameter :token"
+      end
+
+    broker = Keyword.get(opts, :broker, Broker)
+
     state = %State{
       url: url <> "/?v=6&encoding=json",
       token: token,
-      sequence: nil
+      sequence: nil,
+      broker: broker
     }
 
     WebSockex.start_link(state.url, __MODULE__, state, name: Connection)
@@ -81,7 +103,7 @@ defmodule DiscordBot.Gateway.Connection do
 
   def handle_frame({:text, json}, state) do
     message = DiscordBot.Model.Payload.from_json(json)
-    DiscordBot.Broker.publish(Broker, event_name(message), message.data)
+    DiscordBot.Broker.publish(state.broker, event_name(message), message.data)
 
     case message.sequence do
       nil -> {:ok, state}

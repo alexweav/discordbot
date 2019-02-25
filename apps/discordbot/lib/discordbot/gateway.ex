@@ -1,7 +1,5 @@
 defmodule DiscordBot.Gateway do
-  @moduledoc """
-  Supervisor for the Gateway API
-  """
+  @moduledoc false
 
   use Supervisor
 
@@ -19,7 +17,7 @@ defmodule DiscordBot.Gateway do
         {Task, fn -> DiscordBot.Gateway.Authenticator.authenticate(token, Broker) end},
         restart: :transient
       ),
-      {DiscordBot.Gateway.Connection, [url, token]}
+      {DiscordBot.Gateway.Connection, url: url, token: token, broker: Broker}
     ]
 
     Supervisor.init(children, strategy: :one_for_all)
