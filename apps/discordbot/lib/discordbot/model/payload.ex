@@ -76,14 +76,13 @@ defmodule DiscordBot.Model.Payload do
   Consructs a payload object given the opcode `opcode`, the datagram `data`,
   the sequence number `sequence`, and the event name `event_name`
   """
-  @spec payload(number, any, number, String.t()) :: __MODULE__.t()
+  @spec payload(atom | number, any, number | nil, String.t() | nil) :: __MODULE__.t()
   def payload(opcode, data, sequence, event_name) when is_number(opcode) do
     opcode
     |> atom_from_opcode()
     |> payload(data, sequence, event_name)
   end
 
-  @spec payload(atom, any, number, String.t()) :: __MODULE__.t()
   def payload(opcode, data, sequence, event_name) when is_atom(opcode) do
     %__MODULE__{
       opcode: opcode,
