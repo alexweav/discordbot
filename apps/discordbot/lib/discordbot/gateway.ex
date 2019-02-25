@@ -14,7 +14,7 @@ defmodule DiscordBot.Gateway do
     token = DiscordBot.Token.token()
 
     children = [
-      {DiscordBot.Gateway.Heartbeat, []},
+      {DiscordBot.Gateway.Heartbeat, broker: Broker},
       Supervisor.child_spec(
         {Task, fn -> DiscordBot.Gateway.Authenticator.authenticate(token, Broker) end},
         restart: :transient
