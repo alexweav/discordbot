@@ -5,6 +5,9 @@ defmodule DiscordBot.Broker.Shovel do
 
   use GenServer
 
+  alias DiscordBot.Broker
+  alias DiscordBot.Broker.Event
+
   @doc """
   Starts the shovel.
 
@@ -39,9 +42,41 @@ defmodule DiscordBot.Broker.Shovel do
     GenServer.start_link(__MODULE__, {source, destination, topics}, opts)
   end
 
+  @doc """
+  Gets the topics that the shovel is currently transferring.
+  """
+  @spec topics?(pid) :: list(atom)
+  def topics?(shovel) do
+    GenServer.call(shovel, {:topics})
+  end
+
+  @doc """
+  Adds a topic to the shovel's topic set.
+  """
+  @spec add_topic(pid, atom) :: :ok
+  def add_topic(shovel, topic) do
+    GenServer.call(shovel, {:add, topic})
+  end
+
   ## Handlers
 
-  def init(args) do
-    {:ok, args}
+  def init({source, destination, topics}) do
+    for topic <- topics do
+      Broker.subscribe(source, topic)
+    end
+    {:ok, {source, destination, MapSet.new(topics)}}
+  end
+
+  def handle_call({:topics}, _from, {_, _, topics} = state) do
+    {:reply, topics |> MapSet.to_list(), state}
+  end
+
+  def handle_call({:add, topic}, _from, {source, dest, topics}) do
+    Broker.subscribe(source, topic)
+    {:reply, :ok, {source, dest, MapSet.put(topics, topic)}}
+  end
+
+  def handle_info(%Event{}, state) do
+    {:noreply, state}
   end
 end
