@@ -64,6 +64,7 @@ defmodule DiscordBot.Broker.Shovel do
     for topic <- topics do
       Broker.subscribe(source, topic)
     end
+
     {:ok, {source, destination, MapSet.new(topics)}}
   end
 

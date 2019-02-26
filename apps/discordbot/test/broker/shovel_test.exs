@@ -6,8 +6,16 @@ defmodule DiscordBot.Broker.ShovelTest do
   alias DiscordBot.Broker.Shovel
 
   setup context do
-    source = start_supervised!({Broker, []}, id: (Atom.to_string(context.test) <> "-source") |> String.to_atom())
-    destination = start_supervised!({Broker, []}, id: (Atom.to_string(context.test) <> "-dest") |> String.to_atom())
+    source =
+      start_supervised!({Broker, []},
+        id: (Atom.to_string(context.test) <> "-source") |> String.to_atom()
+      )
+
+    destination =
+      start_supervised!({Broker, []},
+        id: (Atom.to_string(context.test) <> "-dest") |> String.to_atom()
+      )
+
     %{source: source, destination: destination}
   end
 
@@ -30,7 +38,10 @@ defmodule DiscordBot.Broker.ShovelTest do
   end
 
   test "subscribes to input topics", %{source: source, destination: destination} do
-    shovel = start_supervised!({Shovel, source: source, destination: destination, topics: [:test, :topic]})
+    shovel =
+      start_supervised!(
+        {Shovel, source: source, destination: destination, topics: [:test, :topic]}
+      )
 
     assert Enum.member?(Broker.subscribers?(source, :test), shovel)
     assert Enum.member?(Broker.subscribers?(source, :topic), shovel)
