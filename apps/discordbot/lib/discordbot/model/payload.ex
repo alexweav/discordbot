@@ -95,7 +95,7 @@ defmodule DiscordBot.Model.Payload do
   @doc """
   Builds the heartbeat message
   """
-  @spec heartbeat(number) :: __MODULE__.t()
+  @spec heartbeat(number | nil) :: __MODULE__.t()
   def heartbeat(sequence_number) do
     payload(:heartbeat, sequence_number)
   end
