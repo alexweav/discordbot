@@ -3,6 +3,7 @@ defmodule DiscordBot.Broker.ShovelTest do
   doctest DiscordBot.Broker.Shovel
 
   alias DiscordBot.Broker
+  alias DiscordBot.Broker.Event
   alias DiscordBot.Broker.Shovel
 
   setup context do
@@ -55,5 +56,21 @@ defmodule DiscordBot.Broker.ShovelTest do
     Shovel.add_topic(shovel, :topic)
 
     assert Enum.member?(Broker.subscribers?(source, :topic), shovel) == true
+  end
+
+  test "transfers messages", %{source: source, destination: destination} do
+    start_supervised!({Shovel, source: source, destination: destination, topics: [:topic]})
+
+    Broker.subscribe(destination, :topic)
+    Broker.publish(source, :topic, "test")
+
+    message =
+      receive do
+        %Event{message: msg} -> msg
+      after
+        1_000 -> "timeout"
+      end
+
+    assert message == "test"
   end
 end
