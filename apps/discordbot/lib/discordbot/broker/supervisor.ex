@@ -5,13 +5,19 @@ defmodule DiscordBot.Broker.Supervisor do
 
   def start_link(opts) do
     topics = Keyword.get(opts, :logged_topics, [])
-    broker_name = Keyword.get(opts, :broker_name, Broker)
+    broker_name = Keyword.get(opts, :broker_name, nil)
     Supervisor.start_link(__MODULE__, {topics, broker_name}, opts)
   end
 
   def init({topics, broker_name}) do
+    broker_opts =
+      case broker_name do
+        nil -> []
+        name -> [name: name]
+      end
+
     children = [
-      {DiscordBot.Broker, [name: broker_name]},
+      {DiscordBot.Broker, broker_opts},
       {DiscordBot.Broker.EventLogger, [name: EventLogger, broker: broker_name, topics: topics]}
     ]
 

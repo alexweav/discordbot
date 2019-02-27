@@ -34,7 +34,8 @@ defmodule DiscordBot do
            :resume,
            :reconnect,
            :invalid_session
-         ]
+         ],
+         broker_name: Broker
        ]},
       {DiscordBot.Gateway, [url: url]},
       {DiscordBot.Self, [name: Self]},
