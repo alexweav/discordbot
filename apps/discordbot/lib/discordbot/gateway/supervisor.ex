@@ -1,4 +1,4 @@
-defmodule DiscordBot.Gateway.Supevisor do
+defmodule DiscordBot.Gateway.Supervisor do
   @moduledoc false
 
   use Supervisor
@@ -7,6 +7,7 @@ defmodule DiscordBot.Gateway.Supevisor do
     Supervisor.start_link(__MODULE__, :ok, opts)
   end
 
+  @spec init(:ok) :: {:ok, {%{intensity: any(), period: any(), strategy: any()}, [any()]}}
   def init(:ok) do
     children = []
     Supervisor.init(children, strategy: :rest_for_one)
