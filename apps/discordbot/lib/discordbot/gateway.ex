@@ -12,7 +12,7 @@ defmodule DiscordBot.Gateway do
     token = DiscordBot.Token.token()
 
     children = [
-      {DiscordBot.Gateway.Supervisor, token: token, url: url}
+      {DiscordBot.Gateway.Supervisor, token: token, url: url, name: DiscordBot.GatewaySupervisor}
     ]
 
     Supervisor.init(children, strategy: :one_for_all)
