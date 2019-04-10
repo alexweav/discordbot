@@ -17,7 +17,8 @@ defmodule DiscordBot.Gateway.Heartbeat do
       :target_ref,
       :interval,
       :sender,
-      :broker
+      :broker,
+      :connection_supervisor
     ]
 
     @type status :: atom
@@ -26,13 +27,15 @@ defmodule DiscordBot.Gateway.Heartbeat do
     @type interval :: number
     @type sender :: pid
     @type broker :: pid
+    @type connection_supervisor :: pid
     @type t :: %__MODULE__{
             status: status,
             target: target,
             target_ref: target_ref,
             interval: interval,
             sender: sender,
-            broker: broker
+            broker: broker,
+            connection_supervisor: connection_supervisor
           }
   end
 
@@ -41,6 +44,7 @@ defmodule DiscordBot.Gateway.Heartbeat do
   """
   def start_link(opts) do
     broker = Keyword.get(opts, :broker, Broker)
+    connection_supervisor = Keyword.get(opts, :connection_supervisor)
 
     state = %State{
       status: :waiting,
@@ -48,7 +52,8 @@ defmodule DiscordBot.Gateway.Heartbeat do
       target_ref: nil,
       interval: nil,
       sender: nil,
-      broker: broker
+      broker: broker,
+      connection_supervisor: connection_supervisor
     }
 
     GenServer.start_link(__MODULE__, state, opts)
