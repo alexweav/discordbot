@@ -16,7 +16,7 @@ defmodule DiscordBot.Gateway.Supervisor do
       {DiscordBot.Broker, id: :broker},
       {DiscordBot.Gateway.Heartbeat, broker: Broker, id: :heartbeat},
       Supervisor.child_spec(
-        {Task, fn -> DiscordBot.Gateway.Authenticator.authenticate(token, Broker) end},
+        {Task, fn -> DiscordBot.Gateway.Authenticator.authenticate(Broker, token) end},
         id: :authenticator,
         restart: :transient
       ),
