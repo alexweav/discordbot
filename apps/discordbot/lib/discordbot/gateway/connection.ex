@@ -67,9 +67,6 @@ defmodule DiscordBot.Gateway.Connection do
       broker_provider: broker_provider
     }
 
-    # TODO figure out the init() equivalent for websockex process and move this there
-    send(self(), :after_init)
-
     WebSockex.start_link(state.url, __MODULE__, state, name: Connection)
   end
 
@@ -107,6 +104,7 @@ defmodule DiscordBot.Gateway.Connection do
 
   def handle_connect(connection, state) do
     Logger.info("Connected!")
+    send(self(), :after_connect)
     {:ok, %{state | connection: connection}}
   end
 
@@ -181,7 +179,8 @@ defmodule DiscordBot.Gateway.Connection do
     {:reply, {:text, json}, state}
   end
 
-  def handle_info(:after_init, _state) do
+  def handle_info(:after_connect, state) do
+    {:ok, state}
   end
 
   defp log_gateway_close({_, code, msg}) do
