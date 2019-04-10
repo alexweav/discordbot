@@ -102,7 +102,12 @@ defmodule DiscordBot.Gateway.Heartbeat do
 
   def init(state) do
     DiscordBot.Broker.subscribe(state.broker, :hello)
+    send(self(), :after_init)
     {:ok, state}
+  end
+
+  def after_init(state) do
+    state
   end
 
   def handle_call({:status}, _from, state) do
@@ -135,6 +140,10 @@ defmodule DiscordBot.Gateway.Heartbeat do
   def handle_call({:schedule, interval, pid}, _from, %State{status: :running} = state) do
     new_state = start_heartbeat(state, pid, interval)
     {:reply, {:overwrote, state.target}, new_state}
+  end
+
+  def handle_info(:after_init, state) do
+    {:noreply, after_init(state)}
   end
 
   def handle_info(%Event{publisher: pid, message: message}, state) do
