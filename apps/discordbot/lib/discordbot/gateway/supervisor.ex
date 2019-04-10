@@ -1,5 +1,6 @@
 defmodule DiscordBot.Gateway.Supervisor do
   @moduledoc false
+  @behaviour DiscordBot.Broker.Provider
 
   use Supervisor
 
@@ -9,6 +10,7 @@ defmodule DiscordBot.Gateway.Supervisor do
     Supervisor.start_link(__MODULE__, {token, url}, opts)
   end
 
+  @impl true
   def init({token, url}) do
     children = [
       {DiscordBot.Broker, id: :broker},
@@ -18,12 +20,14 @@ defmodule DiscordBot.Gateway.Supervisor do
         id: :authenticator,
         restart: :transient
       ),
-      {DiscordBot.Gateway.Connection, url: url, token: token, broker: Broker}
+      {DiscordBot.Gateway.Connection,
+       url: url, token: token, broker: Broker, broker_provider: self()}
     ]
 
     Supervisor.init(children, strategy: :rest_for_one)
   end
 
+  @impl DiscordBot.Broker.Provider
   @spec broker?(pid) :: pid | nil
   def broker?(supervisor) do
     child_pid?(supervisor, :broker)

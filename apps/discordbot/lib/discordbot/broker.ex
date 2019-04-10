@@ -2,6 +2,7 @@ defmodule DiscordBot.Broker do
   @moduledoc """
   Event broker for a gateway instance
   """
+  @behaviour DiscordBot.Broker.Provider
 
   use GenServer
 
@@ -83,12 +84,24 @@ defmodule DiscordBot.Broker do
     GenServer.call(broker, {:publish, topic, message})
   end
 
+  @doc """
+  For consistency, a broker should be a valid broker provider.
+  It effectively provides itself.
+  """
+  @impl DiscordBot.Broker.Provider
+  @spec broker?(pid) :: pid | nil
+  def broker?(broker) do
+    broker
+  end
+
   ## Handlers
 
+  @impl true
   def init(state) do
     {:ok, state}
   end
 
+  @impl true
   def handle_call({:topics}, _from, registry) do
     {:reply, Map.keys(registry), registry}
   end
