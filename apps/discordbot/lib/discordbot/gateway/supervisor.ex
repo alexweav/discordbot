@@ -16,7 +16,23 @@ defmodule DiscordBot.Gateway.Supervisor do
       DynamicSupervisor.start_child(DiscordBot.Gateway.BrokerSupervisor, DiscordBot.Broker)
 
     children = [
-      {DiscordBot.Broker.Shovel, source: instance_broker, destination: Broker, topics: []},
+      {DiscordBot.Broker.Shovel,
+       source: instance_broker,
+       destination: Broker,
+       topics: [
+         :dispatch,
+         :status_update,
+         :voice_state_update,
+         :ready,
+         :channel_create,
+         :channel_update,
+         :channel_delete,
+         :guild_create,
+         :guild_update,
+         :guild_delete,
+         :message_create,
+         :message_update
+       ]},
       {DiscordBot.Gateway.Heartbeat, broker: Broker, id: :heartbeat},
       Supervisor.child_spec(
         {Task, fn -> DiscordBot.Gateway.Authenticator.authenticate(Broker, token) end},
