@@ -15,8 +15,7 @@ defmodule DiscordBot.Gateway.Connection do
       :token,
       :connection,
       :sequence,
-      :broker,
-      :broker_provider
+      :broker
     ]
 
     @type url :: String.t()
@@ -24,14 +23,12 @@ defmodule DiscordBot.Gateway.Connection do
     @type connection :: map | nil
     @type sequence :: number
     @type broker :: pid | atom
-    @type broker_provider :: pid | atom
     @type t :: %__MODULE__{
             url: url,
             token: token,
             connection: connection,
             sequence: sequence,
-            broker: broker,
-            broker_provider: broker_provider
+            broker: broker
           }
   end
 
@@ -57,14 +54,11 @@ defmodule DiscordBot.Gateway.Connection do
 
     broker = Keyword.get(opts, :broker, Broker)
 
-    broker_provider = Keyword.get(opts, :broker_provider, nil)
-
     state = %State{
       url: url <> "/?v=6&encoding=json",
       token: token,
       sequence: nil,
-      broker: broker,
-      broker_provider: broker_provider
+      broker: broker
     }
 
     WebSockex.start_link(state.url, __MODULE__, state, name: Connection)
@@ -104,7 +98,6 @@ defmodule DiscordBot.Gateway.Connection do
 
   def handle_connect(connection, state) do
     Logger.info("Connected!")
-    send(self(), :after_connect)
     {:ok, %{state | connection: connection}}
   end
 
@@ -177,10 +170,6 @@ defmodule DiscordBot.Gateway.Connection do
       |> DiscordBot.Model.Payload.to_json()
 
     {:reply, {:text, json}, state}
-  end
-
-  def handle_info(:after_connect, state) do
-    {:ok, state}
   end
 
   defp log_gateway_close({_, code, msg}) do
