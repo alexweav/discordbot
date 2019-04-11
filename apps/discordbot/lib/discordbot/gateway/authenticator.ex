@@ -1,18 +1,21 @@
 defmodule DiscordBot.Gateway.Authenticator do
   @moduledoc """
-  Authenticates the bot over the gateway
+  Controls authentication for connections and gateways.
   """
 
+  alias DiscordBot.Broker
   alias DiscordBot.Broker.Event
 
   @doc """
   Authenticates connections over a `broker`.
+
   Listens for `:hello` events indicating a new connection.
   Blocks until a new connection occurrs, and then attempts
   to authenticate the event's source connection with `token`.
   """
-  def authenticate(token, broker) do
-    DiscordBot.Broker.subscribe(broker, :hello)
+  @spec authenticate(pid | atom, String.t()) :: :ok
+  def authenticate(broker, token) do
+    Broker.subscribe(broker, :hello)
     connection = wait_for_connect(broker)
     DiscordBot.Gateway.Connection.identify(connection, token, 0, 1)
     :ok

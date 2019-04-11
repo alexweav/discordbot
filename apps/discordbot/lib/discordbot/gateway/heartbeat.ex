@@ -40,11 +40,7 @@ defmodule DiscordBot.Gateway.Heartbeat do
   Starts the heartbeat provider
   """
   def start_link(opts) do
-    broker =
-      case Keyword.fetch(opts, :broker) do
-        {:ok, pid} -> pid
-        :error -> Broker
-      end
+    broker = Keyword.get(opts, :broker, Broker)
 
     state = %State{
       status: :waiting,
