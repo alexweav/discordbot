@@ -33,13 +33,13 @@ defmodule DiscordBot.Gateway.Supervisor do
          :message_create,
          :message_update
        ]},
-      {DiscordBot.Gateway.Heartbeat, broker: Broker, id: :heartbeat},
+      {DiscordBot.Gateway.Heartbeat, broker: instance_broker, id: :heartbeat},
       Supervisor.child_spec(
-        {Task, fn -> DiscordBot.Gateway.Authenticator.authenticate(Broker, token) end},
+        {Task, fn -> DiscordBot.Gateway.Authenticator.authenticate(instance_broker, token) end},
         id: :authenticator,
         restart: :transient
       ),
-      {DiscordBot.Gateway.Connection, url: url, token: token, broker: Broker}
+      {DiscordBot.Gateway.Connection, url: url, token: token, broker: instance_broker}
     ]
 
     Supervisor.init(children, strategy: :rest_for_one)
