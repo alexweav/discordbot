@@ -12,16 +12,18 @@ defmodule DiscordBot.Gateway.Supervisor do
 
   @impl true
   def init({token, url}) do
+    {:ok, instance_broker} =
+      DynamicSupervisor.start_child(DiscordBot.Gateway.BrokerSupervisor, DiscordBot.Broker)
+
     children = [
-      {DiscordBot.Broker, id: :broker},
+      {DiscordBot.Broker.Shovel, source: instance_broker, destination: Broker, topics: []},
       {DiscordBot.Gateway.Heartbeat, broker: Broker, id: :heartbeat},
       Supervisor.child_spec(
         {Task, fn -> DiscordBot.Gateway.Authenticator.authenticate(Broker, token) end},
         id: :authenticator,
         restart: :transient
       ),
-      {DiscordBot.Gateway.Connection,
-       url: url, token: token, broker: Broker, broker_provider: self()}
+      {DiscordBot.Gateway.Connection, url: url, token: token, broker: Broker}
     ]
 
     Supervisor.init(children, strategy: :rest_for_one)

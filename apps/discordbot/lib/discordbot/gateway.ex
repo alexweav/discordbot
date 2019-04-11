@@ -12,6 +12,7 @@ defmodule DiscordBot.Gateway do
     token = DiscordBot.Token.token()
 
     children = [
+      {DynamicSupervisor, name: DiscordBot.Gateway.BrokerSupervisor, strategy: :one_for_one},
       {DiscordBot.Gateway.Supervisor, token: token, url: url, name: DiscordBot.GatewaySupervisor}
     ]
 
