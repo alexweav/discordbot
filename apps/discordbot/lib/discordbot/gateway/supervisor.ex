@@ -1,6 +1,5 @@
 defmodule DiscordBot.Gateway.Supervisor do
   @moduledoc false
-  @behaviour DiscordBot.Broker.Provider
 
   use Supervisor
 
@@ -43,33 +42,5 @@ defmodule DiscordBot.Gateway.Supervisor do
     ]
 
     Supervisor.init(children, strategy: :rest_for_one)
-  end
-
-  @impl DiscordBot.Broker.Provider
-  @spec broker?(pid) :: pid | nil
-  def broker?(supervisor) do
-    child_pid?(supervisor, :broker)
-  end
-
-  @spec heartbeat?(pid) :: pid | nil
-  def heartbeat?(supervisor) do
-    child_pid?(supervisor, :heartbeat)
-  end
-
-  @spec authenticator?(pid) :: pid | nil
-  def authenticator?(supervisor) do
-    child_pid?(supervisor, :authenticator)
-  end
-
-  @spec child_pid?(pid, atom) :: pid | nil
-  defp child_pid?(supervisor, id) do
-    supervisor
-    |> Supervisor.which_children()
-    |> Enum.find_value(fn child ->
-      case child do
-        {^id, pid, _, _} -> pid
-        _ -> nil
-      end
-    end)
   end
 end
