@@ -1,7 +1,22 @@
 defmodule DiscordBot.Gateway.Heartbeat do
   @moduledoc """
-  Provides a scheduled heartbeat to a single
-  process which requests it
+  Handles the heartbeat protocol for a single websocket.
+
+  Utilizes a `DiscordBot.Broker`, to which a `DiscordBot.Gateway.Connection`
+  is actively posting events in order to schedule and provide
+  heartbeat messages over the websocket.
+
+  By default, Discord will requires that a heartbeat to be sent over each
+  connection at a specified interval. In addition, Discord may request that
+  an additional heartbeat be sent at any time, out-of-band of the normal
+  schedule, to be used for ping tracking. Discord will also acknowledge
+  scheduled heartbeats with an ACK event over the websocket.
+
+  This GenServer provides a scheduling mechanism for heartbeat messages,
+  as well as a provider for out-of-band heartbeats. In addition, it tracks
+  the acknowledgements for these heartbeats, and is the primary mechanism
+  for determining if a `DiscordBot.Gateway.Connection` is zombied or failed.
+  If this occurrs, the connection will be restarted automatically.
   """
 
   use GenServer
@@ -10,6 +25,7 @@ defmodule DiscordBot.Gateway.Heartbeat do
 
   defmodule State do
     @enforce_keys [:status, :broker]
+    @moduledoc false
 
     defstruct [
       :status,
@@ -37,7 +53,10 @@ defmodule DiscordBot.Gateway.Heartbeat do
   end
 
   @doc """
-  Starts the heartbeat provider
+  Starts the heartbeat provider.
+
+  Options (required):
+  - `:broker` - a `DiscordBot.Broker` process to listen to for events.
   """
   def start_link(opts) do
     broker = Keyword.get(opts, :broker, Broker)
@@ -55,7 +74,10 @@ defmodule DiscordBot.Gateway.Heartbeat do
   end
 
   @doc """
-  Gets the current status of the heartbeat provider
+  Gets the current status of the heartbeat `provider`.
+
+  Returns either `:waiting:`, if the provider is inactive,
+  or `:running:`, if the provider is actively providing heartbeats.
   """
   def status?(provider) do
     GenServer.call(provider, {:status})
@@ -79,7 +101,7 @@ defmodule DiscordBot.Gateway.Heartbeat do
 
   @doc """
   Schedules the provider to send a heartbeat message
-  every `interval` milliseconds
+  every `interval` milliseconds.
   """
   def schedule(provider, interval) do
     GenServer.call(provider, {:schedule, interval})
@@ -87,7 +109,7 @@ defmodule DiscordBot.Gateway.Heartbeat do
 
   @doc """
   Schedules the provider to send a heartbeat message
-  every `interval` milliseconds, to the process `pid`
+  every `interval` milliseconds, to the process `pid`.
   """
   def schedule(provider, interval, pid) do
     GenServer.call(provider, {:schedule, interval, pid})

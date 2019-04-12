@@ -67,6 +67,7 @@ defmodule DiscordBot.Gateway.Connection do
   @doc """
   Sends a heartbeat message over the websocket
   """
+  @spec heartbeat(atom | pid) :: :ok
   def heartbeat(connection) do
     WebSockex.cast(connection, {:heartbeat})
   end
@@ -74,6 +75,7 @@ defmodule DiscordBot.Gateway.Connection do
   @doc """
   Sends an identify message over the websocket
   """
+  @spec identify(atom | pid, String.t(), number, number) :: :ok
   def identify(connection, token, shard, num_shards) do
     WebSockex.cast(connection, {:identify, token, shard, num_shards})
   end
@@ -81,6 +83,7 @@ defmodule DiscordBot.Gateway.Connection do
   @doc """
   Updates the bot's status to `status` over `connection`.
   """
+  @spec update_status(atom | pid, atom) :: :ok
   def update_status(connection, status) do
     WebSockex.cast(connection, {:update_status, status})
   end
@@ -90,6 +93,7 @@ defmodule DiscordBot.Gateway.Connection do
   over `connection`. Also updates their status activity given
   the activity's `type` and `name`.
   """
+  @spec update_status(atom | pid, atom, atom, String.t()) :: :ok
   def update_status(connection, status, type, name) do
     WebSockex.cast(connection, {:update_status, status, type, name})
   end
