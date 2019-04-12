@@ -95,4 +95,11 @@ defmodule DiscordBot.Gateway.HeartbeatTest do
     Broker.publish(broker, :heartbeat, {})
     assert_receive({:"$websockex_cast", {:heartbeat}}, 1_000)
   end
+
+  test "waiting if OOB request is sent with no target", %{heartbeat: heartbeat, broker: broker} do
+    Broker.publish(broker, :heartbeat, {})
+    assert Heartbeat.target?(heartbeat) == nil
+    assert Heartbeat.interval?(heartbeat) == nil
+    assert Heartbeat.status?(heartbeat) == :waiting
+  end
 end
