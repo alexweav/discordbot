@@ -97,6 +97,7 @@ defmodule DiscordBot.Gateway.Heartbeat do
 
   def init(state) do
     DiscordBot.Broker.subscribe(state.broker, :hello)
+    DiscordBot.Broker.subscribe(state.broker, :heartbeat)
     {:ok, state}
   end
 
