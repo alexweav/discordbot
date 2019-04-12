@@ -86,8 +86,13 @@ defmodule DiscordBot.Gateway.HeartbeatTest do
     assert_receive({:"$websockex_cast", {:heartbeat}}, 1_000)
   end
 
-  test "replies to out-of-band heartbeat requests", %{heartbeat: heartbeat, broker: _broker} do
-    Heartbeat.schedule(heartbeat, 100_000)
-    assert 1 == 2
+  test "replies to out-of-band heartbeat requests", %{broker: broker} do
+    message = %DiscordBot.Model.Hello{
+      heartbeat_interval: 100_000
+    }
+
+    Broker.publish(broker, :hello, message)
+    Broker.publish(broker, :heartbeat, {})
+    assert_receive({:"$websockex_cast", {:heartbeat}}, 1_000)
   end
 end
