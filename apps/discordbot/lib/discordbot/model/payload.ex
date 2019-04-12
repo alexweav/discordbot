@@ -40,7 +40,7 @@ defmodule DiscordBot.Model.Payload do
         }
 
   defimpl Poison.Encoder, for: __MODULE__ do
-    @spec encode(DiscordBot.Model.Payload.t(), Poison.Encoder.options()) :: iodata
+    @spec encode(Payload.t(), Poison.Encoder.options()) :: iodata
     def encode(payload, options) do
       %{opcode: opcode, data: data, sequence: sequence, name: name} = payload
 
