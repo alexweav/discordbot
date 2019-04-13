@@ -102,4 +102,9 @@ defmodule DiscordBot.Gateway.HeartbeatTest do
     assert Heartbeat.interval?(heartbeat) == nil
     assert Heartbeat.status?(heartbeat) == :waiting
   end
+
+  test "acknowledged before first heartbeat sent", %{heartbeat: heartbeat} do
+    Heartbeat.schedule(heartbeat, 10_000)
+    assert Heartbeat.acknowledged?(heartbeat) == true
+  end
 end
