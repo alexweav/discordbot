@@ -213,7 +213,8 @@ defmodule DiscordBot.Gateway.Heartbeat do
         target: pid,
         interval: interval,
         target_ref: ref,
-        sender: sender
+        sender: sender,
+        acked: true
     }
   end
 
