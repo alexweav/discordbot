@@ -131,6 +131,7 @@ defmodule DiscordBot.Gateway.Heartbeat do
   def init(state) do
     DiscordBot.Broker.subscribe(state.broker, :hello)
     DiscordBot.Broker.subscribe(state.broker, :heartbeat)
+    DiscordBot.Broker.subscribe(state.broker, :heartbeat_ack)
     {:ok, state}
   end
 
@@ -184,21 +185,28 @@ defmodule DiscordBot.Gateway.Heartbeat do
     {:noreply, state}
   end
 
+  def handle_info(%Event{topic: :heartbeat_ack}, state) do
+    {:noreply, state}
+  end
+
   def handle_info({:DOWN, _ref, :process, _object, _reason}, state) do
     new_state = go_idle(state)
     {:noreply, new_state}
   end
 
   def handle_info(:heartbeat, state) do
-    case state.target do
-      nil ->
+    cond do
+      state.target == nil ->
         {:noreply, state}
 
-      target ->
-        DiscordBot.Gateway.Connection.heartbeat(target)
+      state.acked ->
+        DiscordBot.Gateway.Connection.heartbeat(state.target)
         sender = Process.send_after(self(), :heartbeat, state.interval)
         new_state = %{state | sender: sender}
         {:noreply, new_state}
+
+      true ->
+        {:noreply, state}
     end
   end
 
