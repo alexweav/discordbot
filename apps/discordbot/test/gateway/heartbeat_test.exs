@@ -107,4 +107,16 @@ defmodule DiscordBot.Gateway.HeartbeatTest do
     Heartbeat.schedule(heartbeat, 10_000)
     assert Heartbeat.acknowledged?(heartbeat) == true
   end
+
+  test "not acknowledged after heartbeat sent", %{heartbeat: heartbeat} do
+    Heartbeat.schedule(heartbeat, 10)
+
+    receive do
+      _ -> nil
+    after
+      1_000 -> nil
+    end
+
+    assert Heartbeat.acknowledged?(heartbeat) == false
+  end
 end

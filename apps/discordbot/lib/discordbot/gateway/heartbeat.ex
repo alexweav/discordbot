@@ -199,14 +199,11 @@ defmodule DiscordBot.Gateway.Heartbeat do
       state.target == nil ->
         {:noreply, state}
 
-      state.acked ->
+      true ->
         DiscordBot.Gateway.Connection.heartbeat(state.target)
         sender = Process.send_after(self(), :heartbeat, state.interval)
-        new_state = %{state | sender: sender}
+        new_state = %{state | sender: sender, acked: false}
         {:noreply, new_state}
-
-      true ->
-        {:noreply, state}
     end
   end
 
