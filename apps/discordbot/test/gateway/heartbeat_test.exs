@@ -110,13 +110,29 @@ defmodule DiscordBot.Gateway.HeartbeatTest do
 
   test "not acknowledged after heartbeat sent", %{heartbeat: heartbeat} do
     Heartbeat.schedule(heartbeat, 10)
+    block_until_message(1_000)
+    assert Heartbeat.acknowledged?(heartbeat) == false
+  end
 
+  test "acknowledged after acknowledgement event", %{heartbeat: heartbeat, broker: broker} do
+    Heartbeat.schedule(heartbeat, 10)
+    block_until_message(1_000)
+    Broker.publish(broker, :heartbeat_ack, {})
+    assert Heartbeat.acknowledged?(heartbeat) == true
+  end
+
+  test "disconnects after two beats without ack", %{heartbeat: heartbeat} do
+    Heartbeat.schedule(heartbeat, 10)
+    block_until_message(1_000)
+    assert_receive({:"$websockex_cast", {:disconnect, 4_000}}, 1_000)
+  end
+
+  @spec block_until_message(integer) :: nil
+  defp block_until_message(timeout) do
     receive do
       _ -> nil
     after
-      1_000 -> nil
+      timeout -> nil
     end
-
-    assert Heartbeat.acknowledged?(heartbeat) == false
   end
 end
