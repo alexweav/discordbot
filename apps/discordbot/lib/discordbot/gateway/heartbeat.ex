@@ -33,7 +33,8 @@ defmodule DiscordBot.Gateway.Heartbeat do
       :target_ref,
       :interval,
       :sender,
-      :broker
+      :broker,
+      :acked
     ]
 
     @type status :: atom
@@ -42,13 +43,15 @@ defmodule DiscordBot.Gateway.Heartbeat do
     @type interval :: number
     @type sender :: pid
     @type broker :: pid
+    @type acked :: boolean
     @type t :: %__MODULE__{
             status: status,
             target: target,
             target_ref: target_ref,
             interval: interval,
             sender: sender,
-            broker: broker
+            broker: broker,
+            acked: acked
           }
   end
 
@@ -67,7 +70,8 @@ defmodule DiscordBot.Gateway.Heartbeat do
       target_ref: nil,
       interval: nil,
       sender: nil,
-      broker: broker
+      broker: broker,
+      acked: false
     }
 
     GenServer.start_link(__MODULE__, state, opts)
@@ -97,6 +101,13 @@ defmodule DiscordBot.Gateway.Heartbeat do
   """
   def interval?(provider) do
     GenServer.call(provider, {:interval})
+  end
+
+  @doc """
+  Returns whether the most recently sent heartbeat has been acknowledged.
+  """
+  def acknowledged?(provider) do
+    GenServer.call(provider, {:acknowledged})
   end
 
   @doc """
@@ -133,6 +144,10 @@ defmodule DiscordBot.Gateway.Heartbeat do
 
   def handle_call({:interval}, _from, state) do
     {:reply, state.interval, state}
+  end
+
+  def handle_call({:acknowledged}, _from, state) do
+    {:reply, state.acked, state}
   end
 
   def handle_call({:schedule, interval}, {from, _ref}, %State{status: :waiting} = state) do
