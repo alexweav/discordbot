@@ -98,6 +98,14 @@ defmodule DiscordBot.Gateway.Connection do
     WebSockex.cast(connection, {:update_status, status, type, name})
   end
 
+  @doc """
+  Closes a connection.
+  """
+  @spec disconnect(pid, WebSockex.close_code()) :: :ok
+  def disconnect(connection, close_code) do
+    WebSockex.cast(connection, {:disconnect, close_code})
+  end
+
   ## Handlers
 
   def handle_connect(connection, state) do
@@ -174,6 +182,10 @@ defmodule DiscordBot.Gateway.Connection do
       |> DiscordBot.Model.Payload.to_json()
 
     {:reply, {:text, json}, state}
+  end
+
+  def handle_cast({:disconnect, close_code}, state) do
+    {:close, {close_code, "Disconnecting"}, state}
   end
 
   defp log_gateway_close({_, code, msg}) do

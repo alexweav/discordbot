@@ -41,6 +41,6 @@ defmodule DiscordBot.Gateway.Supervisor do
       {DiscordBot.Gateway.Connection, url: url, token: token, broker: instance_broker}
     ]
 
-    Supervisor.init(children, strategy: :rest_for_one)
+    Supervisor.init(children, strategy: :one_for_all)
   end
 end
