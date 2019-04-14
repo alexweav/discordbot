@@ -13,7 +13,7 @@ defmodule DiscordBot.Gateway do
 
     children = [
       {DynamicSupervisor, name: DiscordBot.Gateway.BrokerSupervisor, strategy: :one_for_one},
-      {DiscordBot.Gateway.Supervisor, token: token, url: url, name: DiscordBot.GatewaySupervisor}
+      {DiscordBot.Gateway.Supervisor, token: token, url: url}
     ]
 
     Supervisor.init(children, strategy: :one_for_all)
