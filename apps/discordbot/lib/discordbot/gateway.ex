@@ -13,9 +13,20 @@ defmodule DiscordBot.Gateway do
 
     children = [
       {DynamicSupervisor, name: DiscordBot.Gateway.BrokerSupervisor, strategy: :one_for_one},
-      {DiscordBot.Gateway.Supervisor, token: token, url: url, shard_index: 0, shard_count: 1}
+      gateway_sup_spec(token, url, 0, 2),
+      gateway_sup_spec(token, url, 1, 2)
     ]
 
     Supervisor.init(children, strategy: :one_for_all)
+  end
+
+  defp gateway_sup_spec(token, url, shard_index, shard_count) do
+    Supervisor.child_spec(
+      {
+        DiscordBot.Gateway.Supervisor,
+        token: token, url: url, shard_index: shard_index, shard_count: shard_count
+      },
+      id: shard_index
+    )
   end
 end

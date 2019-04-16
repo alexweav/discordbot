@@ -67,7 +67,9 @@ defmodule DiscordBot.Gateway.Connection do
       broker: broker
     }
 
-    WebSockex.start_link(state.url, __MODULE__, state, name: Connection)
+    # TODO: this is a really hacky way of rigging the staggered launch of connections. Don't do this.
+    Process.sleep(5000)
+    WebSockex.start_link(state.url, __MODULE__, state, opts)
   end
 
   @doc """
