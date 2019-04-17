@@ -7,6 +7,8 @@ defmodule DiscordBot.Entity.ChannelTest do
   alias DiscordBot.Entity.Channel
   alias DiscordBot.Model.Channel, as: ChannelModel
 
+  setup :verify_on_exit!
+
   setup do
     model = %ChannelModel{
       id: "test-id"

@@ -10,13 +10,13 @@ defmodule DiscordBot.Api do
   @doc """
   Requests Gateway (websocket) access to Discord.
 
-  Users are authenticated via the API key given by `DiscordBot.Token.token/0`.
+  Users are authenticated via the API key given by `DiscordBot.Configuration.token!/0`.
   If gateway access is granted, this call returns a map containing the following fields:
   - `"url"`: the websocket address to connect to.
   - `"shards"`: the recommended number of shards to use.
   - `"session_start_limit"`: an object containing information regarding the maximum number of requests which can be made.
 
-  In the event that the token given by `DiscordBot.Token.token/0` is rejected,
+  In the event that the token given by `DiscordBot.Configuration.token!/0` is rejected,
   this call returns `{:ok, :invalid_token}`.
 
   ## Examples
@@ -138,7 +138,7 @@ defmodule DiscordBot.Api do
 
   @doc false
   def process_request_headers(existing) do
-    token = DiscordBot.Token.token()
+    token = DiscordBot.Configuration.token!()
 
     [
       {"Authorization", "Bot " <> token},

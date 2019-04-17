@@ -6,6 +6,12 @@ defmodule DiscordBot.Gateway.Connection do
   use WebSockex
   require Logger
 
+  @callback heartbeat(atom | pid) :: :ok
+  @callback identify(atom | pid, String.t(), number, number) :: :ok
+  @callback update_status(atom | pid, atom) :: :ok
+  @callback update_status(atom | pid, atom, atom, String.t()) :: :ok
+  @callback disconnect(pid, WebSockex.close_code()) :: :ok
+
   defmodule State do
     @moduledoc false
     @enforce_keys [:url, :token]
@@ -61,7 +67,7 @@ defmodule DiscordBot.Gateway.Connection do
       broker: broker
     }
 
-    WebSockex.start_link(state.url, __MODULE__, state, name: Connection)
+    WebSockex.start_link(state.url, __MODULE__, state, opts)
   end
 
   @doc """
