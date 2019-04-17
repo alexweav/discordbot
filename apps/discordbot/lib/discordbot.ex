@@ -37,9 +37,9 @@ defmodule DiscordBot do
          ],
          broker_name: Broker
        ]},
-      {DiscordBot.Gateway, [url: url]},
-      {DiscordBot.Self, [name: Self]},
-      {DiscordBot.Entity.Supervisor, []}
+      {DiscordBot.Entity.Supervisor, []},
+      {DiscordBot.Self, name: Self},
+      {DiscordBot.Gateway, url: url}
     ]
 
     Logger.info("Launching core app and establishing connection...")
