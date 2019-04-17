@@ -4,6 +4,7 @@ defmodule DiscordBot.Configuration do
   """
 
   @token_env_var_key "TOKEN"
+  @shards_env_var_key "SHARDS"
 
   @doc """
   Returns the Discord bot token given the various configuration inputs.
@@ -36,5 +37,41 @@ defmodule DiscordBot.Configuration do
   @spec token_config() :: String.t() | nil
   def token_config do
     Application.get_env(:discordbot, :token)
+  end
+
+  @doc """
+  Gets the shard count, if provided through any configuration method.
+  """
+  @spec shards() :: integer | nil
+  def shards do
+    with nil <- shards_env(),
+         nil <- shards_config() do
+      nil
+    else
+      shards -> shards
+    end
+  end
+
+  @doc """
+  Gets the shard count, if defined via env variable, or `nil` otherwise.
+  """
+  @spec shards_env() :: integer | nil
+  def shards_env do
+    case System.get_env()
+         |> Map.get(@shards_env_var_key)
+         # Workaround for bug in Integer.parse() where an exception occurs if `nil` is passed in
+         |> to_string()
+         |> Integer.parse() do
+      {int, _} -> int
+      :error -> nil
+    end
+  end
+
+  @doc """
+  Gets the shard count, if defined via app config, or `nil` otherwise.
+  """
+  @spec shards_config() :: integer | nil
+  def shards_config do
+    Application.get_env(:discordbot, :shards)
   end
 end
