@@ -67,9 +67,6 @@ defmodule DiscordBot.Gateway.Connection do
       broker: broker
     }
 
-    # TODO: this is a really hacky way of rigging the staggered launch of connections. Should probably change this.
-    Logger.info("Waiting 5 seconds due to Identify ratelimiting.")
-    Process.sleep(5000)
     WebSockex.start_link(state.url, __MODULE__, state, opts)
   end
 

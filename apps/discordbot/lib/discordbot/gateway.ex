@@ -31,9 +31,16 @@ defmodule DiscordBot.Gateway do
     Supervisor.child_spec(
       {
         DiscordBot.Gateway.Supervisor,
-        token: token, url: url, shard_index: shard_index, shard_count: shard_count
+        token: token,
+        url: url,
+        shard_index: shard_index,
+        shard_count: shard_count,
+        spawn_delay: spawn_delay(shard_index)
       },
       id: shard_index
     )
   end
+
+  defp spawn_delay(0), do: 0
+  defp spawn_delay(_), do: 5000
 end
