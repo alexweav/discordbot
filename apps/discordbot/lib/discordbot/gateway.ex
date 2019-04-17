@@ -11,7 +11,7 @@ defmodule DiscordBot.Gateway do
   end
 
   def init(url) do
-    token = DiscordBot.Token.token()
+    token = DiscordBot.Configuration.token!()
 
     children =
       [

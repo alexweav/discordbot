@@ -1,4 +1,4 @@
-defmodule DiscordBot.Token do
+defmodule DiscordBot.Configuration do
   @moduledoc """
   Helpers for keeping track of the bot token
   """
@@ -8,8 +8,8 @@ defmodule DiscordBot.Token do
   @doc """
   Returns the Discord bot token given the various configuration inputs.
   """
-  @spec token() :: String.t()
-  def token do
+  @spec token!() :: String.t()
+  def token! do
     with nil <- token_env(),
          nil <- token_config() do
       raise(
