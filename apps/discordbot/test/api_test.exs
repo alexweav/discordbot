@@ -13,7 +13,7 @@ defmodule DiscordBot.ApiTest do
 
     assert Enum.member?(
              DiscordBot.Api.process_request_headers(headers),
-             {"Authorization", "Bot " <> DiscordBot.Token.token!()}
+             {"Authorization", "Bot " <> DiscordBot.Configuration.token!()}
            )
   end
 
