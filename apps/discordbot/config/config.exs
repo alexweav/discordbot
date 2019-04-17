@@ -1,7 +1,8 @@
 use Mix.Config
 
 config :discordbot,
-  token: "TOKEN"
+  token: "TOKEN",
+  shards: 2
 
 config :logger,
   level: :info,

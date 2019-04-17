@@ -2,7 +2,7 @@ defmodule DiscordBot.ConfigProvider do
   @moduledoc false
 
   # This is a modification of the default Elixir config provider that
-  # ships with Distiller, which allows for optional config files
+  # ships with Distillery, which allows for optional config files
 
   use Mix.Releases.Config.Provider
 
