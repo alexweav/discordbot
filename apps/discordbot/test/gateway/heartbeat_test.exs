@@ -121,6 +121,8 @@ defmodule DiscordBot.Gateway.HeartbeatTest do
     block_until_message(1_000)
     Broker.publish(broker, :heartbeat_ack, {})
     assert Heartbeat.acknowledged?(heartbeat) == true
+    # +- one minute
+    assert abs(DateTime.diff(Heartbeat.last_ack_time?(heartbeat), DateTime.utc_now())) < 60
   end
 
   test "disconnects after two beats without ack", %{heartbeat: heartbeat} do

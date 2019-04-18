@@ -201,7 +201,7 @@ defmodule DiscordBot.Gateway.Heartbeat do
   end
 
   def handle_info(%Event{topic: :heartbeat_ack}, state) do
-    {:noreply, %{state | acked: true}}
+    {:noreply, %{state | acked: true, last_ack_time: DateTime.utc_now()}}
   end
 
   def handle_info({:DOWN, _ref, :process, _object, _reason}, state) do
