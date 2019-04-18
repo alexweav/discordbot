@@ -21,7 +21,7 @@ RUN APP_NAME="discordbot_umbrella" && \
 
 #Deploy
 
-FROM pentacent/alpine-erlang-base:latest
+FROM bitwalker/alpine-elixir:1.8.1
 
 # Copy release from previous stage
 COPY --from=build /export/ .
