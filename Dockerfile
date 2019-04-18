@@ -1,6 +1,6 @@
 # Build
 
-FROM bitwalker/alpine-elixir:1.7.3 as build
+FROM bitwalker/alpine-elixir:1.8.1 as build
 
 # Set mix env
 ENV MIX_ENV=prod
