@@ -38,7 +38,8 @@ defmodule DiscordBot.Gateway.Heartbeat do
       :broker,
       :acked,
       :last_ack_time,
-      :last_heartbeat_time
+      :last_heartbeat_time,
+      :ping
     ]
 
     @type status :: atom
@@ -50,6 +51,7 @@ defmodule DiscordBot.Gateway.Heartbeat do
     @type acked :: boolean
     @type last_ack_time :: DateTime.t()
     @type last_heartbeat_time :: DateTime.t()
+    @type ping :: integer
     @type t :: %__MODULE__{
             status: status,
             target: target,
@@ -59,7 +61,8 @@ defmodule DiscordBot.Gateway.Heartbeat do
             broker: broker,
             acked: acked,
             last_ack_time: last_ack_time,
-            last_heartbeat_time: last_heartbeat_time
+            last_heartbeat_time: last_heartbeat_time,
+            ping: ping
           }
   end
 
@@ -81,7 +84,8 @@ defmodule DiscordBot.Gateway.Heartbeat do
       broker: broker,
       acked: false,
       last_ack_time: nil,
-      last_heartbeat_time: nil
+      last_heartbeat_time: nil,
+      ping: nil
     }
 
     GenServer.start_link(__MODULE__, state, opts)
@@ -135,6 +139,13 @@ defmodule DiscordBot.Gateway.Heartbeat do
   end
 
   @doc """
+  Gets the most recently measured ping value, or `nil` if no such value exists.
+  """
+  def ping?(provider) do
+    GenServer.call(provider, {:ping})
+  end
+
+  @doc """
   Schedules the provider to send a heartbeat message
   every `interval` milliseconds.
   """
@@ -183,6 +194,10 @@ defmodule DiscordBot.Gateway.Heartbeat do
     {:reply, state.last_heartbeat_time, state}
   end
 
+  def handle_call({:ping}, _from, state) do
+    {:reply, state.ping, state}
+  end
+
   def handle_call({:schedule, interval}, {from, _ref}, %State{status: :waiting} = state) do
     new_state = start_heartbeat(state, from, interval)
     {:reply, :ok, new_state}
@@ -219,7 +234,15 @@ defmodule DiscordBot.Gateway.Heartbeat do
   end
 
   def handle_info(%Event{topic: :heartbeat_ack}, state) do
-    {:noreply, %{state | acked: true, last_ack_time: DateTime.utc_now()}}
+    utc_now = DateTime.utc_now()
+
+    {:noreply,
+     %{
+       state
+       | acked: true,
+         last_ack_time: utc_now,
+         ping: DateTime.diff(utc_now, state.last_heartbeat_time, :millisecond)
+     }}
   end
 
   def handle_info({:DOWN, _ref, :process, _object, _reason}, state) do
@@ -269,7 +292,8 @@ defmodule DiscordBot.Gateway.Heartbeat do
         sender: sender,
         acked: true,
         last_ack_time: nil,
-        last_heartbeat_time: nil
+        last_heartbeat_time: nil,
+        ping: nil
     }
   end
 
@@ -282,7 +306,8 @@ defmodule DiscordBot.Gateway.Heartbeat do
         target_ref: nil,
         sender: nil,
         last_ack_time: nil,
-        last_heartbeat_time: nil
+        last_heartbeat_time: nil,
+        ping: nil
     }
   end
 end
