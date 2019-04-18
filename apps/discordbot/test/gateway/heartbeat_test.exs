@@ -18,6 +18,7 @@ defmodule DiscordBot.Gateway.HeartbeatTest do
   test "untargeted on launch", %{heartbeat: heartbeat} do
     assert Heartbeat.target?(heartbeat) == nil
     assert Heartbeat.acknowledged?(heartbeat) == false
+    assert Heartbeat.last_ack_time?(heartbeat) == nil
   end
 
   test "schedule :ok on launch", %{heartbeat: heartbeat} do
@@ -106,6 +107,7 @@ defmodule DiscordBot.Gateway.HeartbeatTest do
   test "acknowledged before first heartbeat sent", %{heartbeat: heartbeat} do
     Heartbeat.schedule(heartbeat, 10_000)
     assert Heartbeat.acknowledged?(heartbeat) == true
+    assert Heartbeat.last_ack_time?(heartbeat) == nil
   end
 
   test "not acknowledged after heartbeat sent", %{heartbeat: heartbeat} do

@@ -36,7 +36,8 @@ defmodule DiscordBot.Gateway.Heartbeat do
       :interval,
       :sender,
       :broker,
-      :acked
+      :acked,
+      :last_ack_time
     ]
 
     @type status :: atom
@@ -46,6 +47,7 @@ defmodule DiscordBot.Gateway.Heartbeat do
     @type sender :: pid
     @type broker :: pid
     @type acked :: boolean
+    @type last_ack_time :: DateTime.t()
     @type t :: %__MODULE__{
             status: status,
             target: target,
@@ -53,7 +55,8 @@ defmodule DiscordBot.Gateway.Heartbeat do
             interval: interval,
             sender: sender,
             broker: broker,
-            acked: acked
+            acked: acked,
+            last_ack_time: last_ack_time
           }
   end
 
@@ -73,7 +76,8 @@ defmodule DiscordBot.Gateway.Heartbeat do
       interval: nil,
       sender: nil,
       broker: broker,
-      acked: false
+      acked: false,
+      last_ack_time: nil
     }
 
     GenServer.start_link(__MODULE__, state, opts)
@@ -110,6 +114,10 @@ defmodule DiscordBot.Gateway.Heartbeat do
   """
   def acknowledged?(provider) do
     GenServer.call(provider, {:acknowledged})
+  end
+
+  def last_ack_time?(provider) do
+    GenServer.call(provider, {:last_ack_time})
   end
 
   @doc """
@@ -151,6 +159,10 @@ defmodule DiscordBot.Gateway.Heartbeat do
 
   def handle_call({:acknowledged}, _from, state) do
     {:reply, state.acked, state}
+  end
+
+  def handle_call({:last_ack_time}, _from, state) do
+    {:reply, state.last_ack_time, state}
   end
 
   def handle_call({:schedule, interval}, {from, _ref}, %State{status: :waiting} = state) do
@@ -230,7 +242,8 @@ defmodule DiscordBot.Gateway.Heartbeat do
         interval: interval,
         target_ref: ref,
         sender: sender,
-        acked: true
+        acked: true,
+        last_ack_time: nil
     }
   end
 
