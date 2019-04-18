@@ -19,6 +19,7 @@ defmodule DiscordBot.Gateway.HeartbeatTest do
     assert Heartbeat.target?(heartbeat) == nil
     assert Heartbeat.acknowledged?(heartbeat) == false
     assert Heartbeat.last_ack_time?(heartbeat) == nil
+    assert Heartbeat.last_heartbeat_time?(heartbeat) == nil
   end
 
   test "schedule :ok on launch", %{heartbeat: heartbeat} do
@@ -64,6 +65,8 @@ defmodule DiscordBot.Gateway.HeartbeatTest do
     assert Heartbeat.status?(heartbeat) == :waiting
     assert Heartbeat.target?(heartbeat) == nil
     assert Heartbeat.interval?(heartbeat) == nil
+    assert Heartbeat.last_ack_time?(heartbeat) == nil
+    assert Heartbeat.last_heartbeat_time?(heartbeat) == nil
   end
 
   test "running after broker hello event", %{heartbeat: heartbeat, broker: broker} do
@@ -85,6 +88,13 @@ defmodule DiscordBot.Gateway.HeartbeatTest do
 
     Broker.publish(broker, :hello, message)
     assert_receive({:"$websockex_cast", {:heartbeat}}, 1_000)
+  end
+
+  test "tracks timestamp of most recent send", %{heartbeat: heartbeat} do
+    Heartbeat.schedule(heartbeat, 10)
+    block_until_message(1000)
+    # +- one minute
+    assert abs(DateTime.diff(Heartbeat.last_heartbeat_time?(heartbeat), DateTime.utc_now())) < 60
   end
 
   test "replies to out-of-band heartbeat requests", %{broker: broker} do

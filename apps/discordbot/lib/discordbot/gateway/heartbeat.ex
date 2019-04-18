@@ -37,7 +37,8 @@ defmodule DiscordBot.Gateway.Heartbeat do
       :sender,
       :broker,
       :acked,
-      :last_ack_time
+      :last_ack_time,
+      :last_heartbeat_time
     ]
 
     @type status :: atom
@@ -48,6 +49,7 @@ defmodule DiscordBot.Gateway.Heartbeat do
     @type broker :: pid
     @type acked :: boolean
     @type last_ack_time :: DateTime.t()
+    @type last_heartbeat_time :: DateTime.t()
     @type t :: %__MODULE__{
             status: status,
             target: target,
@@ -56,7 +58,8 @@ defmodule DiscordBot.Gateway.Heartbeat do
             sender: sender,
             broker: broker,
             acked: acked,
-            last_ack_time: last_ack_time
+            last_ack_time: last_ack_time,
+            last_heartbeat_time: last_heartbeat_time
           }
   end
 
@@ -77,7 +80,8 @@ defmodule DiscordBot.Gateway.Heartbeat do
       sender: nil,
       broker: broker,
       acked: false,
-      last_ack_time: nil
+      last_ack_time: nil,
+      last_heartbeat_time: nil
     }
 
     GenServer.start_link(__MODULE__, state, opts)
@@ -116,8 +120,18 @@ defmodule DiscordBot.Gateway.Heartbeat do
     GenServer.call(provider, {:acknowledged})
   end
 
+  @doc """
+  Returns the time of the most recent heartbeat acknowledgement.
+  """
   def last_ack_time?(provider) do
     GenServer.call(provider, {:last_ack_time})
+  end
+
+  @doc """
+  Returns the time of the most recent heartbeat.
+  """
+  def last_heartbeat_time?(provider) do
+    GenServer.call(provider, {:last_heartbeat_time})
   end
 
   @doc """
@@ -163,6 +177,10 @@ defmodule DiscordBot.Gateway.Heartbeat do
 
   def handle_call({:last_ack_time}, _from, state) do
     {:reply, state.last_ack_time, state}
+  end
+
+  def handle_call({:last_heartbeat_time}, _from, state) do
+    {:reply, state.last_heartbeat_time, state}
   end
 
   def handle_call({:schedule, interval}, {from, _ref}, %State{status: :waiting} = state) do
@@ -217,7 +235,14 @@ defmodule DiscordBot.Gateway.Heartbeat do
       state.acked ->
         DiscordBot.Gateway.Connection.heartbeat(state.target)
         sender = Process.send_after(self(), :heartbeat, state.interval)
-        new_state = %{state | sender: sender, acked: false}
+
+        new_state = %{
+          state
+          | sender: sender,
+            acked: false,
+            last_heartbeat_time: DateTime.utc_now()
+        }
+
         {:noreply, new_state}
 
       true ->
@@ -243,11 +268,21 @@ defmodule DiscordBot.Gateway.Heartbeat do
         target_ref: ref,
         sender: sender,
         acked: true,
-        last_ack_time: nil
+        last_ack_time: nil,
+        last_heartbeat_time: nil
     }
   end
 
   defp go_idle(state) do
-    %{state | status: :waiting, target: nil, interval: nil, target_ref: nil, sender: nil}
+    %{
+      state
+      | status: :waiting,
+        target: nil,
+        interval: nil,
+        target_ref: nil,
+        sender: nil,
+        last_ack_time: nil,
+        last_heartbeat_time: nil
+    }
   end
 end
