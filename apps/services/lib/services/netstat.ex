@@ -66,7 +66,7 @@ defmodule Services.Netstat do
       "--- Ping: #{Heartbeat.ping?(heartbeat) || "Currently unknown"}\n" <>
       "--- Last HB Timestamp: #{last_hb_time}\n" <>
       "--- Last ACK Timestamp: #{last_ack_time}\n" <>
-      "--- HB Interval: #{Heartbeat.interval?(heartbeat)}s\n"
+      "--- HB Interval: #{Heartbeat.interval?(heartbeat)}ms\n"
   end
 
   defp format_time(time) do
