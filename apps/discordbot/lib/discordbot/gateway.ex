@@ -22,8 +22,18 @@ defmodule DiscordBot.Gateway do
     Supervisor.init(children, strategy: :one_for_all)
   end
 
+  @spec connection_count() :: integer
   def connection_count() do
     DiscordBot.Configuration.shards() || @default_shard_count
+  end
+
+  @spec get_gateway_instance(pid, integer) :: :error | {:ok, pid}
+  def get_gateway_instance(supervisor, shard_index) do
+    if shard_index < 0 || shard_index >= connection_count() do
+      :error
+    else
+      DiscordBot.Util.child_by_id(supervisor, id_from_index(shard_index))
+    end
   end
 
   defp gateway_specs(token, url, shard_count) do

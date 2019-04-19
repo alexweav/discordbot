@@ -11,7 +11,7 @@ defmodule DiscordBot.Util do
   the `init/1` function of any child process of `supervisor`,
   or deadlock will occur.
   """
-  @spec child_by_id(pid, atom) :: {:ok, pid} | :error
+  @spec child_by_id(pid, any) :: {:ok, pid} | :error
   def child_by_id(supervisor, id) do
     children = Supervisor.which_children(supervisor)
 
