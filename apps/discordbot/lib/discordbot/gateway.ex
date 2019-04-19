@@ -27,7 +27,7 @@ defmodule DiscordBot.Gateway do
     DiscordBot.Configuration.shards() || @default_shard_count
   end
 
-  @spec get_gateway_instance(pid, integer) :: :error | {:ok, pid}
+  @spec get_gateway_instance(atom | pid, integer) :: :error | {:ok, pid}
   def get_gateway_instance(supervisor, shard_index) do
     if shard_index < 0 || shard_index >= connection_count() do
       :error
