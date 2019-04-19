@@ -42,7 +42,7 @@ defmodule DiscordBot.Gateway.Supervisor do
          :message_create,
          :message_update
        ]},
-      {DiscordBot.Gateway.Heartbeat, broker: instance_broker, id: :heartbeat},
+      {DiscordBot.Gateway.Heartbeat, broker: instance_broker},
       Supervisor.child_spec(
         {Task,
          fn ->
@@ -60,5 +60,10 @@ defmodule DiscordBot.Gateway.Supervisor do
     ]
 
     Supervisor.init(children, strategy: :one_for_all)
+  end
+
+  @spec heartbeat?(pid) :: {:ok, pid} | :error
+  def heartbeat?(supervisor) do
+    DiscordBot.Util.child_by_id(supervisor, DiscordBot.Gateway.Heartbeat)
   end
 end

@@ -36,7 +36,10 @@ defmodule DiscordBot.Gateway.Heartbeat do
       :interval,
       :sender,
       :broker,
-      :acked
+      :acked,
+      :last_ack_time,
+      :last_heartbeat_time,
+      :ping
     ]
 
     @type status :: atom
@@ -46,6 +49,9 @@ defmodule DiscordBot.Gateway.Heartbeat do
     @type sender :: pid
     @type broker :: pid
     @type acked :: boolean
+    @type last_ack_time :: DateTime.t()
+    @type last_heartbeat_time :: DateTime.t()
+    @type ping :: integer
     @type t :: %__MODULE__{
             status: status,
             target: target,
@@ -53,7 +59,10 @@ defmodule DiscordBot.Gateway.Heartbeat do
             interval: interval,
             sender: sender,
             broker: broker,
-            acked: acked
+            acked: acked,
+            last_ack_time: last_ack_time,
+            last_heartbeat_time: last_heartbeat_time,
+            ping: ping
           }
   end
 
@@ -73,7 +82,10 @@ defmodule DiscordBot.Gateway.Heartbeat do
       interval: nil,
       sender: nil,
       broker: broker,
-      acked: false
+      acked: false,
+      last_ack_time: nil,
+      last_heartbeat_time: nil,
+      ping: nil
     }
 
     GenServer.start_link(__MODULE__, state, opts)
@@ -110,6 +122,27 @@ defmodule DiscordBot.Gateway.Heartbeat do
   """
   def acknowledged?(provider) do
     GenServer.call(provider, {:acknowledged})
+  end
+
+  @doc """
+  Returns the time of the most recent heartbeat acknowledgement.
+  """
+  def last_ack_time?(provider) do
+    GenServer.call(provider, {:last_ack_time})
+  end
+
+  @doc """
+  Returns the time of the most recent heartbeat.
+  """
+  def last_heartbeat_time?(provider) do
+    GenServer.call(provider, {:last_heartbeat_time})
+  end
+
+  @doc """
+  Gets the most recently measured ping value, or `nil` if no such value exists.
+  """
+  def ping?(provider) do
+    GenServer.call(provider, {:ping})
   end
 
   @doc """
@@ -153,6 +186,18 @@ defmodule DiscordBot.Gateway.Heartbeat do
     {:reply, state.acked, state}
   end
 
+  def handle_call({:last_ack_time}, _from, state) do
+    {:reply, state.last_ack_time, state}
+  end
+
+  def handle_call({:last_heartbeat_time}, _from, state) do
+    {:reply, state.last_heartbeat_time, state}
+  end
+
+  def handle_call({:ping}, _from, state) do
+    {:reply, state.ping, state}
+  end
+
   def handle_call({:schedule, interval}, {from, _ref}, %State{status: :waiting} = state) do
     new_state = start_heartbeat(state, from, interval)
     {:reply, :ok, new_state}
@@ -189,7 +234,15 @@ defmodule DiscordBot.Gateway.Heartbeat do
   end
 
   def handle_info(%Event{topic: :heartbeat_ack}, state) do
-    {:noreply, %{state | acked: true}}
+    utc_now = DateTime.utc_now()
+
+    {:noreply,
+     %{
+       state
+       | acked: true,
+         last_ack_time: utc_now,
+         ping: DateTime.diff(utc_now, state.last_heartbeat_time, :millisecond)
+     }}
   end
 
   def handle_info({:DOWN, _ref, :process, _object, _reason}, state) do
@@ -205,7 +258,14 @@ defmodule DiscordBot.Gateway.Heartbeat do
       state.acked ->
         DiscordBot.Gateway.Connection.heartbeat(state.target)
         sender = Process.send_after(self(), :heartbeat, state.interval)
-        new_state = %{state | sender: sender, acked: false}
+
+        new_state = %{
+          state
+          | sender: sender,
+            acked: false,
+            last_heartbeat_time: DateTime.utc_now()
+        }
+
         {:noreply, new_state}
 
       true ->
@@ -230,11 +290,24 @@ defmodule DiscordBot.Gateway.Heartbeat do
         interval: interval,
         target_ref: ref,
         sender: sender,
-        acked: true
+        acked: true,
+        last_ack_time: nil,
+        last_heartbeat_time: nil,
+        ping: nil
     }
   end
 
   defp go_idle(state) do
-    %{state | status: :waiting, target: nil, interval: nil, target_ref: nil, sender: nil}
+    %{
+      state
+      | status: :waiting,
+        target: nil,
+        interval: nil,
+        target_ref: nil,
+        sender: nil,
+        last_ack_time: nil,
+        last_heartbeat_time: nil,
+        ping: nil
+    }
   end
 end
