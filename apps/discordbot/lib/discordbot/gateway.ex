@@ -12,8 +12,7 @@ defmodule DiscordBot.Gateway do
 
   def init(url) do
     token = DiscordBot.Configuration.token!()
-
-    shard_count = DiscordBot.Configuration.shards() || @default_shard_count
+    shard_count = connection_count()
 
     children =
       [
@@ -21,6 +20,10 @@ defmodule DiscordBot.Gateway do
       ] ++ gateway_specs(token, url, shard_count)
 
     Supervisor.init(children, strategy: :one_for_all)
+  end
+
+  def connection_count() do
+    DiscordBot.Configuration.shards() || @default_shard_count
   end
 
   defp gateway_specs(token, url, shard_count) do
@@ -37,9 +40,11 @@ defmodule DiscordBot.Gateway do
         shard_count: shard_count,
         spawn_delay: spawn_delay(shard_index)
       },
-      id: shard_index
+      id: id_from_index(shard_index)
     )
   end
+
+  defp id_from_index(shard_index), do: "DiscordBot.GatewayInstance-#{shard_index}"
 
   defp spawn_delay(0), do: 0
   defp spawn_delay(_), do: 5000
