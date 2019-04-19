@@ -40,7 +40,8 @@ defmodule DiscordBot.Gateway.Supervisor do
          :guild_update,
          :guild_delete,
          :message_create,
-         :message_update
+         :message_update,
+         :voice_server_update
        ]},
       {DiscordBot.Gateway.Heartbeat, broker: instance_broker},
       Supervisor.child_spec(

@@ -124,6 +124,7 @@ defmodule DiscordBot.Model.Payload do
       :dispatch -> data |> DiscordBot.Model.Dispatch.from_map(name)
       :heartbeat -> data
       :identify -> data |> DiscordBot.Model.Identify.from_map()
+      :voice_state_update -> data |> DiscordBot.Model.VoiceState.from_map()
       :hello -> data |> DiscordBot.Model.Hello.from_map()
       :heartbeat_ack -> nil
       _ -> data

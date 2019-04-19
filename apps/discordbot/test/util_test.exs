@@ -12,7 +12,7 @@ defmodule DiscordBot.UtilTest do
     assert Util.child_by_id(supervisor, :test) == :error
   end
 
-  test "gets supervisor child by ID", %{test: test} do
+  test "gets supervisor child by ID" do
     children = [
       Supervisor.child_spec({Agent, fn -> [] end}, id: :testid)
     ]
