@@ -27,8 +27,15 @@ defmodule DiscordBot do
        [
          logged_topics: [
            :dispatch,
+           :status_update,
+           :voice_state_update,
            :ready,
+           :channel_create,
+           :channel_update,
+           :channel_delete,
            :guild_create,
+           :guild_update,
+           :guild_delete,
            :message_create,
            :message_update,
            :resume,
