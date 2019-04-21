@@ -39,6 +39,7 @@ defmodule DiscordBot.MixProject do
       {:httpoison, "~> 1.4"},
       {:logger_file_backend, "~> 0.0.10"},
       {:mox, "~> 0.5", only: :test},
+      {:plug_cowboy, "~> 2.0", only: [:dev, :test], runtime: false},
       {:poison, "~>3.1"},
       {:websockex, "~> 0.4.0"}
     ]
