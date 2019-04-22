@@ -2,10 +2,10 @@ defmodule DiscordBot.Fake.DiscordWebsocketHandler do
   @moduledoc false
   @behaviour :cowboy_websocket
 
-  @timeout 10000
-
-  def init(req, state) do
-    {:cowboy_websocket, req, state}
+  def init(req, args) do
+    [core] = args
+    DiscordBot.Fake.DiscordCore.request_socket(core, req)
+    {:cowboy_websocket, req, %{core: core}}
   end
 
   def websocket_init(state) do

@@ -5,7 +5,7 @@ defmodule DiscordBot.Gateway.ConnectionTest do
   alias DiscordBot.Gateway.Connection
 
   setup context do
-    {:ok, {url, ref}} = DiscordBot.Fake.DiscordServer.start()
+    {:ok, {url, ref, core}} = DiscordBot.Fake.DiscordServer.start()
 
     on_exit(fn ->
       DiscordBot.Fake.DiscordServer.shutdown(ref)
@@ -13,11 +13,21 @@ defmodule DiscordBot.Gateway.ConnectionTest do
 
     broker = start_supervised!({Broker, []}, id: Module.concat(context.test, :broker))
 
-    %{url: url, ref: ref, broker: broker, test: context.test}
+    %{url: url, ref: ref, core: core, broker: broker, test: context.test}
   end
 
   test "establishes websocket connection using URL", %{url: url, broker: broker, test: test} do
     pid = start_supervised!({Connection, token: "asdf", url: url, broker: broker}, id: test)
     assert Connection.disconnect(pid, 4001) == :ok
+  end
+
+  test "uses correct API version", %{url: url, test: test, core: core} do
+    start_supervised!({Connection, token: "asdf", url: url}, id: test)
+    assert DiscordBot.Fake.DiscordCore.api_version?(core) == "6"
+  end
+
+  test "uses plain JSON encoding", %{url: url, test: test, core: core} do
+    start_supervised!({Connection, token: "asdf", url: url}, id: test)
+    assert DiscordBot.Fake.DiscordCore.encoding?(core) == "json"
   end
 end

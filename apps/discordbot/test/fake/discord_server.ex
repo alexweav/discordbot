@@ -8,9 +8,10 @@ defmodule DiscordBot.Fake.DiscordServer do
   def start() do
     ref = make_ref()
     url = "ws://localhost:#{8473}/gateway"
-    opts = [port: 8473, ref: ref, dispatch: dispatch]
+    {:ok, core} = DiscordBot.Fake.DiscordCore.start_link([])
+    opts = [port: 8473, ref: ref, dispatch: dispatch(core)]
     Plug.Adapters.Cowboy.http(__MODULE__, [], opts)
-    {:ok, {url, ref}}
+    {:ok, {url, ref, core}}
   end
 
   def shutdown(ref) do
@@ -21,11 +22,11 @@ defmodule DiscordBot.Fake.DiscordServer do
     send_resp(conn, 200, "Hello world!")
   end
 
-  def dispatch do
+  def dispatch(args) do
     [
       {:_,
        [
-         {"/gateway", DiscordBot.Fake.DiscordWebsocketHandler, []},
+         {"/gateway", DiscordBot.Fake.DiscordWebsocketHandler, [args]},
          {:_, Plug.Cowboy.Handler, {DiscordBot.Fake.DiscordServer, []}}
        ]}
     ]
