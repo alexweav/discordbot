@@ -67,4 +67,9 @@ defmodule DiscordBot.Gateway.Supervisor do
   def heartbeat?(supervisor) do
     DiscordBot.Util.child_by_id(supervisor, DiscordBot.Gateway.Heartbeat)
   end
+
+  @spec connection?(pid) :: {:ok, pid} | :error
+  def connection?(supervisor) do
+    DiscordBot.Util.child_by_id(supervisor, DiscordBot.Gateway.Connection)
+  end
 end
