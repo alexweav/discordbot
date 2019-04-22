@@ -30,4 +30,18 @@ defmodule DiscordBot.Gateway.ConnectionTest do
     start_supervised!({Connection, token: "asdf", url: url}, id: test)
     assert DiscordBot.Fake.DiscordCore.encoding?(core) == "json"
   end
+
+  test "validates input" do
+    assert_raise ArgumentError, fn ->
+      Connection.start_link([])
+    end
+
+    assert_raise ArgumentError, fn ->
+      Connection.start_link(token: "asdf")
+    end
+
+    assert_raise ArgumentError, fn ->
+      Connection.start_link(url: "asdf")
+    end
+  end
 end
