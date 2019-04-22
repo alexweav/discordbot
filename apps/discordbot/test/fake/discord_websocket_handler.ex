@@ -9,7 +9,6 @@ defmodule DiscordBot.Fake.DiscordWebsocketHandler do
   end
 
   def websocket_init(state) do
-    IO.puts("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ws")
     {:ok, state}
   end
 

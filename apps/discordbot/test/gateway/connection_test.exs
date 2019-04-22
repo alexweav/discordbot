@@ -11,8 +11,8 @@ defmodule DiscordBot.Gateway.ConnectionTest do
     %{url: url, ref: ref}
   end
 
-  test "sample", %{url: url} do
-    start_supervised!({DiscordBot.Gateway.Connection, token: "asdf", url: url})
-    assert 1 == 2
+  test "establishes websocket connection using URL", %{url: url} do
+    pid = start_supervised!({DiscordBot.Gateway.Connection, token: "asdf", url: url})
+    assert DiscordBot.Gateway.Connection.disconnect(pid, 4001) == :ok
   end
 end
