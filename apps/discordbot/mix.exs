@@ -11,6 +11,7 @@ defmodule DiscordBot.MixProject do
       deps_path: "../../deps",
       lockfile: "../../mix.lock",
       start_permanent: Mix.env() == :prod,
+      elixirc_paths: elixirc_paths(Mix.env()),
       deps: deps(),
       name: "DiscordBot",
       docs: [
@@ -20,6 +21,10 @@ defmodule DiscordBot.MixProject do
       preferred_cli_env: [coveralls: :text, "coveralls.detail": :test]
     ]
   end
+
+  defp elixirc_paths(:dev), do: elixirc_paths(:prod) ++ ['test/fake']
+  defp elixirc_paths(:test), do: elixirc_paths(:prod) ++ ['test/fake']
+  defp elixirc_paths(_), do: ['lib']
 
   def application do
     [

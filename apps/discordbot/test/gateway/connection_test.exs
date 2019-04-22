@@ -2,7 +2,8 @@ defmodule DiscordBot.Gateway.ConnectionTest do
   use ExUnit.Case, async: true
 
   setup do
-    url = DiscordBot.Fake.DiscordServer.start(self())
+    {:ok, {url, ref}} = DiscordBot.Fake.DiscordServer.start(self())
+    %{url: url, ref: ref}
   end
 
   test "sample" do
