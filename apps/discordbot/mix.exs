@@ -11,6 +11,7 @@ defmodule DiscordBot.MixProject do
       deps_path: "../../deps",
       lockfile: "../../mix.lock",
       start_permanent: Mix.env() == :prod,
+      elixirc_paths: elixirc_paths(Mix.env()),
       deps: deps(),
       name: "DiscordBot",
       docs: [
@@ -21,6 +22,10 @@ defmodule DiscordBot.MixProject do
     ]
   end
 
+  defp elixirc_paths(:dev), do: elixirc_paths(:prod) ++ ['test/fake']
+  defp elixirc_paths(:test), do: elixirc_paths(:prod) ++ ['test/fake']
+  defp elixirc_paths(_), do: ['lib']
+
   def application do
     [
       extra_applications: [:logger],
@@ -30,6 +35,7 @@ defmodule DiscordBot.MixProject do
 
   defp deps do
     [
+      {:cowboy, "~> 2.6", only: [:dev, :test], runtime: false},
       {:credo, "~> 1.0.0", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.0.0-rc.4", only: [:dev, :test], runtime: false},
       {:distillery, "~> 2.0"},
@@ -38,6 +44,7 @@ defmodule DiscordBot.MixProject do
       {:httpoison, "~> 1.4"},
       {:logger_file_backend, "~> 0.0.10"},
       {:mox, "~> 0.5", only: :test},
+      {:plug_cowboy, "~> 2.0", only: [:dev, :test], runtime: false},
       {:poison, "~>3.1"},
       {:websockex, "~> 0.4.0"}
     ]
