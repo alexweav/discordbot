@@ -11,7 +11,8 @@ defmodule DiscordBot.Gateway.ConnectionTest do
     %{url: url, ref: ref}
   end
 
-  test "sample" do
+  test "sample", %{url: url} do
+    start_supervised!({DiscordBot.Gateway.Connection, token: "asdf", url: url})
     assert 1 == 2
   end
 end

@@ -7,8 +7,8 @@ defmodule DiscordBot.Fake.DiscordServer do
 
   def start() do
     ref = make_ref()
-    url = "wss://localhost:#{8473}/fakecord"
-    opts = [port: 8473, ref: ref]
+    url = "ws://localhost:#{8473}/gateway"
+    opts = [port: 8473, ref: ref, dispatch: dispatch]
     Plug.Adapters.Cowboy.http(__MODULE__, [], opts)
     {:ok, {url, ref}}
   end
@@ -19,5 +19,15 @@ defmodule DiscordBot.Fake.DiscordServer do
 
   match _ do
     send_resp(conn, 200, "Hello world!")
+  end
+
+  def dispatch do
+    [
+      {:_,
+       [
+         {"/gateway", DiscordBot.Fake.DiscordWebsocketHandler, []},
+         {:_, Plug.Cowboy.Handler, {DiscordBot.Fake.DiscordServer, []}}
+       ]}
+    ]
   end
 end
