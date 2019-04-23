@@ -7,12 +7,13 @@ defmodule DiscordBot.Gateway do
 
   def start_link(opts) do
     url = Keyword.fetch!(opts, :url)
-    Supervisor.start_link(__MODULE__, url, opts)
+    shard_count = Keyword.get(opts, :shard_count, nil)
+    Supervisor.start_link(__MODULE__, {url, shard_count}, opts)
   end
 
-  def init(url) do
+  def init({url, shard_count_arg}) do
     token = DiscordBot.Configuration.token!()
-    shard_count = connection_count()
+    shard_count = shard_count_arg || DiscordBot.Configuration.shards() || @default_shard_count
 
     children =
       [
@@ -22,14 +23,17 @@ defmodule DiscordBot.Gateway do
     Supervisor.init(children, strategy: :one_for_all)
   end
 
-  @spec connection_count() :: integer
-  def connection_count() do
-    DiscordBot.Configuration.shards() || @default_shard_count
+  @spec active_gateways(pid | atom) :: list(pid)
+  def active_gateways(gateway) do
+    gateway
+    |> Supervisor.which_children()
+    |> Enum.filter(&is_connection(&1))
+    |> Enum.map(&elem(&1, 1))
   end
 
   @spec get_gateway_instance(atom | pid, integer) :: :error | {:ok, pid}
   def get_gateway_instance(supervisor, shard_index) do
-    if shard_index < 0 || shard_index >= connection_count() do
+    if shard_index < 0 do
       :error
     else
       DiscordBot.Util.child_by_id(supervisor, id_from_index(shard_index))
@@ -52,6 +56,16 @@ defmodule DiscordBot.Gateway do
       },
       id: id_from_index(shard_index)
     )
+  end
+
+  @spec is_connection({String.t() | atom, pid | atom, any, any}) :: boolean
+  defp is_connection({_, :undefined, _, _}), do: false
+  defp is_connection({_, :restarting, _, _}), do: false
+  defp is_connection({id, _, _, _}) when is_atom(id), do: false
+
+  defp is_connection({id, _, _, _}) do
+    id
+    |> String.starts_with?("DiscordBot.GatewayInstance-")
   end
 
   defp id_from_index(shard_index), do: "DiscordBot.GatewayInstance-#{shard_index}"

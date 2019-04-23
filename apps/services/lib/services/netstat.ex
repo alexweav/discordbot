@@ -10,36 +10,20 @@ defmodule Services.Netstat do
   """
   @spec stats_message() :: String.t()
   def stats_message do
-    connection_count = connection_count()
-
     heartbeats =
-      for idx <- 0..(connection_count - 1) do
-        case DiscordBot.Gateway.get_gateway_instance(DiscordBot.GatewaySupervisor, idx) do
-          {:ok, gateway} ->
-            case DiscordBot.Gateway.Supervisor.heartbeat?(gateway) do
-              {:ok, pid} -> pid
-              :error -> :error
-            end
-
-          :error ->
-            :error
+      for gateway <- DiscordBot.Gateway.active_gateways(DiscordBot.GatewaySupervisor) do
+        case DiscordBot.Gateway.Supervisor.heartbeat?(gateway) do
+          {:ok, pid} -> pid
+          :error -> :error
         end
       end
 
-    stats_message_header(connection_count) <>
+    stats_message_header(Enum.count(heartbeats)) <>
       Enum.join(
         for heartbeat <- heartbeats do
           stats_message_entry(heartbeat)
         end
       )
-  end
-
-  @doc """
-  Gets the current number of active connections.
-  """
-  @spec connection_count() :: integer
-  def connection_count do
-    DiscordBot.Gateway.connection_count()
   end
 
   @spec stats_message_header(integer) :: String.t()
