@@ -57,4 +57,17 @@ defmodule DiscordBot.Gateway.ConnectionTest do
     assert payload.data.afk == false
     assert payload.data.status == :dnd
   end
+
+  test "can update status and activity", %{url: url, test: test, core: core} do
+    pid = start_supervised!({Connection, token: "asdf", url: url}, id: test)
+    DiscordBot.Gateway.Connection.update_status(pid, :online, :playing, "CS:GO")
+    Process.sleep(50)
+    json = DiscordBot.Fake.DiscordCore.latest_frame?(core)
+    payload = DiscordBot.Model.Payload.from_json(json)
+    assert payload.opcode == :status_update
+    assert payload.data.afk == false
+    assert payload.data.status == :online
+    # TODO: once activity struct is fully updated
+    assert payload.data.game == %{"name" => "CS:GO", "type" => 0}
+  end
 end
