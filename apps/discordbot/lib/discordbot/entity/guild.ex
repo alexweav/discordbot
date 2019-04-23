@@ -68,7 +68,12 @@ defmodule DiscordBot.Entity.Guild do
   ## Callbacks
 
   def init({broker, api}) do
-    guilds = :ets.new(__MODULE__, [:named_table, read_concurrency: true])
+    guilds =
+      if :ets.whereis(__MODULE__) == :undefined do
+        :ets.new(__MODULE__, [:named_table, read_concurrency: true])
+      else
+        __MODULE__
+      end
 
     topics = [
       :guild_create,
