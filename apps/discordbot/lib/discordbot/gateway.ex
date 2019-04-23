@@ -4,20 +4,22 @@ defmodule DiscordBot.Gateway do
   use Supervisor
 
   @default_shard_count 1
+  @default_broker_supervisor_name DiscordBot.Gateway.BrokerSupervisor
 
   def start_link(opts) do
     url = Keyword.fetch!(opts, :url)
     shard_count = Keyword.get(opts, :shard_count, nil)
-    Supervisor.start_link(__MODULE__, {url, shard_count}, opts)
+    broker_sup_name = Keyword.get(opts, :broker_supervisor_name, @default_broker_supervisor_name)
+    Supervisor.start_link(__MODULE__, {url, shard_count, broker_sup_name}, opts)
   end
 
-  def init({url, shard_count_arg}) do
+  def init({url, shard_count_arg, broker_sup_name}) do
     token = DiscordBot.Configuration.token!()
     shard_count = shard_count_arg || DiscordBot.Configuration.shards() || @default_shard_count
 
     children =
       [
-        {DynamicSupervisor, name: DiscordBot.Gateway.BrokerSupervisor, strategy: :one_for_one}
+        {DynamicSupervisor, name: broker_sup_name, strategy: :one_for_one}
       ] ++ gateway_specs(token, url, shard_count)
 
     Supervisor.init(children, strategy: :one_for_all)
