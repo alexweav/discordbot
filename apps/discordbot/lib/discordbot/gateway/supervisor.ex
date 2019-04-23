@@ -63,9 +63,19 @@ defmodule DiscordBot.Gateway.Supervisor do
     Supervisor.init(children, strategy: :one_for_all)
   end
 
+  @spec shovel?(pid) :: {:ok, pid} | :error
+  def shovel?(supervisor) do
+    DiscordBot.Util.child_by_id(supervisor, DiscordBot.Gateway.Shovel)
+  end
+
   @spec heartbeat?(pid) :: {:ok, pid} | :error
   def heartbeat?(supervisor) do
     DiscordBot.Util.child_by_id(supervisor, DiscordBot.Gateway.Heartbeat)
+  end
+
+  @spec authenticator?(pid) :: {:ok, pid} | :error
+  def authenticator?(supervisor) do
+    DiscordBot.Util.child_by_id(supervisor, :authenticator)
   end
 
   @spec connection?(pid) :: {:ok, pid} | :error

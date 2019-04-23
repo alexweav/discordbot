@@ -4,12 +4,16 @@ defmodule DiscordBot.Fake.DiscordCore do
   use GenServer
 
   def start_link(opts) do
-    state = %{api_version: nil, encoding: nil}
+    state = %{api_version: nil, encoding: nil, latest_text_frame: nil}
     GenServer.start_link(__MODULE__, state, opts)
   end
 
   def request_socket(core, req) do
     GenServer.call(core, {:request_socket, req})
+  end
+
+  def receive_text_frame(core, frame) do
+    GenServer.call(core, {:receive_text_frame, frame})
   end
 
   def api_version?(core) do
@@ -18,6 +22,10 @@ defmodule DiscordBot.Fake.DiscordCore do
 
   def encoding?(core) do
     GenServer.call(core, :encoding)
+  end
+
+  def latest_frame?(core) do
+    GenServer.call(core, :latest_frame)
   end
 
   ## Handlers
@@ -34,6 +42,10 @@ defmodule DiscordBot.Fake.DiscordCore do
     {:reply, encoding, state}
   end
 
+  def handle_call(:latest_frame, _from, %{latest_text_frame: latest} = state) do
+    {:reply, latest, state}
+  end
+
   def handle_call({:request_socket, req}, _from, state) do
     params =
       req
@@ -42,5 +54,9 @@ defmodule DiscordBot.Fake.DiscordCore do
 
     {:reply, :ok,
      %{state | api_version: Map.get(params, "v"), encoding: Map.get(params, "encoding")}}
+  end
+
+  def handle_call({:receive_text_frame, text}, _from, state) do
+    {:reply, :ok, %{state | latest_text_frame: text}}
   end
 end

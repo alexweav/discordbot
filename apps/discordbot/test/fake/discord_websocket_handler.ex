@@ -17,7 +17,7 @@ defmodule DiscordBot.Fake.DiscordWebsocketHandler do
   end
 
   def websocket_handle({:text, text}, state) do
-    IO.puts(text)
+    DiscordBot.Fake.DiscordCore.receive_text_frame(state[:core], text)
     {:ok, state}
   end
 
