@@ -1,5 +1,5 @@
 defmodule DiscordBot.Entity.GuildTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
   doctest DiscordBot.Entity.Guild
 
   alias DiscordBot.Broker
