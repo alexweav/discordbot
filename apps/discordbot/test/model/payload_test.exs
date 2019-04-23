@@ -45,9 +45,9 @@ defmodule DiscordBot.Model.PayloadTest do
   end
 
   test "deserializes correctly" do
-    json = "{\"t\":\"TEST\",\"s\":10,\"op\":3,\"d\":\"test\"}"
+    json = "{\"t\":\"TEST\",\"s\":10,\"op\":1,\"d\":\"test\"}"
     payload = Payload.from_json(json)
-    assert payload.opcode == :status_update
+    assert payload.opcode == :heartbeat
     assert payload.data == "test"
     assert payload.sequence == 10
     assert payload.name == "TEST"
