@@ -7,9 +7,10 @@ defmodule DiscordBot.Fake.DiscordServer do
 
   def start() do
     ref = make_ref()
-    url = "ws://localhost:#{8473}/gateway"
+    port = generate_port()
+    url = "ws://localhost:#{port}/gateway"
     {:ok, core} = DiscordBot.Fake.DiscordCore.start_link([])
-    opts = [port: 8473, ref: ref, dispatch: dispatch(core)]
+    opts = [port: port, ref: ref, dispatch: dispatch(core)]
     Plug.Adapters.Cowboy.http(__MODULE__, [], opts)
     {:ok, {url, ref, core}}
   end
@@ -30,5 +31,9 @@ defmodule DiscordBot.Fake.DiscordServer do
          {:_, Plug.Cowboy.Handler, {DiscordBot.Fake.DiscordServer, []}}
        ]}
     ]
+  end
+
+  defp generate_port do
+    Enum.random(50_000..60_000)
   end
 end
