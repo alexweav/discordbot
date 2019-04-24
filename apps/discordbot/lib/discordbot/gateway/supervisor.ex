@@ -26,8 +26,7 @@ defmodule DiscordBot.Gateway.Supervisor do
 
   @impl true
   def init({token, url, shard_index, shard_count, broker_supervisor}) do
-    {:ok, instance_broker} =
-      DynamicSupervisor.start_child(broker_supervisor, DiscordBot.Broker)
+    {:ok, instance_broker} = DynamicSupervisor.start_child(broker_supervisor, DiscordBot.Broker)
 
     children = [
       {DiscordBot.Broker.Shovel,
