@@ -105,6 +105,14 @@ defmodule DiscordBot.Gateway.Connection do
   end
 
   @doc """
+  Updates the bot's voice state within a guild.
+  """
+  @spec voice_state_update(atom | pid, String.t(), String.t(), boolean, boolean) :: :ok
+  def voice_state_update(connection, guild_id, channel_id, self_mute \\ false, self_deaf \\ false) do
+    WebSockex.cast(connection, {:voice_state_update, guild_id, channel_id, self_mute, self_deaf})
+  end
+
+  @doc """
   Closes a connection.
   """
   @spec disconnect(pid, WebSockex.close_code()) :: :ok
@@ -181,6 +189,23 @@ defmodule DiscordBot.Gateway.Connection do
   def handle_cast({:update_status, status, type, name}, state) do
     activity = DiscordBot.Model.Activity.activity(type, name)
     message = DiscordBot.Model.StatusUpdate.status_update(nil, activity, status)
+
+    {:ok, json} =
+      message
+      |> apply_sequence(state.sequence)
+      |> DiscordBot.Model.Payload.to_json()
+
+    {:reply, {:text, json}, state}
+  end
+
+  def handle_cast({:voice_state_update, guild_id, channel_id, self_mute, self_deaf}, state) do
+    message =
+      DiscordBot.Model.GatewayVoiceStateUpdate.voice_state_update(
+        guild_id,
+        channel_id,
+        self_mute,
+        self_deaf
+      )
 
     {:ok, json} =
       message

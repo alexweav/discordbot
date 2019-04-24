@@ -41,6 +41,20 @@ defmodule DiscordBot.Model.GatewayVoiceStateUpdate do
         }
 
   @doc """
+  Builds the Gateway Voice State Update object.
+  """
+  @spec voice_state_update(String.t(), String.t(), boolean, boolean) ::
+          DiscordBot.Model.Payload.t()
+  def voice_state_update(guild_id, channel_id, self_mute \\ false, self_deaf \\ false) do
+    DiscordBot.Model.Payload.payload(:voice_state_update, %__MODULE__{
+      guild_id: guild_id,
+      channel_id: channel_id,
+      self_mute: self_mute,
+      self_deaf: self_deaf
+    })
+  end
+
+  @doc """
   Converts a JSON object `map` into a gateway voice state update.
   """
   @spec from_map(map) :: __MODULE__.t()

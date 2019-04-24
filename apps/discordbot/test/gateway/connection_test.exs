@@ -70,4 +70,10 @@ defmodule DiscordBot.Gateway.ConnectionTest do
     # TODO: once activity struct is fully updated
     assert payload.data.game == %{"name" => "CS:GO", "type" => 0}
   end
+
+  test "can update voice state", %{url: url, test: test, core: core} do
+    pid = start_supervised!({Connection, token: "asdf", url: url}, id: test)
+    DiscordBot.Gateway.Connection.voice_state_update(pid, "a-guild", "a-channel", true, false)
+    assert 1 == 2
+  end
 end
