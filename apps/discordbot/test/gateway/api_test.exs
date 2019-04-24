@@ -42,7 +42,7 @@ defmodule DiscordBot.Gateway.ApiTest do
   end
 
   describe "update_status/4" do
-    test "asdf2", %{core: core, gateway: gateway} do
+    test "sends update event", %{core: core, gateway: gateway} do
       assert Api.update_status(gateway, :online, :streaming, "CS:GO") == :ok
       Process.sleep(100)
       json = DiscordBot.Fake.DiscordCore.latest_frame?(core)
@@ -57,6 +57,20 @@ defmodule DiscordBot.Gateway.ApiTest do
       assert Api.update_status(gateway, :invalid, :streaming, "CS:GO") == :error
       assert Api.update_status(gateway, :online, nil, "CS:GO") == :error
       assert Api.update_status(gateway, :online, :invalid, "CS:GO") == :error
+    end
+  end
+
+  describe "update_voice_state/5" do
+    test "sends update event", %{core: core, gateway: gateway} do
+      assert Api.update_voice_state(gateway, "a-guild", "a-channel", true, false) == :ok
+      Process.sleep(100)
+      json = DiscordBot.Fake.DiscordCore.latest_frame?(core)
+      map = Poison.decode!(json)
+      assert map["op"] == 4
+      assert map["d"]["guild_id"] == "a-guild"
+      assert map["d"]["channel_id"] == "a-channel"
+      assert map["d"]["self_mute"] == true
+      assert map["d"]["self_deaf"] == false
     end
   end
 end

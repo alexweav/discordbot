@@ -73,7 +73,7 @@ defmodule DiscordBot.Gateway.ConnectionTest do
 
   test "can update voice state", %{url: url, test: test, core: core} do
     pid = start_supervised!({Connection, token: "asdf", url: url}, id: test)
-    DiscordBot.Gateway.Connection.voice_state_update(pid, "a-guild", "a-channel", true, false)
+    DiscordBot.Gateway.Connection.update_voice_state(pid, "a-guild", "a-channel", true, false)
     Process.sleep(100)
     json = DiscordBot.Fake.DiscordCore.latest_frame?(core)
     map = Poison.decode!(json)

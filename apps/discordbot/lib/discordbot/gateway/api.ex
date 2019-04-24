@@ -67,6 +67,25 @@ defmodule DiscordBot.Gateway.Api do
     end
   end
 
+  @doc """
+  Updates the bot's voice state to a channel.
+
+  A voice state is guild-specific. `guild_id` indicates the ID of the guild
+  for which the update will be applied. `channel_id` is the ID of the voice
+  channel to which the bot's state will be updated. `self_mute` and `self_deaf`
+  represent the initial mute/deaf state of the bot on update.
+  """
+  @spec update_voice_state(atom | pid, String.t(), String.t(), boolean, boolean) :: :ok | :error
+  def update_voice_state(gateway, guild_id, channel_id, self_mute \\ false, self_deaf \\ false) do
+    case get_connection(gateway) do
+      {:ok, connection} ->
+        Connection.update_voice_state(connection, guild_id, channel_id, self_mute, self_deaf)
+
+      :error ->
+        :error
+    end
+  end
+
   @spec validate_status(atom) :: boolean
   defp validate_status(status) do
     !is_nil(DiscordBot.Model.StatusUpdate.status_from_atom(status))

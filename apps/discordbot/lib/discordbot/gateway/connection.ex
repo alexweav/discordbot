@@ -107,8 +107,8 @@ defmodule DiscordBot.Gateway.Connection do
   @doc """
   Updates the bot's voice state within a guild.
   """
-  @spec voice_state_update(atom | pid, String.t(), String.t(), boolean, boolean) :: :ok
-  def voice_state_update(connection, guild_id, channel_id, self_mute \\ false, self_deaf \\ false) do
+  @spec update_voice_state(atom | pid, String.t(), String.t(), boolean, boolean) :: :ok
+  def update_voice_state(connection, guild_id, channel_id, self_mute \\ false, self_deaf \\ false) do
     WebSockex.cast(connection, {:voice_state_update, guild_id, channel_id, self_mute, self_deaf})
   end
 
