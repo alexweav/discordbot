@@ -74,6 +74,16 @@ defmodule DiscordBot.Gateway.ConnectionTest do
   test "can update voice state", %{url: url, test: test, core: core} do
     pid = start_supervised!({Connection, token: "asdf", url: url}, id: test)
     DiscordBot.Gateway.Connection.voice_state_update(pid, "a-guild", "a-channel", true, false)
-    assert 1 == 2
+    Process.sleep(100)
+    json = DiscordBot.Fake.DiscordCore.latest_frame?(core)
+    map = Poison.decode!(json)
+    # Discord overloads this opcode depending on if it is sent from client or server.
+    # The existing deserializer for this opcode expects the message from the server,
+    # so we must manually check the JSON's validity instead.
+    assert map["op"] == 4
+    assert map["d"]["guild_id"] == "a-guild"
+    assert map["d"]["channel_id"] == "a-channel"
+    assert map["d"]["self_mute"] == true
+    assert map["d"]["self_deaf"] == false
   end
 end
