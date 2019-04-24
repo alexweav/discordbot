@@ -95,7 +95,7 @@ defmodule DiscordBot.Model.StatusUpdate do
   @doc """
   Converts a Discord status string into a corresponding atom
   """
-  @spec atom_from_status(String.t()) :: atom
+  @spec atom_from_status(String.t()) :: atom | nil
   def atom_from_status(status) do
     %{
       "online" => :online,
@@ -109,7 +109,7 @@ defmodule DiscordBot.Model.StatusUpdate do
   @doc """
   Converts a status atom into the appropriate status string
   """
-  @spec status_from_atom(atom) :: String.t()
+  @spec status_from_atom(atom) :: String.t() | nil
   def status_from_atom(atom) do
     %{
       online: "online",

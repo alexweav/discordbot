@@ -9,6 +9,7 @@ defmodule DiscordBot.Gateway.Supervisor do
     url = Keyword.fetch!(opts, :url)
     shard_index = Keyword.fetch!(opts, :shard_index)
     shard_count = Keyword.fetch!(opts, :shard_count)
+    broker_supervisor = Keyword.get(opts, :broker_supervisor, DiscordBot.Gateway.BrokerSupervisor)
 
     if (delay = Keyword.get(opts, :spawn_delay, 0)) > 0 do
       # TODO: this is a really hacky way of rigging the staggered launch of connections. Should probably change this.
@@ -16,13 +17,16 @@ defmodule DiscordBot.Gateway.Supervisor do
       Process.sleep(delay)
     end
 
-    Supervisor.start_link(__MODULE__, {token, url, shard_index, shard_count}, opts)
+    Supervisor.start_link(
+      __MODULE__,
+      {token, url, shard_index, shard_count, broker_supervisor},
+      opts
+    )
   end
 
   @impl true
-  def init({token, url, shard_index, shard_count}) do
-    {:ok, instance_broker} =
-      DynamicSupervisor.start_child(DiscordBot.Gateway.BrokerSupervisor, DiscordBot.Broker)
+  def init({token, url, shard_index, shard_count, broker_supervisor}) do
+    {:ok, instance_broker} = DynamicSupervisor.start_child(broker_supervisor, DiscordBot.Broker)
 
     children = [
       {DiscordBot.Broker.Shovel,

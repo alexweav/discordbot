@@ -141,12 +141,12 @@ defmodule DiscordBot.Self do
   end
 
   def handle_cast({:update_status, status}, state) do
-    DiscordBot.Gateway.Connection.update_status(Connection, status)
+    DiscordBot.Gateway.Api.update_status(DiscordBot.GatewaySupervisor, status)
     {:noreply, state}
   end
 
   def handle_cast({:update_status, status, type, name}, state) do
-    DiscordBot.Gateway.Connection.update_status(Connection, status, type, name)
+    DiscordBot.Gateway.Api.update_status(DiscordBot.GatewaySupervisor, status, type, name)
     {:noreply, state}
   end
 
