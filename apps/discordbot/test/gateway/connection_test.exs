@@ -50,7 +50,7 @@ defmodule DiscordBot.Gateway.ConnectionTest do
     DiscordBot.Gateway.Connection.update_status(pid, :dnd)
     # increase this if this test fails intermittently.
     # perhaps there is a better of waiting to ensure the test server received the frame?
-    Process.sleep(50)
+    Process.sleep(100)
     json = DiscordBot.Fake.DiscordCore.latest_frame?(core)
     payload = DiscordBot.Model.Payload.from_json(json)
     assert payload.opcode == :status_update
@@ -61,7 +61,7 @@ defmodule DiscordBot.Gateway.ConnectionTest do
   test "can update status and activity", %{url: url, test: test, core: core} do
     pid = start_supervised!({Connection, token: "asdf", url: url}, id: test)
     DiscordBot.Gateway.Connection.update_status(pid, :online, :playing, "CS:GO")
-    Process.sleep(50)
+    Process.sleep(100)
     json = DiscordBot.Fake.DiscordCore.latest_frame?(core)
     payload = DiscordBot.Model.Payload.from_json(json)
     assert payload.opcode == :status_update

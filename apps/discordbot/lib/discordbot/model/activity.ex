@@ -64,7 +64,7 @@ defmodule DiscordBot.Model.Activity do
   @doc """
   Converts an activity type ID into a corresponding atom
   """
-  @spec atom_from_type(number) :: atom
+  @spec atom_from_type(number) :: atom | nil
   def atom_from_type(id) do
     %{
       0 => :playing,
@@ -76,7 +76,7 @@ defmodule DiscordBot.Model.Activity do
   @doc """
   Converts an activity type atom into its corresponding ID
   """
-  @spec type_from_atom(atom) :: number
+  @spec type_from_atom(atom) :: number | nil
   def type_from_atom(atom) do
     %{
       playing: 0,
