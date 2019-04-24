@@ -13,6 +13,7 @@ defmodule DiscordBot.Gateway.SupervisorTest do
 
     broker = start_supervised!({Broker, []}, id: Module.concat(context.test, :broker))
 
+    # TODO: possible race condition here?
     start_supervised!(
       {DynamicSupervisor, name: DiscordBot.Gateway.BrokerSupervisor, strategy: :one_for_one}
     )
