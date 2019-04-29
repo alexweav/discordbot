@@ -4,6 +4,7 @@ defmodule DiscordBot.Entity.GuildTest do
 
   alias DiscordBot.Broker
   alias DiscordBot.Entity.Guild
+  alias DiscordBot.Entity.GuildRecord
 
   setup do
     broker = start_supervised!(Broker)
@@ -29,7 +30,7 @@ defmodule DiscordBot.Entity.GuildTest do
 
     assert Guild.lookup_by_id(model.id) == :error
     assert Guild.create(guild, model) == :ok
-    assert Guild.lookup_by_id(model.id) == {:ok, model}
+    assert Guild.lookup_by_id(model.id) == {:ok, GuildRecord.new(self(), model)}
   end
 
   test "can delete guilds in cache", %{guild: guild} do
@@ -56,7 +57,7 @@ defmodule DiscordBot.Entity.GuildTest do
     # This is necessary because lookup_by_id does not communicate
     # with the registry.
     Guild.create(guild, %DiscordBot.Model.Guild{})
-    assert Guild.lookup_by_id(event.id) == {:ok, event}
+    assert Guild.lookup_by_id(event.id) == {:ok, GuildRecord.new(self(), event)}
   end
 
   test "updates cached guilds on Guild Update event", %{guild: guild, broker: broker} do
@@ -79,7 +80,7 @@ defmodule DiscordBot.Entity.GuildTest do
     # This is necessary because lookup_by_id does not communicate
     # with the registry.
     Guild.create(guild, %DiscordBot.Model.Guild{})
-    assert Guild.lookup_by_id(initial.id) == {:ok, event}
+    assert Guild.lookup_by_id(initial.id) == {:ok, GuildRecord.new(self(), event)}
   end
 
   test "deletes cached guilds on Guild Delete event", %{guild: guild, broker: broker} do
