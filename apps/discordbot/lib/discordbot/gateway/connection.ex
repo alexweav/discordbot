@@ -128,7 +128,6 @@ defmodule DiscordBot.Gateway.Connection do
   end
 
   def handle_frame({:text, json}, state) do
-    IO.inspect(json)
     message = DiscordBot.Model.Payload.from_json(json)
     DiscordBot.Broker.publish(state.broker, event_name(message), message.data)
 
