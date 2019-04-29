@@ -6,6 +6,8 @@ defmodule DiscordBot.Model.GatewayVoiceStateUpdate do
 
   use DiscordBot.Model.Serializable
 
+  alias DiscordBot.Model.{Payload, Serializable}
+
   defstruct [
     :guild_id,
     :channel_id,
@@ -44,9 +46,9 @@ defmodule DiscordBot.Model.GatewayVoiceStateUpdate do
   Builds the Gateway Voice State Update object.
   """
   @spec voice_state_update(String.t(), String.t(), boolean, boolean) ::
-          DiscordBot.Model.Payload.t()
+          Payload.t()
   def voice_state_update(guild_id, channel_id, self_mute \\ false, self_deaf \\ false) do
-    DiscordBot.Model.Payload.payload(:voice_state_update, %__MODULE__{
+    Payload.payload(:voice_state_update, %__MODULE__{
       guild_id: guild_id,
       channel_id: channel_id,
       self_mute: self_mute,
@@ -59,6 +61,6 @@ defmodule DiscordBot.Model.GatewayVoiceStateUpdate do
   """
   @spec from_map(map) :: __MODULE__.t()
   def from_map(map) do
-    DiscordBot.Model.Serializable.struct_from_map(map, as: %__MODULE__{})
+    Serializable.struct_from_map(map, as: %__MODULE__{})
   end
 end

@@ -6,6 +6,8 @@ defmodule DiscordBot.Model.Identify do
 
   use DiscordBot.Model.Serializable
 
+  alias DiscordBot.Model.Serializable
+
   defmodule ConnectionProperties do
     @derive [Poison.Encoder]
     @moduledoc """
@@ -116,7 +118,7 @@ defmodule DiscordBot.Model.Identify do
   def from_map(map) do
     map
     |> Map.update("properties", nil, &ConnectionProperties.from_map(&1))
-    |> DiscordBot.Model.Serializable.struct_from_map(as: %__MODULE__{})
+    |> Serializable.struct_from_map(as: %__MODULE__{})
   end
 
   @doc """

@@ -6,6 +6,8 @@ defmodule DiscordBot.Model.Overwrite do
 
   use DiscordBot.Model.Serializable
 
+  alias DiscordBot.Model.Serializable
+
   defstruct [
     :id,
     :type,
@@ -45,6 +47,6 @@ defmodule DiscordBot.Model.Overwrite do
   """
   @spec from_map(map) :: __MODULE__.t()
   def from_map(map) do
-    DiscordBot.Model.Serializable.struct_from_map(map, as: %__MODULE__{})
+    Serializable.struct_from_map(map, as: %__MODULE__{})
   end
 end

@@ -6,6 +6,8 @@ defmodule DiscordBot.Model.Guild do
 
   use DiscordBot.Model.Serializable
 
+  alias DiscordBot.Model.{Channel, Emoji, GuildMember, Role, Serializable, VoiceState}
+
   defstruct [
     :id,
     :name,
@@ -118,12 +120,12 @@ defmodule DiscordBot.Model.Guild do
   @typedoc """
   Roles in the guild
   """
-  @type roles :: list(DiscordBot.Model.Role.t())
+  @type roles :: list(Role.t())
 
   @typedoc """
   Custom guild emojis
   """
-  @type emojis :: list(DiscordBot.Model.Emoji.t())
+  @type emojis :: list(Emoji.t())
 
   @typedoc """
   Enabled guild features
@@ -178,17 +180,17 @@ defmodule DiscordBot.Model.Guild do
   @typedoc """
   Array of voice states for the guild (without the `guild_id` key)
   """
-  @type voice_states :: list(DiscordBot.Model.VoiceState.t())
+  @type voice_states :: list(VoiceState.t())
 
   @typedoc """
   Member of the guild
   """
-  @type members :: list(DiscordBot.Model.GuildMember.t())
+  @type members :: list(GuildMember.t())
 
   @typedoc """
   Channels in the guild
   """
-  @type channels :: list(DiscordBot.Model.Channel.t())
+  @type channels :: list(Channel.t())
 
   @typedoc """
   Presences of users in the guild
@@ -239,28 +241,28 @@ defmodule DiscordBot.Model.Guild do
     |> Map.update(
       "members",
       nil,
-      &Enum.map(&1, fn member -> DiscordBot.Model.GuildMember.from_map(member) end)
+      &Enum.map(&1, fn member -> GuildMember.from_map(member) end)
     )
     |> Map.update(
       "emojis",
       nil,
-      &Enum.map(&1, fn emoji -> DiscordBot.Model.Emoji.from_map(emoji) end)
+      &Enum.map(&1, fn emoji -> Emoji.from_map(emoji) end)
     )
     |> Map.update(
       "roles",
       nil,
-      &Enum.map(&1, fn role -> DiscordBot.Model.Role.from_map(role) end)
+      &Enum.map(&1, fn role -> Role.from_map(role) end)
     )
     |> Map.update(
       "channels",
       nil,
-      &Enum.map(&1, fn channel -> DiscordBot.Model.Channel.from_map(channel) end)
+      &Enum.map(&1, fn channel -> Channel.from_map(channel) end)
     )
     |> Map.update(
       "voice_states",
       nil,
-      &Enum.map(&1, fn state -> DiscordBot.Model.VoiceState.from_map(state) end)
+      &Enum.map(&1, fn state -> VoiceState.from_map(state) end)
     )
-    |> DiscordBot.Model.Serializable.struct_from_map(as: %__MODULE__{})
+    |> Serializable.struct_from_map(as: %__MODULE__{})
   end
 end

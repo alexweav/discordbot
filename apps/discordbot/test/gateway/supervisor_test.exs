@@ -3,12 +3,14 @@ defmodule DiscordBot.Gateway.SupervisorTest do
 
   alias DiscordBot.Broker
   alias DiscordBot.Gateway
+  alias DiscordBot.Gateway.Heartbeat
+  alias DiscordBot.Fake.{DiscordCore, DiscordServer}
 
   setup context do
-    {:ok, {url, ref, core}} = DiscordBot.Fake.DiscordServer.start()
+    {:ok, {url, ref, core}} = DiscordServer.start()
 
     on_exit(fn ->
-      DiscordBot.Fake.DiscordServer.shutdown(ref)
+      DiscordServer.shutdown(ref)
     end)
 
     broker = start_supervised!({Broker, []}, id: Module.concat(context.test, :broker))
@@ -27,7 +29,7 @@ defmodule DiscordBot.Gateway.SupervisorTest do
       id: test
     )
 
-    assert DiscordBot.Fake.DiscordCore.api_version?(core) == "6"
+    assert DiscordCore.api_version?(core) == "6"
   end
 
   test "authenticator running before ready event", %{url: url, test: test} do
@@ -37,7 +39,7 @@ defmodule DiscordBot.Gateway.SupervisorTest do
         id: test
       )
 
-    assert DiscordBot.Gateway.Supervisor.authenticator?(pid) != nil
+    assert Gateway.Supervisor.authenticator?(pid) != nil
   end
 
   test "heartbeat untargeted before ready event", %{url: url, test: test} do
@@ -47,7 +49,7 @@ defmodule DiscordBot.Gateway.SupervisorTest do
         id: test
       )
 
-    {:ok, heartbeat} = DiscordBot.Gateway.Supervisor.heartbeat?(pid)
-    assert DiscordBot.Gateway.Heartbeat.target?(heartbeat) == nil
+    {:ok, heartbeat} = Gateway.Supervisor.heartbeat?(pid)
+    assert Heartbeat.target?(heartbeat) == nil
   end
 end

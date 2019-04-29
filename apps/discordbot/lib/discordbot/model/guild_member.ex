@@ -6,6 +6,8 @@ defmodule DiscordBot.Model.GuildMember do
 
   use DiscordBot.Model.Serializable
 
+  alias DiscordBot.Model.{Serializable, User}
+
   defstruct [
     :user,
     :nick,
@@ -18,7 +20,7 @@ defmodule DiscordBot.Model.GuildMember do
   @typedoc """
   The user this guild member represents
   """
-  @type user :: DiscordBot.Model.User.t()
+  @type user :: User.t()
 
   @typedoc """
   This user's guild nickname, if one is set
@@ -60,7 +62,7 @@ defmodule DiscordBot.Model.GuildMember do
   @spec from_map(map) :: __MODULE__.t()
   def from_map(map) do
     map
-    |> Map.update("user", nil, &DiscordBot.Model.User.from_map(&1))
-    |> DiscordBot.Model.Serializable.struct_from_map(as: %__MODULE__{})
+    |> Map.update("user", nil, &User.from_map(&1))
+    |> Serializable.struct_from_map(as: %__MODULE__{})
   end
 end

@@ -2,20 +2,23 @@ defmodule DiscordBot.Gateway.ApiTest do
   use ExUnit.Case, async: true
 
   alias DiscordBot.Broker
+  alias DiscordBot.Fake.{DiscordCore, DiscordServer}
+  alias DiscordBot.Gateway
   alias DiscordBot.Gateway.Api
+  alias DiscordBot.Model.Payload
 
   setup context do
-    {:ok, {url, ref, core}} = DiscordBot.Fake.DiscordServer.start()
+    {:ok, {url, ref, core}} = DiscordServer.start()
 
     on_exit(fn ->
-      DiscordBot.Fake.DiscordServer.shutdown(ref)
+      DiscordServer.shutdown(ref)
     end)
 
     broker = start_supervised!({Broker, []}, id: Module.concat(context.test, :broker))
 
     gateway =
       start_supervised!(
-        {DiscordBot.Gateway,
+        {Gateway,
          url: url,
          shard_count: 1,
          broker_supervisor_name: Module.concat(context.test, :broker_supervisor)},
@@ -29,8 +32,8 @@ defmodule DiscordBot.Gateway.ApiTest do
     test "sends update event", %{core: core, gateway: gateway} do
       assert Api.update_status(gateway, :online) == :ok
       Process.sleep(100)
-      json = DiscordBot.Fake.DiscordCore.latest_frame?(core)
-      payload = DiscordBot.Model.Payload.from_json(json)
+      json = DiscordCore.latest_frame?(core)
+      payload = Payload.from_json(json)
       assert payload.opcode == :status_update
       assert payload.data.status == :online
     end
@@ -45,8 +48,8 @@ defmodule DiscordBot.Gateway.ApiTest do
     test "sends update event", %{core: core, gateway: gateway} do
       assert Api.update_status(gateway, :online, :streaming, "CS:GO") == :ok
       Process.sleep(100)
-      json = DiscordBot.Fake.DiscordCore.latest_frame?(core)
-      payload = DiscordBot.Model.Payload.from_json(json)
+      json = DiscordCore.latest_frame?(core)
+      payload = Payload.from_json(json)
       assert payload.opcode == :status_update
       assert payload.data.status == :online
       assert payload.data.game == %{"name" => "CS:GO", "type" => 1}
