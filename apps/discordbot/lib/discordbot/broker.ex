@@ -87,6 +87,14 @@ defmodule DiscordBot.Broker do
     GenServer.call(broker, {:publish, topic, message})
   end
 
+  @doc """
+  Publishes a message to a topic on behalf of another process.
+  """
+  @spec publish(atom | pid, atom, any, pid) :: :ok
+  def publish(broker, topic, message, publisher) do
+    GenServer.call(broker, {:publish, topic, message, publisher})
+  end
+
   ## Handlers
 
   def init(state) do
@@ -110,20 +118,30 @@ defmodule DiscordBot.Broker do
 
   def handle_call({:publish, topic, message}, from, registry) do
     {pid, _ref} = from
+    {:reply, build_and_publish(topic, message, pid, registry), registry}
+  end
 
+  def handle_call({:publish, topic, message, publisher}, _from, registry) do
+    {:reply, build_and_publish(topic, message, publisher, registry), registry}
+  end
+
+  defp build_and_publish(topic, message, publisher, registry) do
+    %Event{
+      source: :broker,
+      broker: self(),
+      message: message,
+      topic: topic,
+      publisher: publisher
+    }
+    |> publish_event(topic, registry)
+
+    :ok
+  end
+
+  defp publish_event(event, topic, registry) do
     registry
     |> Map.get(topic, MapSet.new())
     |> MapSet.to_list()
-    |> Enum.each(fn sub ->
-      send(sub, %Event{
-        source: :broker,
-        broker: self(),
-        message: message,
-        topic: topic,
-        publisher: pid
-      })
-    end)
-
-    {:reply, :ok, registry}
+    |> Enum.each(fn subscriber -> send(subscriber, event) end)
   end
 end

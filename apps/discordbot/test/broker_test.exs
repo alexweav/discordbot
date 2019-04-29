@@ -55,4 +55,18 @@ defmodule DiscordBot.BrokerTest do
 
     assert pid == self()
   end
+
+  test "can publish with specified PID", %{broker: broker} do
+    Broker.subscribe(broker, :my_topic)
+    Broker.publish(broker, :my_topic, "test message", self())
+
+    pid =
+      receive do
+        %Event{source: :broker, broker: _broker, publisher: pub} -> pub
+      after
+        1_000 -> "timeout"
+      end
+
+    assert pid == self()
+  end
 end
