@@ -58,6 +58,7 @@ defmodule DiscordBot.Broker do
   @doc """
   Returns the list of known topics
   """
+  @spec topics?(atom | pid) :: list(atom)
   def topics?(broker) do
     GenServer.call(broker, {:topics})
   end
@@ -65,6 +66,7 @@ defmodule DiscordBot.Broker do
   @doc """
   Subscribes to a topic
   """
+  @spec subscribe(atom | pid, atom) :: :ok
   def subscribe(broker, topic) do
     GenServer.call(broker, {:subscribe, topic})
   end
@@ -72,6 +74,7 @@ defmodule DiscordBot.Broker do
   @doc """
   Returns all subscribers for a topic
   """
+  @spec subscribers?(atom | pid, atom) :: list(pid)
   def subscribers?(broker, topic) do
     GenServer.call(broker, {:subscribers, topic})
   end
@@ -79,6 +82,7 @@ defmodule DiscordBot.Broker do
   @doc """
   Publishes a message to a topic
   """
+  @spec publish(atom | pid, atom, any) :: :ok
   def publish(broker, topic, message) do
     GenServer.call(broker, {:publish, topic, message})
   end
