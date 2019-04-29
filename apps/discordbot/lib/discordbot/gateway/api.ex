@@ -85,14 +85,14 @@ defmodule DiscordBot.Gateway.Api do
   channel to which the bot's state will be updated. `self_mute` and `self_deaf`
   represent the initial mute/deaf state of the bot on update.
   """
-  @spec update_voice_state(atom | pid, String.t(), String.t(), boolean, boolean) :: :ok | :error
-  def update_voice_state(gateway, guild_id, channel_id, self_mute \\ false, self_deaf \\ false) do
-    case get_connection(gateway) do
-      {:ok, connection} ->
-        Connection.update_voice_state(connection, guild_id, channel_id, self_mute, self_deaf)
-
-      :error ->
-        :error
+  @spec update_voice_state(String.t(), String.t(), boolean, boolean) :: :ok | :error
+  def update_voice_state(guild_id, channel_id, self_mute \\ false, self_deaf \\ false) do
+    with {:ok, record} <- DiscordBot.Entity.Guild.lookup_by_id(guild_id),
+         connection <- record.shard_connection do
+      Connection.update_voice_state(connection, guild_id, channel_id, self_mute, self_deaf)
+      :ok
+    else
+      :error -> :error
     end
   end
 
@@ -104,15 +104,5 @@ defmodule DiscordBot.Gateway.Api do
   @spec validate_activity_type(atom) :: boolean
   defp validate_activity_type(type) do
     !is_nil(DiscordBot.Model.Activity.type_from_atom(type))
-  end
-
-  @spec get_connection(atom | pid) :: {:ok, pid} | :error
-  defp get_connection(gateway) do
-    with {:ok, sup} <- Gateway.get_gateway_instance(gateway, 0),
-         {:ok, conn} <- Gateway.Supervisor.connection?(sup) do
-      {:ok, conn}
-    else
-      :error -> :error
-    end
   end
 end
