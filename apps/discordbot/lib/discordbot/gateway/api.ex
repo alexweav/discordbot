@@ -20,9 +20,7 @@ defmodule DiscordBot.Gateway.Api do
   """
   @spec update_status(atom | pid, atom) :: :ok | :error
   def update_status(gateway, status) do
-    unless validate_status(status) do
-      :error
-    else
+    if validate_status(status) do
       for gateway <- Gateway.active_gateways(gateway) do
         {:ok, pid} =
           gateway
@@ -32,6 +30,8 @@ defmodule DiscordBot.Gateway.Api do
       end
 
       :ok
+    else
+      :error
     end
   end
 
