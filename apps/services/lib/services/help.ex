@@ -80,7 +80,7 @@ defmodule Services.Help do
   Registers a new entry of help info, `info`, to be formatted
   and displayed when help is requested over Discord.
   """
-  @spec register_info(pid, Info.t()) :: :ok
+  @spec register_info(atom | pid, Info.t()) :: :ok
   def register_info(help, info) do
     GenServer.call(help, {:register, info})
   end
@@ -89,7 +89,7 @@ defmodule Services.Help do
   Returns the info struct registered for a given command key,
   `key`. Returns `:error` if nothing is registered for the key.
   """
-  @spec info?(pid, String.t()) :: {:ok, Info.t()} | :error
+  @spec info?(atom | pid, String.t()) :: {:ok, Info.t()} | :error
   def info?(help, key) do
     GenServer.call(help, {:lookup, key})
   end
@@ -97,7 +97,7 @@ defmodule Services.Help do
   @doc """
   Returns the formatted help response
   """
-  @spec help_message(pid) :: String.t()
+  @spec help_message(atom | pid) :: String.t()
   def help_message(help) do
     GenServer.call(help, :help)
   end

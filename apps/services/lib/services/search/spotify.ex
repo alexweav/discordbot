@@ -102,6 +102,7 @@ defmodule Services.Search.Spotify do
     url <> "&limit=#{take}"
   end
 
+  @spec auth_header() :: String.t()
   defp auth_header do
     "Bearer #{access_token()}"
   end

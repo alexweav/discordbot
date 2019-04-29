@@ -72,7 +72,7 @@ defmodule Services.Search.TokenManager do
   An initial value is optional. Not providing an `initial` value (or providing `nil`)
   means that `generator` will be used to obtain the first value.
   """
-  @spec define(pid, atom, integer, (() -> String.t()), String.t() | nil) :: String.t()
+  @spec define(atom | pid, atom, integer, (() -> String.t()), String.t() | nil) :: String.t()
   def define(manager, name, expiry_seconds, generator, initial \\ nil) do
     GenServer.call(manager, {:define, name, expiry_seconds, generator, initial})
   end
@@ -82,7 +82,7 @@ defmodule Services.Search.TokenManager do
   be regenerated, and will be deleted automatically after `expiry_seconds`
   passes.
   """
-  @spec define_temporary(pid, atom, integer, String.t()) :: String.t()
+  @spec define_temporary(atom | pid, atom, integer, String.t()) :: String.t()
   def define_temporary(manager, name, expiry_seconds, token) do
     GenServer.call(manager, {:define_temporary, name, expiry_seconds, token})
   end
@@ -91,7 +91,7 @@ defmodule Services.Search.TokenManager do
   Obtains the token value defined under a name. Returns `:error` if
   no token is defined.
   """
-  @spec token?(pid, atom) :: String.t() | :error
+  @spec token?(atom | pid, atom) :: String.t() | :error
   def token?(manager, name) do
     GenServer.call(manager, {:lookup, name})
   end
@@ -99,7 +99,7 @@ defmodule Services.Search.TokenManager do
   @doc """
   Undefines a token
   """
-  @spec undefine(pid, atom) :: :ok
+  @spec undefine(atom | pid, atom) :: :ok
   def undefine(manager, name) do
     GenServer.call(manager, {:delete, name})
   end
