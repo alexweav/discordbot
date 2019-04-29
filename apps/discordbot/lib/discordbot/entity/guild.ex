@@ -7,6 +7,7 @@ defmodule DiscordBot.Entity.Guild do
 
   alias DiscordBot.Broker
   alias DiscordBot.Broker.Event
+  alias DiscordBot.Entity.GuildRecord
   alias DiscordBot.Model.Guild, as: GuildModel
 
   @doc """
@@ -53,14 +54,14 @@ defmodule DiscordBot.Entity.Guild do
   end
 
   @doc """
-  Gets a guild by its ID.
+  Gets a guild and its metadata by its ID.
 
-  The returned guild will be an instance of `DiscordBot.Model.Guild`.
+  The returned guild will be an instance of `DiscordBot.Model.GuildRecord`.
   """
-  @spec lookup_by_id(String.t()) :: {:ok, GuildModel.t()} | :error
+  @spec lookup_by_id(String.t()) :: {:ok, GuildRecord.t()} | :error
   def lookup_by_id(id) do
     case :ets.lookup(__MODULE__, id) do
-      [{^id, model}] -> {:ok, model}
+      [{^id, record}] -> {:ok, record}
       [] -> :error
     end
   end
@@ -88,21 +89,27 @@ defmodule DiscordBot.Entity.Guild do
     {:ok, {guilds, api}}
   end
 
-  def handle_call({:create, model}, _from, {guilds, _} = state) do
-    {:reply, create_internal(guilds, model), state}
+  def handle_call({:create, model}, {pid, _ref}, {guilds, _} = state) do
+    {:reply, create_internal(guilds, model, pid), state}
   end
 
   def handle_call({:delete, id}, _from, {guilds, _} = state) do
     {:reply, delete_internal(guilds, id), state}
   end
 
-  def handle_info(%Event{topic: :guild_create, message: model}, {guilds, _} = state) do
-    create_internal(guilds, model)
+  def handle_info(
+        %Event{topic: :guild_create, message: model, publisher: pub},
+        {guilds, _} = state
+      ) do
+    create_internal(guilds, model, pub)
     {:noreply, state}
   end
 
-  def handle_info(%Event{topic: :guild_update, message: model}, {guilds, _} = state) do
-    create_internal(guilds, model)
+  def handle_info(
+        %Event{topic: :guild_update, message: model, publisher: pub},
+        {guilds, _} = state
+      ) do
+    create_internal(guilds, model, pub)
     {:noreply, state}
   end
 
@@ -111,14 +118,15 @@ defmodule DiscordBot.Entity.Guild do
     {:noreply, state}
   end
 
-  defp create_internal(_, nil), do: :error
+  defp create_internal(_, nil, _), do: :error
 
-  defp create_internal(_, %DiscordBot.Model.Guild{id: nil}) do
+  defp create_internal(_, %DiscordBot.Model.Guild{id: nil}, _) do
     :error
   end
 
-  defp create_internal(table, model) do
-    :ets.insert(table, {model.id, model})
+  defp create_internal(table, model, source) do
+    record = GuildRecord.new(source, model)
+    :ets.insert(table, {model.id, record})
     :ok
   end
 
