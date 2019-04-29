@@ -77,8 +77,8 @@ defmodule DiscordBot.Broker.Shovel do
     {:reply, :ok, {source, dest, MapSet.put(topics, topic)}}
   end
 
-  def handle_info(%Event{topic: topic, message: message}, {source, dest, topics}) do
-    Broker.publish(dest, topic, message)
+  def handle_info(%Event{topic: topic, message: message, publisher: pub}, {source, dest, topics}) do
+    Broker.publish(dest, topic, message, pub)
     {:noreply, {source, dest, topics}}
   end
 end
