@@ -26,7 +26,7 @@ defmodule DiscordBot.Gateway.Authenticator do
     DiscordBot.Gateway.Connection.identify(connection, token, shard_index, shard_count)
   end
 
-  defp wait_for_connect() do
+  defp wait_for_connect do
     receive do
       %Event{publisher: publisher} -> publisher
     end

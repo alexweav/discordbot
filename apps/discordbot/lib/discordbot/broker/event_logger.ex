@@ -10,6 +10,7 @@ defmodule DiscordBot.Broker.EventLogger do
   alias DiscordBot.Broker.Event
 
   defmodule State do
+    @moduledoc false
     @enforce_keys [:broker, :topics, :name]
 
     defstruct [

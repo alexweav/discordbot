@@ -8,6 +8,8 @@ defmodule DiscordBot.Self do
   alias DiscordBot.Broker.Event
 
   defmodule State do
+    @moduledoc false
+
     defstruct [
       :status,
       :broker,
