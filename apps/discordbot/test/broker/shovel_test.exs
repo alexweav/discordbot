@@ -73,4 +73,19 @@ defmodule DiscordBot.Broker.ShovelTest do
 
     assert message == "test"
   end
+
+  test "passes on publisher PID", %{source: source, destination: destination} do
+    start_supervised!({Shovel, source: source, destination: destination, topics: [:topic]})
+    Broker.subscribe(destination, :topic)
+    Broker.publish(source, :topic, "test")
+
+    publisher =
+      receive do
+        %Event{publisher: pub} -> pub
+      after
+        1_000 -> "timeout"
+      end
+
+    assert publisher == self()
+  end
 end
