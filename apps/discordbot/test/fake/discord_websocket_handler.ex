@@ -2,9 +2,11 @@ defmodule DiscordBot.Fake.DiscordWebsocketHandler do
   @moduledoc false
   @behaviour :cowboy_websocket
 
+  alias DiscordBot.Fake.DiscordCore
+
   def init(req, args) do
     [core] = args
-    DiscordBot.Fake.DiscordCore.request_socket(core, req)
+    DiscordCore.request_socket(core, req)
     {:cowboy_websocket, req, %{core: core}}
   end
 
@@ -17,7 +19,7 @@ defmodule DiscordBot.Fake.DiscordWebsocketHandler do
   end
 
   def websocket_handle({:text, text}, state) do
-    DiscordBot.Fake.DiscordCore.receive_text_frame(state[:core], text)
+    DiscordCore.receive_text_frame(state[:core], text)
     {:ok, state}
   end
 
