@@ -213,14 +213,7 @@ defmodule DiscordBot.Gateway.Connection do
       |> apply_sequence(state.sequence)
       |> DiscordBot.Model.Payload.to_json()
 
-    postprocessed_json =
-      json
-      |> Poison.decode!()
-      |> Map.delete("t")
-      |> Map.delete("s")
-      |> Poison.encode!()
-
-    {:reply, {:text, postprocessed_json}, state}
+    {:reply, {:text, json}, state}
   end
 
   def handle_cast({:disconnect, close_code}, state) do
