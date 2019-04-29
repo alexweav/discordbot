@@ -1,52 +1,16 @@
 defmodule DiscordBot.Broker do
   @moduledoc """
-  Event broker for a gateway instance
+  A simple pub/sub message broker.
+
+  Processes may publish events to topics, which are atoms.
+  They may also subscribe to topics, which will cause the
+  broker to send a message containing the event data to
+  the subscribing process.
   """
 
   use GenServer
 
-  defmodule Event do
-    defstruct [
-      :source,
-      :broker,
-      :message,
-      :topic,
-      :publisher
-    ]
-
-    @typedoc """
-    An atom indicating that the event originated from a broker
-    """
-    @type source :: atom
-
-    @typedoc """
-    The PID of the broker that sent the event
-    """
-    @type broker :: pid
-
-    @typedoc """
-    The event data originating from the publisher
-    """
-    @type message :: any
-
-    @typedoc """
-    The topic that the event is associated with
-    """
-    @type topic :: atom
-
-    @typedoc """
-    The PID of the process that published this event
-    """
-    @type publisher :: pid
-
-    @type t :: %__MODULE__{
-            source: source,
-            broker: broker,
-            message: message,
-            topic: topic,
-            publisher: publisher
-          }
-  end
+  alias DiscordBot.Broker.Event
 
   @doc """
   Starts the broker
