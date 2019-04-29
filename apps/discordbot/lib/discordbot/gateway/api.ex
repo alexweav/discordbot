@@ -23,10 +23,15 @@ defmodule DiscordBot.Gateway.Api do
     unless validate_status(status) do
       :error
     else
-      case get_connection(gateway) do
-        {:ok, connection} -> Connection.update_status(connection, status)
-        :error -> :error
+      for gateway <- Gateway.active_gateways(gateway) do
+        {:ok, pid} =
+          gateway
+          |> Gateway.Supervisor.connection?()
+
+        Connection.update_status(pid, status)
       end
+
+      :ok
     end
   end
 
@@ -60,10 +65,15 @@ defmodule DiscordBot.Gateway.Api do
         :error
 
       true ->
-        case get_connection(gateway) do
-          {:ok, connection} -> Connection.update_status(connection, status, type, name)
-          :error -> :error
+        for gateway <- Gateway.active_gateways(gateway) do
+          {:ok, pid} =
+            gateway
+            |> Gateway.Supervisor.connection?()
+
+          Connection.update_status(pid, status, type, name)
         end
+
+        :ok
     end
   end
 
@@ -94,15 +104,5 @@ defmodule DiscordBot.Gateway.Api do
   @spec validate_activity_type(atom) :: boolean
   defp validate_activity_type(type) do
     !is_nil(DiscordBot.Model.Activity.type_from_atom(type))
-  end
-
-  @spec get_connection(atom | pid) :: {:ok, pid} | :error
-  defp get_connection(gateway) do
-    with {:ok, sup} <- Gateway.get_gateway_instance(gateway, 0),
-         {:ok, conn} <- Gateway.Supervisor.connection?(sup) do
-      {:ok, conn}
-    else
-      :error -> :error
-    end
   end
 end
