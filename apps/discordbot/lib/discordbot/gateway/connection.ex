@@ -128,6 +128,7 @@ defmodule DiscordBot.Gateway.Connection do
   end
 
   def handle_frame({:text, json}, state) do
+    IO.inspect(json)
     message = DiscordBot.Model.Payload.from_json(json)
     DiscordBot.Broker.publish(state.broker, event_name(message), message.data)
 
@@ -212,7 +213,14 @@ defmodule DiscordBot.Gateway.Connection do
       |> apply_sequence(state.sequence)
       |> DiscordBot.Model.Payload.to_json()
 
-    {:reply, {:text, json}, state}
+    postprocessed_json =
+      json
+      |> Poison.decode!()
+      |> Map.delete("t")
+      |> Map.delete("s")
+      |> Poison.encode!()
+
+    {:reply, {:text, postprocessed_json}, state}
   end
 
   def handle_cast({:disconnect, close_code}, state) do
