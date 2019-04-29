@@ -105,4 +105,14 @@ defmodule DiscordBot.Gateway.Api do
   defp validate_activity_type(type) do
     !is_nil(DiscordBot.Model.Activity.type_from_atom(type))
   end
+
+  @spec get_connection(atom | pid) :: {:ok, pid} | :error
+  defp get_connection(gateway) do
+    with {:ok, sup} <- Gateway.get_gateway_instance(gateway, 0),
+         {:ok, conn} <- Gateway.Supervisor.connection?(sup) do
+      {:ok, conn}
+    else
+      :error -> :error
+    end
+  end
 end
