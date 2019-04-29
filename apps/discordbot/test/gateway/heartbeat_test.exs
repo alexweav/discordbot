@@ -1,8 +1,8 @@
 defmodule DiscordBot.Gateway.HeartbeatTest do
   use ExUnit.Case, async: true
 
-  alias DiscordBot.Gateway.Heartbeat
   alias DiscordBot.Broker
+  alias DiscordBot.Gateway.Heartbeat
 
   setup do
     broker = start_supervised!({Broker, []})

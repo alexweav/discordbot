@@ -3,10 +3,10 @@ defmodule Services.Search do
   Logic for the search commands
   """
 
-  alias Services.Search.Wikipedia
-  alias Services.Search.Youtube
   alias Services.Search.Spotify
   alias Services.Search.TokenManager
+  alias Services.Search.Wikipedia
+  alias Services.Search.Youtube
 
   @default_spotify_token_timeout 1000 * 60 * 60
 

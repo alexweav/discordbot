@@ -5,7 +5,7 @@ defmodule DiscordBot.Fake.DiscordServer do
   plug(:match)
   plug(:dispatch)
 
-  def start() do
+  def start do
     ref = make_ref()
     port = generate_port()
     url = "ws://localhost:#{port}/gateway"
