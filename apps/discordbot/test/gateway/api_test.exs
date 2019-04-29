@@ -42,7 +42,7 @@ defmodule DiscordBot.Gateway.ApiTest do
   end
 
   describe "update_status/4" do
-    test "asdf2", %{core: core, gateway: gateway} do
+    test "sends update event", %{core: core, gateway: gateway} do
       assert Api.update_status(gateway, :online, :streaming, "CS:GO") == :ok
       Process.sleep(100)
       json = DiscordBot.Fake.DiscordCore.latest_frame?(core)

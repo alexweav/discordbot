@@ -26,7 +26,7 @@ defmodule Services.Ping do
   This will loop infinitely, and therefore should be launched
   in a dedicated process.
   """
-  @spec handle(Broker.t()) :: :ok
+  @spec handle(Broker.t()) :: no_return()
   def handle(broker) do
     Broker.subscribe(broker, :message_create)
 
@@ -45,6 +45,7 @@ defmodule Services.Ping do
     loop_handle()
   end
 
+  @spec loop_handle() :: no_return()
   defp loop_handle do
     receive do
       %Event{topic: :message_create, message: message} -> handle_message(message)

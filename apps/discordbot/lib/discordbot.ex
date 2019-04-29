@@ -29,6 +29,7 @@ defmodule DiscordBot do
            :dispatch,
            :status_update,
            :voice_state_update,
+           :voice_server_update,
            :ready,
            :channel_create,
            :channel_update,
