@@ -10,8 +10,9 @@ defmodule DiscordBot.Gateway.Supervisor do
     shard_index = Keyword.fetch!(opts, :shard_index)
     shard_count = Keyword.fetch!(opts, :shard_count)
     broker_supervisor = Keyword.get(opts, :broker_supervisor, DiscordBot.Gateway.BrokerSupervisor)
+    delay = Keyword.get(opts, :spawn_delay, 0)
 
-    if (delay = Keyword.get(opts, :spawn_delay, 0)) > 0 do
+    if delay > 0 do
       # TODO: this is a really hacky way of rigging the staggered launch of connections. Should probably change this.
       Logger.info("Waiting #{delay} milliseconds due to Identify ratelimiting.")
       Process.sleep(delay)
