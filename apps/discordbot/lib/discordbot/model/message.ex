@@ -142,7 +142,7 @@ defmodule DiscordBot.Model.Message do
   @typedoc """
   Sent with Rich Presence-related chat embeds
   """
-  @type application :: map | nil
+  @type application :: MessageApplication.t() | nil
 
   @type t :: %__MODULE__{
           id: id,
