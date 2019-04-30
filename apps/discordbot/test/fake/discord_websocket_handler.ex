@@ -23,6 +23,8 @@ defmodule DiscordBot.Fake.DiscordWebsocketHandler do
     {:ok, state}
   end
 
+  def websocket_info(_, state), do: {:ok, state}
+
   def terminate(_reason, _req, _state), do: :ok
 
   def websocket_terminate(_reason, _req, _state), do: :ok
