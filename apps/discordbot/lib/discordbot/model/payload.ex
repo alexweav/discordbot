@@ -5,7 +5,7 @@ defmodule DiscordBot.Model.Payload do
 
   use DiscordBot.Model.Serializable
 
-  alias DiscordBot.Model.Payload
+  alias DiscordBot.Model.{Dispatch, Hello, Identify, Payload, StatusUpdate, VoiceState}
 
   defstruct [
     :opcode,
@@ -123,12 +123,12 @@ defmodule DiscordBot.Model.Payload do
   @spec to_model(any, atom, String.t()) :: struct
   def to_model(data, opcode, name) do
     case opcode do
-      :dispatch -> data |> DiscordBot.Model.Dispatch.from_map(name)
+      :dispatch -> data |> Dispatch.from_map(name)
       :heartbeat -> data
-      :identify -> data |> DiscordBot.Model.Identify.from_map()
-      :voice_state_update -> data |> DiscordBot.Model.VoiceState.from_map()
-      :hello -> data |> DiscordBot.Model.Hello.from_map()
-      :status_update -> data |> DiscordBot.Model.StatusUpdate.from_map()
+      :identify -> data |> Identify.from_map()
+      :voice_state_update -> data |> VoiceState.from_map()
+      :hello -> data |> Hello.from_map()
+      :status_update -> data |> StatusUpdate.from_map()
       :heartbeat_ack -> nil
       _ -> data
     end
