@@ -7,6 +7,8 @@ defmodule Services.Help do
 
   alias DiscordBot.Broker
   alias DiscordBot.Broker.Event
+  alias DiscordBot.Entity.{Channel, ChannelManager}
+  alias DiscordBot.Model.Message
 
   defmodule Info do
     @moduledoc """
@@ -142,13 +144,12 @@ defmodule Services.Help do
   end
 
   def handle_info(%Event{message: message}, {broker, registry}) do
-    %DiscordBot.Model.Message{channel_id: channel_id, content: content} = message
+    %Message{channel_id: channel_id, content: content} = message
 
     if content == "!help" do
-      {:ok, channel} =
-        DiscordBot.Entity.ChannelManager.lookup_by_id(DiscordBot.ChannelManager, channel_id)
+      {:ok, channel} = ChannelManager.lookup_by_id(DiscordBot.ChannelManager, channel_id)
 
-      DiscordBot.Entity.Channel.create_message(channel, build_message(value_stream(registry)))
+      Channel.create_message(channel, build_message(value_stream(registry)))
     end
 
     {:noreply, {broker, registry}}

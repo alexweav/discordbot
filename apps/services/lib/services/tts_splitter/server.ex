@@ -9,6 +9,8 @@ defmodule Services.TtsSplitter.Server do
 
   alias DiscordBot.Broker
   alias DiscordBot.Broker.Event
+  alias DiscordBot.Entity.{Channel, ChannelManager}
+  alias DiscordBot.Model.Message
   alias Services.Help
 
   @doc """
@@ -41,7 +43,7 @@ defmodule Services.TtsSplitter.Server do
   end
 
   def handle_info(%Event{message: message}, broker) do
-    %DiscordBot.Model.Message{channel_id: channel_id, content: content} = message
+    %Message{channel_id: channel_id, content: content} = message
     handle_content(content, channel_id)
     {:noreply, broker}
   end
@@ -56,8 +58,7 @@ defmodule Services.TtsSplitter.Server do
   defp handle_content(_, _), do: nil
 
   defp lookup_and_send(text, channel_id) do
-    {:ok, channel} =
-      DiscordBot.Entity.ChannelManager.lookup_by_id(DiscordBot.ChannelManager, channel_id)
+    {:ok, channel} = ChannelManager.lookup_by_id(DiscordBot.ChannelManager, channel_id)
 
     chunks = Services.TtsSplitter.tts_split(text)
     send_tts_chunks(chunks, channel)
@@ -65,7 +66,7 @@ defmodule Services.TtsSplitter.Server do
 
   defp send_tts_chunks(chunks, channel) do
     for chunk <- chunks do
-      DiscordBot.Entity.Channel.create_message(channel, chunk, tts: true)
+      Channel.create_message(channel, chunk, tts: true)
       Process.sleep(3_000)
     end
   end

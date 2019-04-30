@@ -11,6 +11,8 @@ defmodule Services.Ping do
 
   alias DiscordBot.Broker
   alias DiscordBot.Broker.Event
+  alias DiscordBot.Entity.{Channel, ChannelManager}
+  alias DiscordBot.Model.Message
   alias Services.Help
 
   @doc """
@@ -54,22 +56,20 @@ defmodule Services.Ping do
     loop_handle()
   end
 
-  defp handle_message(%DiscordBot.Model.Message{channel_id: channel_id, content: content}) do
+  defp handle_message(%Message{channel_id: channel_id, content: content}) do
     handle_content(content, channel_id)
   end
 
   defp handle_content("!ping", channel_id) do
-    {:ok, channel} =
-      DiscordBot.Entity.ChannelManager.lookup_by_id(DiscordBot.ChannelManager, channel_id)
+    {:ok, channel} = ChannelManager.lookup_by_id(DiscordBot.ChannelManager, channel_id)
 
-    DiscordBot.Entity.Channel.create_message(channel, "Pong")
+    Channel.create_message(channel, "Pong")
   end
 
   defp handle_content("!source", channel_id) do
-    {:ok, channel} =
-      DiscordBot.Entity.ChannelManager.lookup_by_id(DiscordBot.ChannelManager, channel_id)
+    {:ok, channel} = ChannelManager.lookup_by_id(DiscordBot.ChannelManager, channel_id)
 
-    DiscordBot.Entity.Channel.create_message(channel, "https://github.com/alexweav/discordbot")
+    Channel.create_message(channel, "https://github.com/alexweav/discordbot")
   end
 
   defp handle_content(_, _) do

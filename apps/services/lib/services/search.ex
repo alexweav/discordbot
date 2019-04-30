@@ -3,6 +3,8 @@ defmodule Services.Search do
   Logic for the search commands
   """
 
+  alias DiscordBot.Entity.ChannelManager
+  alias DiscordBot.Model.Message
   alias Services.Search.Spotify
   alias Services.Search.TokenManager
   alias Services.Search.Wikipedia
@@ -14,14 +16,14 @@ defmodule Services.Search do
   Searches Wikipedia for `text`, and returns the search
   result as a response to `message`
   """
-  @spec reply_wikipedia(String.t(), DiscordBot.Model.Message.t()) :: any
+  @spec reply_wikipedia(String.t(), Message.t()) :: any
   def reply_wikipedia(text, message) do
     response =
       text
       |> search_wikipedia()
       |> format_message()
 
-    DiscordBot.Entity.ChannelManager.reply(message, response)
+    ChannelManager.reply(message, response)
   end
 
   @doc """
@@ -42,14 +44,14 @@ defmodule Services.Search do
   Searches YouTube for `text`, and returns the search result
   as a response to `message`
   """
-  @spec reply_youtube(String.t(), DiscordBot.Model.Message.t()) :: any
+  @spec reply_youtube(String.t(), Message.t()) :: any
   def reply_youtube(text, message) do
     response =
       text
       |> search_youtube()
       |> format_message()
 
-    DiscordBot.Entity.ChannelManager.reply(message, response)
+    ChannelManager.reply(message, response)
   end
 
   @doc """
@@ -70,14 +72,14 @@ defmodule Services.Search do
   Searches Spotify albums for `text`, and returns the search
   result as a response to `message`
   """
-  @spec reply_spotify_albums(String.t(), DiscordBot.Model.Message.t()) :: any
+  @spec reply_spotify_albums(String.t(), Message.t()) :: any
   def reply_spotify_albums(text, message) do
     response =
       text
       |> search_spotify_albums()
       |> format_message()
 
-    DiscordBot.Entity.ChannelManager.reply(message, response)
+    ChannelManager.reply(message, response)
   end
 
   @doc """
@@ -97,14 +99,14 @@ defmodule Services.Search do
   Searches Spotify tracks for `text`, and returns the search
   result as a response to `message`
   """
-  @spec reply_spotify_tracks(String.t(), DiscordBot.Model.Message.t()) :: any
+  @spec reply_spotify_tracks(String.t(), Message.t()) :: any
   def reply_spotify_tracks(text, message) do
     response =
       text
       |> search_spotify_albums()
       |> format_message()
 
-    DiscordBot.Entity.ChannelManager.reply(message, response)
+    ChannelManager.reply(message, response)
   end
 
   @doc """
