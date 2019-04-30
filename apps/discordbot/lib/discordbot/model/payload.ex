@@ -5,6 +5,8 @@ defmodule DiscordBot.Model.Payload do
 
   use DiscordBot.Model.Serializable
 
+  alias DiscordBot.Model.Payload
+
   defstruct [
     :opcode,
     :data,
@@ -46,7 +48,7 @@ defmodule DiscordBot.Model.Payload do
 
       Poison.Encoder.Map.encode(
         %{
-          "op" => DiscordBot.Model.Payload.opcode_from_atom(opcode),
+          "op" => Payload.opcode_from_atom(opcode),
           "d" => data,
           "s" => sequence,
           "t" => name

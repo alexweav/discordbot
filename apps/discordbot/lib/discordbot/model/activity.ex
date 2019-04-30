@@ -5,6 +5,8 @@ defmodule DiscordBot.Model.Activity do
 
   use DiscordBot.Model.Serializable
 
+  alias DiscordBot.Model.Activity
+
   defstruct [
     :name,
     :type
@@ -33,7 +35,7 @@ defmodule DiscordBot.Model.Activity do
       map = Map.from_struct(activity)
 
       Poison.Encoder.Map.encode(
-        %{map | type: DiscordBot.Model.Activity.type_from_atom(map[:type])},
+        %{map | type: Activity.type_from_atom(map[:type])},
         options
       )
     end

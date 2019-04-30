@@ -6,7 +6,7 @@ defmodule DiscordBot.Model.Identify do
 
   use DiscordBot.Model.Serializable
 
-  alias DiscordBot.Model.Serializable
+  alias DiscordBot.Model.{Payload, Serializable}
 
   defmodule ConnectionProperties do
     @derive [Poison.Encoder]
@@ -127,7 +127,7 @@ defmodule DiscordBot.Model.Identify do
   the shard count `num_shards`
   """
   def identify(token, shard, num_shards) do
-    DiscordBot.Model.Payload.payload(:identify, %__MODULE__{
+    Payload.payload(:identify, %__MODULE__{
       token: token,
       properties: ConnectionProperties.connection_properties(),
       compress: false,
