@@ -16,7 +16,7 @@ defmodule DiscordBot.Model.VoiceIdentify do
   ])
 
   @typedoc """
-
+  The ID of the server (guild) that we are connecting in.
   """
   @type server_id :: String.t()
 
