@@ -6,6 +6,7 @@ defmodule DiscordBot.Gateway.Api do
 
   alias DiscordBot.Gateway
   alias DiscordBot.Gateway.Connection
+  alias DiscordBot.Model.{Activity, StatusUpdate}
 
   @doc """
   Updates the bot account's global status.
@@ -98,11 +99,11 @@ defmodule DiscordBot.Gateway.Api do
 
   @spec validate_status(atom) :: boolean
   defp validate_status(status) do
-    !is_nil(DiscordBot.Model.StatusUpdate.status_from_atom(status))
+    !is_nil(StatusUpdate.status_from_atom(status))
   end
 
   @spec validate_activity_type(atom) :: boolean
   defp validate_activity_type(type) do
-    !is_nil(DiscordBot.Model.Activity.type_from_atom(type))
+    !is_nil(Activity.type_from_atom(type))
   end
 end

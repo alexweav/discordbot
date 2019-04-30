@@ -23,7 +23,9 @@ defmodule DiscordBot.Gateway.Heartbeat do
 
   require Logger
 
+  alias DiscordBot.Broker
   alias DiscordBot.Broker.Event
+  alias DiscordBot.Gateway.Connection
 
   defmodule State do
     @enforce_keys [:status, :broker]
@@ -164,9 +166,9 @@ defmodule DiscordBot.Gateway.Heartbeat do
   ## Handlers
 
   def init(state) do
-    DiscordBot.Broker.subscribe(state.broker, :hello)
-    DiscordBot.Broker.subscribe(state.broker, :heartbeat)
-    DiscordBot.Broker.subscribe(state.broker, :heartbeat_ack)
+    Broker.subscribe(state.broker, :hello)
+    Broker.subscribe(state.broker, :heartbeat)
+    Broker.subscribe(state.broker, :heartbeat_ack)
     {:ok, state}
   end
 
@@ -227,7 +229,7 @@ defmodule DiscordBot.Gateway.Heartbeat do
   def handle_info(%Event{publisher: pid, topic: :heartbeat}, state) do
     if state.status == :running and pid == state.target do
       Logger.info("Discord requested a heartbeat to be sent out-of-band. Responding...")
-      DiscordBot.Gateway.Connection.heartbeat(pid)
+      Connection.heartbeat(pid)
     end
 
     {:noreply, state}
@@ -256,7 +258,7 @@ defmodule DiscordBot.Gateway.Heartbeat do
         {:noreply, state}
 
       state.acked ->
-        DiscordBot.Gateway.Connection.heartbeat(state.target)
+        Connection.heartbeat(state.target)
         sender = Process.send_after(self(), :heartbeat, state.interval)
 
         new_state = %{
@@ -273,7 +275,7 @@ defmodule DiscordBot.Gateway.Heartbeat do
           "Discord did not acknowledge a heartbeat for an entire cycle. Closing the affected connection and reestablishing."
         )
 
-        DiscordBot.Gateway.Connection.disconnect(state.target, 4_000)
+        Connection.disconnect(state.target, 4_000)
         {:noreply, go_idle(state)}
     end
   end
