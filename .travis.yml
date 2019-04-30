@@ -20,6 +20,7 @@ jobs:
         - mix deps.get
       script:
         - mix format --check-formatted
+        - mix credo
         - mix test --no-start
       after_success:
         - MIX_ENV=test mix coveralls.json --umbrella --no-start
