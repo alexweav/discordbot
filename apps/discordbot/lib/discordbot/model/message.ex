@@ -6,7 +6,7 @@ defmodule DiscordBot.Model.Message do
 
   use DiscordBot.Model.Serializable
 
-  alias DiscordBot.Model.{GuildMember, Reaction, Serializable, User}
+  alias DiscordBot.Model.{GuildMember, MessageApplication, Reaction, Serializable, User}
 
   defstruct [
     :id,
@@ -143,7 +143,6 @@ defmodule DiscordBot.Model.Message do
   Sent with Rich Presence-related chat embeds
   """
   @type application :: map | nil
-  # TODO: message application object
 
   @type t :: %__MODULE__{
           id: id,
@@ -187,6 +186,7 @@ defmodule DiscordBot.Model.Message do
       nil,
       &Enum.map(&1, fn reaction -> Reaction.from_map(reaction) end)
     )
+    |> Map.update("application", nil, &MessageApplication.from_map(&1))
     |> Serializable.struct_from_map(as: %__MODULE__{})
   end
 end
