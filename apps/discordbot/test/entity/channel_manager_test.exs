@@ -5,8 +5,8 @@ defmodule DiscordBot.Entity.ChannelManagerTest do
   import Mox
 
   alias DiscordBot.Broker
-  alias DiscordBot.Entity.ChannelManager
   alias DiscordBot.Entity.Channel
+  alias DiscordBot.Entity.ChannelManager
 
   setup do
     broker = start_supervised!(Broker)

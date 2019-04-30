@@ -6,6 +6,8 @@ defmodule DiscordBot.Model.Message do
 
   use DiscordBot.Model.Serializable
 
+  alias DiscordBot.Model.{GuildMember, Serializable, User}
+
   defstruct [
     :id,
     :channel_id,
@@ -49,12 +51,12 @@ defmodule DiscordBot.Model.Message do
   The author of this message.
   Not guaranteed to be a valid user
   """
-  @type author :: DiscordBot.Model.User.t()
+  @type author :: User.t()
 
   @typedoc """
   Member properties for this message's author
   """
-  @type member :: DiscordBot.Model.GuildMember.t()
+  @type member :: GuildMember.t()
 
   @typedoc """
   Contents of the message
@@ -85,7 +87,7 @@ defmodule DiscordBot.Model.Message do
   @typedoc """
   Users specifically mentioned in the message
   """
-  @type mentions :: list(DiscordBot.Model.User.t())
+  @type mentions :: list(User.t())
 
   @typedoc """
   IDs of roles specifically mentioned in the message
@@ -174,13 +176,13 @@ defmodule DiscordBot.Model.Message do
   @spec from_map(map) :: __MODULE__.t()
   def from_map(map) do
     map
-    |> Map.update("author", nil, &DiscordBot.Model.User.from_map(&1))
-    |> Map.update("member", nil, &DiscordBot.Model.GuildMember.from_map(&1))
+    |> Map.update("author", nil, &User.from_map(&1))
+    |> Map.update("member", nil, &GuildMember.from_map(&1))
     |> Map.update(
       "mentions",
       nil,
-      &Enum.map(&1, fn mention -> DiscordBot.Model.User.from_map(mention) end)
+      &Enum.map(&1, fn mention -> User.from_map(mention) end)
     )
-    |> DiscordBot.Model.Serializable.struct_from_map(as: %__MODULE__{})
+    |> Serializable.struct_from_map(as: %__MODULE__{})
   end
 end

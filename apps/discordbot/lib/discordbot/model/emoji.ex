@@ -6,6 +6,8 @@ defmodule DiscordBot.Model.Emoji do
 
   use DiscordBot.Model.Serializable
 
+  alias DiscordBot.Model.{Serializable, User}
+
   defstruct [
     :id,
     :name,
@@ -34,7 +36,7 @@ defmodule DiscordBot.Model.Emoji do
   @typedoc """
   User that created this emoji
   """
-  @type user :: DiscordBot.Model.User.t()
+  @type user :: User.t()
 
   @typedoc """
   Whether this emoji must be wrapped in colons
@@ -66,6 +68,6 @@ defmodule DiscordBot.Model.Emoji do
   """
   @spec from_map(map) :: __MODULE__.t()
   def from_map(map) do
-    DiscordBot.Model.Serializable.struct_from_map(map, as: %__MODULE__{})
+    Serializable.struct_from_map(map, as: %__MODULE__{})
   end
 end

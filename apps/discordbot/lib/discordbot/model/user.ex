@@ -6,6 +6,8 @@ defmodule DiscordBot.Model.User do
 
   use DiscordBot.Model.Serializable
 
+  alias DiscordBot.Model.Serializable
+
   defstruct [
     :id,
     :username,
@@ -94,6 +96,6 @@ defmodule DiscordBot.Model.User do
   """
   @spec from_map(map) :: __MODULE__.t() | {:error, term} | :error
   def from_map(map) do
-    DiscordBot.Model.Serializable.struct_from_map(map, as: %__MODULE__{})
+    Serializable.struct_from_map(map, as: %__MODULE__{})
   end
 end

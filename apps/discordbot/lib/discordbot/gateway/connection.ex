@@ -6,6 +6,17 @@ defmodule DiscordBot.Gateway.Connection do
   use WebSockex
   require Logger
 
+  alias DiscordBot.Broker
+
+  alias DiscordBot.Model.{
+    Activity,
+    Dispatch,
+    GatewayVoiceStateUpdate,
+    Identify,
+    Payload,
+    StatusUpdate
+  }
+
   @callback heartbeat(atom | pid) :: :ok
   @callback identify(atom | pid, String.t(), number, number) :: :ok
   @callback update_status(atom | pid, atom) :: :ok
@@ -128,9 +139,8 @@ defmodule DiscordBot.Gateway.Connection do
   end
 
   def handle_frame({:text, json}, state) do
-    IO.inspect(json)
-    message = DiscordBot.Model.Payload.from_json(json)
-    DiscordBot.Broker.publish(state.broker, event_name(message), message.data)
+    message = Payload.from_json(json)
+    Broker.publish(state.broker, event_name(message), message.data)
 
     case message.sequence do
       nil -> {:ok, state}
@@ -154,54 +164,54 @@ defmodule DiscordBot.Gateway.Connection do
   end
 
   def handle_cast({:heartbeat}, state) do
-    message = DiscordBot.Model.Payload.heartbeat(nil)
+    message = Payload.heartbeat(nil)
 
     {:ok, json} =
       message
       |> apply_sequence(state.sequence)
-      |> DiscordBot.Model.Payload.to_json()
+      |> Payload.to_json()
 
     {:reply, {:text, json}, state}
   end
 
   def handle_cast({:identify, token, shard, num_shards}, state) do
     Logger.info("Send identify.")
-    message = DiscordBot.Model.Identify.identify(token, shard, num_shards)
+    message = Identify.identify(token, shard, num_shards)
 
     {:ok, json} =
       message
       |> apply_sequence(state.sequence)
-      |> DiscordBot.Model.Payload.to_json()
+      |> Payload.to_json()
 
     {:reply, {:text, json}, state}
   end
 
   def handle_cast({:update_status, status}, state) do
-    message = DiscordBot.Model.StatusUpdate.status_update(nil, nil, status)
+    message = StatusUpdate.status_update(nil, nil, status)
 
     {:ok, json} =
       message
       |> apply_sequence(state.sequence)
-      |> DiscordBot.Model.Payload.to_json()
+      |> Payload.to_json()
 
     {:reply, {:text, json}, state}
   end
 
   def handle_cast({:update_status, status, type, name}, state) do
-    activity = DiscordBot.Model.Activity.activity(type, name)
-    message = DiscordBot.Model.StatusUpdate.status_update(nil, activity, status)
+    activity = Activity.activity(type, name)
+    message = StatusUpdate.status_update(nil, activity, status)
 
     {:ok, json} =
       message
       |> apply_sequence(state.sequence)
-      |> DiscordBot.Model.Payload.to_json()
+      |> Payload.to_json()
 
     {:reply, {:text, json}, state}
   end
 
   def handle_cast({:voice_state_update, guild_id, channel_id, self_mute, self_deaf}, state) do
     message =
-      DiscordBot.Model.GatewayVoiceStateUpdate.voice_state_update(
+      GatewayVoiceStateUpdate.voice_state_update(
         guild_id,
         channel_id,
         self_mute,
@@ -211,7 +221,7 @@ defmodule DiscordBot.Gateway.Connection do
     {:ok, json} =
       message
       |> apply_sequence(state.sequence)
-      |> DiscordBot.Model.Payload.to_json()
+      |> Payload.to_json()
 
     {:reply, {:text, json}, state}
   end
@@ -225,11 +235,11 @@ defmodule DiscordBot.Gateway.Connection do
   end
 
   defp apply_sequence(payload, sequence) do
-    %DiscordBot.Model.Payload{payload | sequence: sequence}
+    %Payload{payload | sequence: sequence}
   end
 
-  defp event_name(%DiscordBot.Model.Payload{opcode: :dispatch} = message) do
-    case DiscordBot.Model.Dispatch.atom_from_event(message.name) do
+  defp event_name(%Payload{opcode: :dispatch} = message) do
+    case Dispatch.atom_from_event(message.name) do
       nil -> :dispatch
       name -> name
     end

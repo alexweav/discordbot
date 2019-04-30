@@ -6,6 +6,8 @@ defmodule DiscordBot.Model.Channel do
 
   use DiscordBot.Model.Serializable
 
+  alias DiscordBot.Model.{Overwrite, Serializable, User}
+
   defstruct [
     :id,
     :type,
@@ -50,7 +52,7 @@ defmodule DiscordBot.Model.Channel do
   @typedoc """
   Explicit permission overwrites for members and roles
   """
-  @type permission_overwrites :: list(DiscordBot.Model.Overwrite.t())
+  @type permission_overwrites :: list(Overwrite.t())
 
   @typedoc """
   The name of the channel
@@ -93,7 +95,7 @@ defmodule DiscordBot.Model.Channel do
   @typedoc """
   The recipients of the DM
   """
-  @type recipients :: list(DiscordBot.Model.User.t())
+  @type recipients :: list(User.t())
 
   @typedoc """
   Icon hash
@@ -150,13 +152,13 @@ defmodule DiscordBot.Model.Channel do
     |> Map.update(
       "permission_overwrites",
       nil,
-      &Enum.map(&1, fn overwrite -> DiscordBot.Model.Overwrite.from_map(overwrite) end)
+      &Enum.map(&1, fn overwrite -> Overwrite.from_map(overwrite) end)
     )
     |> Map.update(
       "recipients",
       nil,
-      &Enum.map(&1, fn user -> DiscordBot.Model.User.from_map(user) end)
+      &Enum.map(&1, fn user -> User.from_map(user) end)
     )
-    |> DiscordBot.Model.Serializable.struct_from_map(as: %__MODULE__{})
+    |> Serializable.struct_from_map(as: %__MODULE__{})
   end
 end

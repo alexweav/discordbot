@@ -6,6 +6,8 @@ defmodule DiscordBot.Model.VoiceState do
 
   use DiscordBot.Model.Serializable
 
+  alias DiscordBot.Model.{GuildMember, Serializable}
+
   defstruct [
     :guild_id,
     :channel_id,
@@ -37,7 +39,7 @@ defmodule DiscordBot.Model.VoiceState do
   @typedoc """
   The guild member this voice state is for
   """
-  @type member :: DiscordBot.Model.GuildMember.t() | nil
+  @type member :: GuildMember.t() | nil
 
   @typedoc """
   The session ID for this voice state
@@ -88,7 +90,7 @@ defmodule DiscordBot.Model.VoiceState do
   @spec from_map(map) :: __MODULE__.t()
   def from_map(map) do
     map
-    |> Map.update("member", nil, &DiscordBot.Model.User.from_map(&1))
-    |> DiscordBot.Model.Serializable.struct_from_map(as: %__MODULE__{})
+    |> Map.update("member", nil, &GuildMember.from_map(&1))
+    |> Serializable.struct_from_map(as: %__MODULE__{})
   end
 end

@@ -5,6 +5,8 @@ defmodule DiscordBot.Model.StatusUpdate do
 
   use DiscordBot.Model.Serializable
 
+  alias DiscordBot.Model.{Activity, Payload, Serializable, StatusUpdate}
+
   defstruct [
     :since,
     :game,
@@ -50,7 +52,7 @@ defmodule DiscordBot.Model.StatusUpdate do
       map = Map.from_struct(status_update)
 
       Poison.Encoder.Map.encode(
-        %{map | status: DiscordBot.Model.StatusUpdate.status_from_atom(map[:status])},
+        %{map | status: StatusUpdate.status_from_atom(map[:status])},
         options
       )
     end
@@ -64,10 +66,10 @@ defmodule DiscordBot.Model.StatusUpdate do
   - `:invisible`
   - `:offline`
   """
-  @spec status_update(number | nil, DiscordBot.Model.Activity.t() | nil, atom, boolean) ::
-          DiscordBot.Model.Payload.t()
+  @spec status_update(number | nil, Activity.t() | nil, atom, boolean) ::
+          Payload.t()
   def status_update(since, game, status, afk \\ false) do
-    DiscordBot.Model.Payload.payload(:status_update, %__MODULE__{
+    Payload.payload(:status_update, %__MODULE__{
       since: since,
       game: game,
       status: status,
@@ -89,7 +91,7 @@ defmodule DiscordBot.Model.StatusUpdate do
 
     map
     |> Map.update("status", nil, &atom_from_status(&1))
-    |> DiscordBot.Model.Serializable.struct_from_map(as: %__MODULE__{})
+    |> Serializable.struct_from_map(as: %__MODULE__{})
   end
 
   @doc """

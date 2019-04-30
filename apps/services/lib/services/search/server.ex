@@ -7,9 +7,9 @@ defmodule Services.Search.Server do
 
   alias DiscordBot.Broker
   alias DiscordBot.Broker.Event
+  alias DiscordBot.Model.Message
   alias Services.Help
   alias Services.Search
-  alias DiscordBot.Model.Message
 
   def start_link(opts) do
     broker =

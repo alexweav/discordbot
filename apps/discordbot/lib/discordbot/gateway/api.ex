@@ -4,8 +4,10 @@ defmodule DiscordBot.Gateway.Api do
   websocket rather than HTTP requests.
   """
 
+  alias DiscordBot.Entity.Guild
   alias DiscordBot.Gateway
   alias DiscordBot.Gateway.Connection
+  alias DiscordBot.Model.{Activity, StatusUpdate}
 
   @doc """
   Updates the bot account's global status.
@@ -20,9 +22,7 @@ defmodule DiscordBot.Gateway.Api do
   """
   @spec update_status(atom | pid, atom) :: :ok | :error
   def update_status(gateway, status) do
-    unless validate_status(status) do
-      :error
-    else
+    if validate_status(status) do
       for gateway <- Gateway.active_gateways(gateway) do
         {:ok, pid} =
           gateway
@@ -32,6 +32,8 @@ defmodule DiscordBot.Gateway.Api do
       end
 
       :ok
+    else
+      :error
     end
   end
 
@@ -87,7 +89,7 @@ defmodule DiscordBot.Gateway.Api do
   """
   @spec update_voice_state(String.t(), String.t(), boolean, boolean) :: :ok | :error
   def update_voice_state(guild_id, channel_id, self_mute \\ false, self_deaf \\ false) do
-    with {:ok, record} <- DiscordBot.Entity.Guild.lookup_by_id(guild_id),
+    with {:ok, record} <- Guild.lookup_by_id(guild_id),
          connection <- record.shard_connection do
       Connection.update_voice_state(connection, guild_id, channel_id, self_mute, self_deaf)
       :ok
@@ -98,11 +100,11 @@ defmodule DiscordBot.Gateway.Api do
 
   @spec validate_status(atom) :: boolean
   defp validate_status(status) do
-    !is_nil(DiscordBot.Model.StatusUpdate.status_from_atom(status))
+    !is_nil(StatusUpdate.status_from_atom(status))
   end
 
   @spec validate_activity_type(atom) :: boolean
   defp validate_activity_type(type) do
-    !is_nil(DiscordBot.Model.Activity.type_from_atom(type))
+    !is_nil(Activity.type_from_atom(type))
   end
 end

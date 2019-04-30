@@ -1,8 +1,8 @@
 defmodule DiscordBot.Gateway.AuthenticatorTest do
   use ExUnit.Case, async: true
 
-  alias DiscordBot.Gateway.Authenticator
   alias DiscordBot.Broker
+  alias DiscordBot.Gateway.Authenticator
 
   setup context do
     broker = start_supervised!({Broker, []})

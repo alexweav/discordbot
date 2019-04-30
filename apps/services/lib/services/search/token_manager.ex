@@ -135,7 +135,7 @@ defmodule Services.Search.TokenManager do
   end
 
   def handle_info({:expired, name}, registry) do
-    Logger.debug("Token #{name} expired.")
+    Logger.debug(fn -> "Token #{name} expired." end)
 
     case expire(Map.get(registry, name)) do
       nil -> {:noreply, Map.delete(registry, name)}

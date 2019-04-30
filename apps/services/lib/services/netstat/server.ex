@@ -7,7 +7,10 @@ defmodule Services.Netstat.Server do
 
   alias DiscordBot.Broker
   alias DiscordBot.Broker.Event
+  alias DiscordBot.Entity.{Channel, ChannelManager}
+  alias DiscordBot.Model.Message
   alias Services.Help
+  alias Services.Netstat
 
   @doc """
   Starts the netstat handler.
@@ -33,7 +36,7 @@ defmodule Services.Netstat.Server do
   end
 
   def handle_info(%Event{message: message}, broker) do
-    %DiscordBot.Model.Message{channel_id: channel_id, content: content} = message
+    %Message{channel_id: channel_id, content: content} = message
     handle_content(content, channel_id)
     {:noreply, broker}
   end
@@ -48,10 +51,9 @@ defmodule Services.Netstat.Server do
   defp handle_content(_, _), do: nil
 
   defp send_netstat_message(channel_id) do
-    {:ok, channel} =
-      DiscordBot.Entity.ChannelManager.lookup_by_id(DiscordBot.ChannelManager, channel_id)
+    {:ok, channel} = ChannelManager.lookup_by_id(DiscordBot.ChannelManager, channel_id)
 
-    message = Services.Netstat.stats_message()
-    DiscordBot.Entity.Channel.create_message(channel, message)
+    message = Netstat.stats_message()
+    Channel.create_message(channel, message)
   end
 end

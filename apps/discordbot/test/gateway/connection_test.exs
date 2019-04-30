@@ -2,13 +2,15 @@ defmodule DiscordBot.Gateway.ConnectionTest do
   use ExUnit.Case, async: true
 
   alias DiscordBot.Broker
+  alias DiscordBot.Fake.{DiscordCore, DiscordServer}
   alias DiscordBot.Gateway.Connection
+  alias DiscordBot.Model.Payload
 
   setup context do
-    {:ok, {url, ref, core}} = DiscordBot.Fake.DiscordServer.start()
+    {:ok, {url, ref, core}} = DiscordServer.start()
 
     on_exit(fn ->
-      DiscordBot.Fake.DiscordServer.shutdown(ref)
+      DiscordServer.shutdown(ref)
     end)
 
     broker = start_supervised!({Broker, []}, id: Module.concat(context.test, :broker))
@@ -23,12 +25,12 @@ defmodule DiscordBot.Gateway.ConnectionTest do
 
   test "uses correct API version", %{url: url, test: test, core: core} do
     start_supervised!({Connection, token: "asdf", url: url}, id: test)
-    assert DiscordBot.Fake.DiscordCore.api_version?(core) == "6"
+    assert DiscordCore.api_version?(core) == "6"
   end
 
   test "uses plain JSON encoding", %{url: url, test: test, core: core} do
     start_supervised!({Connection, token: "asdf", url: url}, id: test)
-    assert DiscordBot.Fake.DiscordCore.encoding?(core) == "json"
+    assert DiscordCore.encoding?(core) == "json"
   end
 
   test "validates input" do
@@ -47,12 +49,12 @@ defmodule DiscordBot.Gateway.ConnectionTest do
 
   test "can update status", %{url: url, test: test, core: core} do
     pid = start_supervised!({Connection, token: "asdf", url: url}, id: test)
-    DiscordBot.Gateway.Connection.update_status(pid, :dnd)
+    Connection.update_status(pid, :dnd)
     # increase this if this test fails intermittently.
     # perhaps there is a better of waiting to ensure the test server received the frame?
     Process.sleep(100)
-    json = DiscordBot.Fake.DiscordCore.latest_frame?(core)
-    payload = DiscordBot.Model.Payload.from_json(json)
+    json = DiscordCore.latest_frame?(core)
+    payload = Payload.from_json(json)
     assert payload.opcode == :status_update
     assert payload.data.afk == false
     assert payload.data.status == :dnd
@@ -60,10 +62,10 @@ defmodule DiscordBot.Gateway.ConnectionTest do
 
   test "can update status and activity", %{url: url, test: test, core: core} do
     pid = start_supervised!({Connection, token: "asdf", url: url}, id: test)
-    DiscordBot.Gateway.Connection.update_status(pid, :online, :playing, "CS:GO")
+    Connection.update_status(pid, :online, :playing, "CS:GO")
     Process.sleep(100)
-    json = DiscordBot.Fake.DiscordCore.latest_frame?(core)
-    payload = DiscordBot.Model.Payload.from_json(json)
+    json = DiscordCore.latest_frame?(core)
+    payload = Payload.from_json(json)
     assert payload.opcode == :status_update
     assert payload.data.afk == false
     assert payload.data.status == :online
@@ -73,9 +75,9 @@ defmodule DiscordBot.Gateway.ConnectionTest do
 
   test "can update voice state", %{url: url, test: test, core: core} do
     pid = start_supervised!({Connection, token: "asdf", url: url}, id: test)
-    DiscordBot.Gateway.Connection.update_voice_state(pid, "a-guild", "a-channel", true, false)
+    Connection.update_voice_state(pid, "a-guild", "a-channel", true, false)
     Process.sleep(100)
-    json = DiscordBot.Fake.DiscordCore.latest_frame?(core)
+    json = DiscordCore.latest_frame?(core)
     map = Poison.decode!(json)
     # Discord overloads this opcode depending on if it is sent from client or server.
     # The existing deserializer for this opcode expects the message from the server,

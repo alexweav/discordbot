@@ -3,25 +3,29 @@ defmodule DiscordBot.Model.Dispatch do
   Helpers for deserializing dispatched websocket events
   """
 
+  alias DiscordBot.Model.{Channel, Guild, Message, Ready, VoiceServerUpdate, VoiceState}
+
   @doc """
   Builds the appropriate dispatch struct given a `map` and its event `name`
   """
-  @spec from_map(map, String.t()) :: struct
+  @spec from_map(map, String.t()) :: struct | map
   def from_map(map, name) do
-    case atom_from_event(name) do
-      :ready -> DiscordBot.Model.Ready.from_map(map)
-      :channel_create -> DiscordBot.Model.Channel.from_map(map)
-      :channel_update -> DiscordBot.Model.Channel.from_map(map)
-      :channel_delete -> DiscordBot.Model.Channel.from_map(map)
-      :guild_create -> DiscordBot.Model.Guild.from_map(map)
-      :guild_update -> DiscordBot.Model.Guild.from_map(map)
-      :guild_delete -> DiscordBot.Model.Guild.from_map(map)
-      :message_create -> DiscordBot.Model.Message.from_map(map)
-      :message_update -> DiscordBot.Model.Message.from_map(map)
-      :voice_server_update -> DiscordBot.Model.VoiceServerUpdate.from_map(map)
-      :voice_state_update -> DiscordBot.Model.VoiceState.from_map(map)
-      _ -> map
-    end
+    deserializer_map = %{
+      ready: &Ready.from_map(&1),
+      channel_create: &Channel.from_map(&1),
+      channel_update: &Channel.from_map(&1),
+      channel_delete: &Channel.from_map(&1),
+      guild_create: &Guild.from_map(&1),
+      guild_update: &Guild.from_map(&1),
+      guild_delete: &Guild.from_map(&1),
+      message_create: &Message.from_map(&1),
+      message_update: &Message.from_map(&1),
+      voice_server_update: &VoiceServerUpdate.from_map(&1),
+      voice_state_update: &VoiceState.from_map(&1)
+    }
+
+    deserializer = Map.get(deserializer_map, atom_from_event(name), & &1)
+    deserializer.(map)
   end
 
   @doc """

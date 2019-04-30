@@ -6,8 +6,12 @@ defmodule DiscordBot.Self do
   use GenServer
 
   alias DiscordBot.Broker.Event
+  alias DiscordBot.Gateway.Api
+  alias DiscordBot.Model.User
 
   defmodule State do
+    @moduledoc false
+
     defstruct [
       :status,
       :broker,
@@ -16,7 +20,7 @@ defmodule DiscordBot.Self do
 
     @type status :: atom
     @type broker :: pid
-    @type user :: DiscordBot.Model.User.t()
+    @type user :: User.t()
     @type t :: %__MODULE__{
             status: status,
             broker: broker,
@@ -84,7 +88,7 @@ defmodule DiscordBot.Self do
   @doc """
   Returns the `DiscordBot.Model.User` struct describing the bot user
   """
-  @spec user?() :: DiscordBot.Model.User.t()
+  @spec user?() :: User.t()
   def user? do
     GenServer.call(Self, :user)
   end
@@ -141,12 +145,12 @@ defmodule DiscordBot.Self do
   end
 
   def handle_cast({:update_status, status}, state) do
-    DiscordBot.Gateway.Api.update_status(DiscordBot.GatewaySupervisor, status)
+    Api.update_status(DiscordBot.GatewaySupervisor, status)
     {:noreply, state}
   end
 
   def handle_cast({:update_status, status, type, name}, state) do
-    DiscordBot.Gateway.Api.update_status(DiscordBot.GatewaySupervisor, status, type, name)
+    Api.update_status(DiscordBot.GatewaySupervisor, status, type, name)
     {:noreply, state}
   end
 

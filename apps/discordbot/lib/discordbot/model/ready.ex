@@ -6,6 +6,8 @@ defmodule DiscordBot.Model.Ready do
 
   use DiscordBot.Model.Serializable
 
+  alias DiscordBot.Model.{Guild, Serializable, User}
+
   defstruct [
     :v,
     :user,
@@ -23,7 +25,7 @@ defmodule DiscordBot.Model.Ready do
   @typedoc """
   Information about the current user
   """
-  @type user :: DiscordBot.Model.User.t()
+  @type user :: User.t()
 
   @typedoc """
   Private channels that the bot is connected to. Initially empty
@@ -33,7 +35,7 @@ defmodule DiscordBot.Model.Ready do
   @typedoc """
   The guilds the user is in
   """
-  @type guilds :: list(DiscordBot.Model.Guild.t())
+  @type guilds :: list(Guild.t())
 
   @typedoc """
   Used for resuming connections
@@ -60,12 +62,12 @@ defmodule DiscordBot.Model.Ready do
   @spec from_map(map) :: __MODULE__.t()
   def from_map(map) do
     map
-    |> Map.update("user", nil, &DiscordBot.Model.User.from_map(&1))
+    |> Map.update("user", nil, &User.from_map(&1))
     |> Map.update(
       "guilds",
       nil,
-      &Enum.map(&1, fn guild -> DiscordBot.Model.Guild.from_map(guild) end)
+      &Enum.map(&1, fn guild -> Guild.from_map(guild) end)
     )
-    |> DiscordBot.Model.Serializable.struct_from_map(as: %__MODULE__{})
+    |> Serializable.struct_from_map(as: %__MODULE__{})
   end
 end
