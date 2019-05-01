@@ -159,9 +159,10 @@ defmodule DiscordBot.Entity.ChannelManager do
     {:ok, []}
   end
 
-  defp create_internal(%DiscordBot.Model.Guild{channels: channels}, api) do
+  defp create_internal(%DiscordBot.Model.Guild{channels: channels, id: id}, api) do
     pids =
       channels
+      |> Enum.map(&%{&1 | guild_id: id})
       |> Enum.map(&create_internal(&1, api))
       |> Enum.reduce([], fn {:ok, pid}, acc -> acc ++ [pid] end)
 

@@ -172,7 +172,6 @@ defmodule DiscordBot.Entity.ChannelManagerTest do
       id: "channel-asdf",
       name: "Test Channel",
       topic: "A test channel",
-      guild_id: "123-456",
       owner_id: "789-012",
       last_message_id: "345-678"
     }
@@ -186,7 +185,28 @@ defmodule DiscordBot.Entity.ChannelManagerTest do
     Broker.publish(broker, :guild_create, event)
 
     assert {:ok, pid} = ChannelManager.lookup_by_id(DiscordBot.ChannelManager, "channel-asdf")
-    assert Channel.model?(pid) == channel
+    assert Channel.id?(pid) == channel.id
+  end
+
+  test "channels provided via :guild_create have guild_id", %{broker: broker} do
+    channel = %DiscordBot.Model.Channel{
+      id: "channel-asdf",
+      name: "Test Channel",
+      topic: "A test channel",
+      owner_id: "789-012",
+      last_message_id: "345-678"
+    }
+
+    event = %DiscordBot.Model.Guild{
+      id: "asdf",
+      name: "My guild",
+      channels: [channel]
+    }
+
+    Broker.publish(broker, :guild_create, event)
+
+    {:ok, pid} = ChannelManager.lookup_by_id(DiscordBot.ChannelManager, "channel-asdf")
+    assert Channel.guild_id?(pid) == event.id
   end
 
   test "replies to messages on a known channel" do
