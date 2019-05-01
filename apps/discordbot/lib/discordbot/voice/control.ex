@@ -1,4 +1,4 @@
-defmodule DiscordBot.Voice.Connection do
+defmodule DiscordBot.Voice.Control do
   @moduledoc """
   Represents a connection to Discord's voice control websocket API.
   """
