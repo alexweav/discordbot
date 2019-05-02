@@ -36,12 +36,10 @@ defmodule DiscordBot.Voice.Acceptor do
   end
 
   def handle_info(%Event{topic: :voice_state_update, message: message}, state) do
-    IO.inspect("aaa")
     complete_event(%{state | voice_state_update: message})
   end
 
   def handle_info(%Event{topic: :voice_server_update, message: message}, state) do
-    IO.inspect("bbb")
     complete_event(%{state | voice_server_update: message})
   end
 
@@ -55,6 +53,7 @@ defmodule DiscordBot.Voice.Acceptor do
 
   defp complete_event(state) do
     Logger.info("Preparing new voice connection.")
+    DiscordBot.Voice.establish(state[:voice_state_update], state[:voice_server_update])
     {:stop, :normal, state}
   end
 end

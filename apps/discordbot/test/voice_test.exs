@@ -26,5 +26,13 @@ defmodule DiscordBot.VoiceTest do
     test "correct is protocol already provided" do
       assert DiscordBot.Voice.preprocess_url("wss://asdf.gg") == "wss://asdf.gg/?v=3"
     end
+
+    test "removes port 80" do
+      assert DiscordBot.Voice.preprocess_url("asdf.gg:80") == "wss://asdf.gg/?v=3"
+    end
+
+    test "doesn't remove other ports" do
+      assert DiscordBot.Voice.preprocess_url("asdf.gg:100") == "wss://asdf.gg:100/?v=3"
+    end
   end
 end

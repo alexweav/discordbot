@@ -7,17 +7,23 @@ defmodule DiscordBot.Voice.Control do
   require Logger
 
   def start_link(opts) do
+    IO.inspect("asdf")
     url = get_opt!(opts, :url, "#{__MODULE__} is missing required parameter :url")
+    IO.inspect(url)
 
     server_id =
       get_opt!(opts, :server_id, "#{__MODULE__} is missing required parameter :server_id")
 
+    IO.inspect(server_id)
     user_id = get_opt!(opts, :user_id, "#{__MODULE__} is missing required parameter :user_id")
+    IO.inspect(user_id)
 
     session_id =
       get_opt!(opts, :session_id, "#{__MODULE__} is missing required parameter :session_id")
 
+    IO.inspect(session_id)
     token = get_opt!(opts, :token, "#{__MODULE__} is missing required parameter :token")
+    IO.inspect(token)
 
     state = %{
       server_id: server_id,
