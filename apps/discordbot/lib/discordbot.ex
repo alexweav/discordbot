@@ -47,7 +47,9 @@ defmodule DiscordBot do
        ]},
       {DiscordBot.Entity.Supervisor, []},
       {DiscordBot.Self, name: Self},
-      {DiscordBot.Gateway, url: url, name: DiscordBot.GatewaySupervisor}
+      {DiscordBot.Gateway, url: url, name: DiscordBot.GatewaySupervisor},
+      {DynamicSupervisor,
+       name: DiscordBot.Voice.AcceptorSupervisor, strategy: :one_for_one, restart: :transient}
     ]
 
     Logger.info("Launching core app and establishing connection...")

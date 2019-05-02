@@ -3,7 +3,7 @@ defmodule DiscordBot.Voice.Acceptor do
   Launches a voice connection.
   """
 
-  use GenServer
+  use GenServer, restart: :transient
   require Logger
 
   alias DiscordBot.Broker
@@ -12,14 +12,14 @@ defmodule DiscordBot.Voice.Acceptor do
   @default_timeout_milliseconds 10_000
 
   def start_link(opts) do
-    broker = Keyword.get(opts, :broker, Broker)
+    broker = Keyword.get(opts, :broker, Elixir.Broker)
     timeout = Keyword.get(opts, :timeout, @default_timeout_milliseconds)
 
     state = %{
       broker: broker,
       timeout: timeout,
       timer: nil,
-      voice_state: nil,
+      voice_state_update: nil,
       voice_server_update: nil
     }
 
@@ -35,14 +35,28 @@ defmodule DiscordBot.Voice.Acceptor do
     {:ok, %{state | timer: timer}}
   end
 
-  def handle_info(%Event{topic: :voice_state_update, message: _message}, _state) do
+  def handle_info(%Event{topic: :voice_state_update, message: message}, state) do
+    IO.inspect("aaa")
+    complete_event(%{state | voice_state_update: message})
   end
 
-  def handle_info(%Event{topic: :voice_server_update, message: _message}, _state) do
+  def handle_info(%Event{topic: :voice_server_update, message: message}, state) do
+    IO.inspect("bbb")
+    complete_event(%{state | voice_server_update: message})
   end
 
   def handle_info(:timeout, state) do
     Logger.error("Did not receive the expected response to a voice state update request.")
-    {:stop, :error, state}
+    {:stop, :normal, state}
+  end
+
+  def complete_event(%{voice_state_update: nil} = state), do: {:noreply, state}
+  def complete_event(%{voice_server_update: nil} = state), do: {:noreply, state}
+
+  def complete_event(
+        %{voice_state_update: _state_update, voice_server_update: _server_update} = state
+      ) do
+    Logger.info("Preparing new voice connection.")
+    {:stop, :normal, state}
   end
 end

@@ -18,6 +18,7 @@ defmodule DiscordBot.Voice do
   end
 
   defp connect(guild_id, channel_id, self_mute, self_deaf) do
+    DynamicSupervisor.start_child(DiscordBot.Voice.AcceptorSupervisor, DiscordBot.Voice.Acceptor)
     Api.update_voice_state(guild_id, channel_id, self_mute, self_deaf)
   end
 end
