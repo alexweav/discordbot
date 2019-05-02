@@ -50,12 +50,10 @@ defmodule DiscordBot.Voice.Acceptor do
     {:stop, :normal, state}
   end
 
-  def complete_event(%{voice_state_update: nil} = state), do: {:noreply, state}
-  def complete_event(%{voice_server_update: nil} = state), do: {:noreply, state}
+  defp complete_event(%{voice_state_update: nil} = state), do: {:noreply, state}
+  defp complete_event(%{voice_server_update: nil} = state), do: {:noreply, state}
 
-  def complete_event(
-        %{voice_state_update: _state_update, voice_server_update: _server_update} = state
-      ) do
+  defp complete_event(state) do
     Logger.info("Preparing new voice connection.")
     {:stop, :normal, state}
   end
