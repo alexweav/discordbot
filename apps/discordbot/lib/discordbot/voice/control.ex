@@ -7,13 +7,26 @@ defmodule DiscordBot.Voice.Control do
   require Logger
 
   def start_link(opts) do
-    url =
-      case Keyword.fetch(opts, :url) do
-        {:ok, url} -> url
-        :error -> raise ArgumentError, message: "#{__MODULE__} is missing required parameter :url"
-      end
+    url = get_opt!(opts, :url, "#{__MODULE__} is missing required parameter :url")
 
-    WebSockex.start_link(url, __MODULE__, %{}, opts)
+    server_id =
+      get_opt!(opts, :server_id, "#{__MODULE__} is missing required parameter :server_id")
+
+    user_id = get_opt!(opts, :user_id, "#{__MODULE__} is missing required parameter :user_id")
+
+    session_id =
+      get_opt!(opts, :session_id, "#{__MODULE__} is missing required parameter :session_id")
+
+    token = get_opt!(opts, :token, "#{__MODULE__} is missing required parameter :token")
+
+    state = %{
+      server_id: server_id,
+      user_id: user_id,
+      session_id: session_id,
+      token: token
+    }
+
+    WebSockex.start_link(url, __MODULE__, state, opts)
   end
 
   ## Handlers
@@ -41,5 +54,12 @@ defmodule DiscordBot.Voice.Control do
   def terminate({_, code, msg}, _) do
     Logger.error("Voice control connection closed with event #{code}: #{msg}")
     exit(:normal)
+  end
+
+  defp get_opt!(opts, key, msg) do
+    case Keyword.fetch(opts, key) do
+      {:ok, url} -> url
+      :error -> raise ArgumentError, message: msg
+    end
   end
 end
