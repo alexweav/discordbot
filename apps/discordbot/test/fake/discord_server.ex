@@ -17,8 +17,11 @@ defmodule DiscordBot.Fake.DiscordServer do
     url = "ws://localhost:#{port}/gateway"
     {:ok, core} = DiscordCore.start_link([])
     opts = [port: port, ref: ref, dispatch: dispatch(core)]
-    Cowboy.http(__MODULE__, [], opts)
-    {:ok, {url, ref, core}}
+
+    case Cowboy.http(__MODULE__, [], opts) do
+      {:ok, _} -> {:ok, {url, ref, core}}
+      {:error, :eaddrinuse} -> start()
+    end
   end
 
   def shutdown(ref) do
