@@ -5,7 +5,7 @@ defmodule DiscordBot.Model.VoicePayload do
 
   use DiscordBot.Model.Serializable
 
-  alias DiscordBot.Model.{VoiceIdentify, VoicePayload}
+  alias DiscordBot.Model.{VoiceHello, VoiceIdentify, VoicePayload}
 
   defstruct [
     :opcode,
@@ -87,6 +87,7 @@ defmodule DiscordBot.Model.VoicePayload do
   def to_model(data, opcode) do
     case opcode do
       :identify -> data |> VoiceIdentify.from_map()
+      :hello -> data |> VoiceHello.from_map()
       _ -> data
     end
   end

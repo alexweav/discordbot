@@ -6,6 +6,8 @@ defmodule DiscordBot.Voice.Control do
   use WebSockex
   require Logger
 
+  alias DiscordBot.Model.VoicePayload
+
   def start_link(opts) do
     url = get_opt!(opts, :url, "#{__MODULE__} is missing required parameter :url")
 
@@ -37,7 +39,8 @@ defmodule DiscordBot.Voice.Control do
   end
 
   def handle_frame({:text, json}, state) do
-    Logger.info("Received voice control frame: #{json}")
+    payload = VoicePayload.from_json(json)
+    Logger.info("Received voice control frame: #{Kernel.inspect(payload)}")
     {:ok, state}
   end
 
