@@ -3,9 +3,17 @@ defmodule DiscordBot.Fake.DiscordCore do
 
   use GenServer
 
+  alias DiscordBot.Model.Hello
+
   def start_link(opts) do
-    state = %{api_version: nil, encoding: nil, latest_text_frame: nil}
+    state = %{api_version: nil, encoding: nil, latest_text_frame: nil, handler: nil}
     GenServer.start_link(__MODULE__, state, opts)
+  end
+
+  ## Handler API
+
+  def register(core) do
+    GenServer.call(core, :register)
   end
 
   def request_socket(core, req) do
@@ -15,6 +23,8 @@ defmodule DiscordBot.Fake.DiscordCore do
   def receive_text_frame(core, frame) do
     GenServer.call(core, {:receive_text_frame, frame})
   end
+
+  ## Client API
 
   def api_version?(core) do
     GenServer.call(core, :get_api_version)
@@ -28,10 +38,18 @@ defmodule DiscordBot.Fake.DiscordCore do
     GenServer.call(core, :latest_frame)
   end
 
+  def hello(core, interval, trace) do
+    GenServer.call(core, {:hello, interval, trace})
+  end
+
   ## Handlers
 
   def init(state) do
     {:ok, state}
+  end
+
+  def handle_call(:register, {caller, _tag}, state) do
+    {:reply, :ok, %{state | handler: caller}}
   end
 
   def handle_call(:get_api_version, _from, %{api_version: version} = state) do
@@ -58,5 +76,10 @@ defmodule DiscordBot.Fake.DiscordCore do
 
   def handle_call({:receive_text_frame, text}, _from, state) do
     {:reply, :ok, %{state | latest_text_frame: text}}
+  end
+
+  def handle_call({:hello, interval, trace}, _from, state) do
+    send(state[:handler], {:hello, Hello.hello(interval, trace)})
+    {:reply, :ok, state}
   end
 end
