@@ -60,7 +60,7 @@ defmodule DiscordBot.Gateway.SupervisorTest do
       id: test
     )
 
-    DiscordCore.hello(core, 41250, ["gateway-prd-main-bbqf"])
+    DiscordCore.hello(core, 41_250, ["gateway-prd-main-bbqf"])
     Process.sleep(100)
     payload = Payload.from_json(DiscordCore.latest_frame?(core))
 
