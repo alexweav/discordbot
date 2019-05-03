@@ -6,7 +6,14 @@ defmodule DiscordBot.Fake.DiscordCore do
   alias DiscordBot.Model.Hello
 
   def start_link(opts) do
-    state = %{api_version: nil, encoding: nil, latest_text_frame: nil, handler: nil}
+    state = %{
+      api_version: nil,
+      encoding: nil,
+      latest_text_frame: nil,
+      all_frames: [],
+      handler: nil
+    }
+
     GenServer.start_link(__MODULE__, state, opts)
   end
 
@@ -38,6 +45,10 @@ defmodule DiscordBot.Fake.DiscordCore do
     GenServer.call(core, :latest_frame)
   end
 
+  def all_frames?(core) do
+    GenServer.call(core, :all_frames)
+  end
+
   def hello(core, interval, trace) do
     GenServer.call(core, {:hello, interval, trace})
   end
@@ -64,6 +75,10 @@ defmodule DiscordBot.Fake.DiscordCore do
     {:reply, latest, state}
   end
 
+  def handle_call(:all_frames, _from, %{all_frames: frames} = state) do
+    {:reply, frames, state}
+  end
+
   def handle_call({:request_socket, req}, _from, state) do
     params =
       req
@@ -75,7 +90,7 @@ defmodule DiscordBot.Fake.DiscordCore do
   end
 
   def handle_call({:receive_text_frame, text}, _from, state) do
-    {:reply, :ok, %{state | latest_text_frame: text}}
+    {:reply, :ok, %{state | latest_text_frame: text, all_frames: state[:all_frames] ++ [text]}}
   end
 
   def handle_call({:hello, interval, trace}, _from, state) do

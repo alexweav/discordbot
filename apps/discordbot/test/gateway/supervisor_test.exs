@@ -72,4 +72,29 @@ defmodule DiscordBot.Gateway.SupervisorTest do
     assert payload.data.properties."$device" == "DiscordBot"
     assert payload.data.properties."$os" == "linux"
   end
+
+  test "heartbeat sets interval from hello event", %{url: url, test: test, core: core} do
+    pid =
+      start_supervised!(
+        {Gateway.Supervisor, token: "asdf", url: url, shard_index: 0, shard_count: 1},
+        id: test
+      )
+
+    DiscordCore.hello(core, 123, ["gateway-prd-main-bbqf"])
+    Process.sleep(100)
+    {:ok, heartbeat} = Gateway.Supervisor.heartbeat?(pid)
+    assert Heartbeat.interval?(heartbeat) == 123
+  end
+
+  test "send heartbeat after hello with short interval", %{url: url, test: test, core: core} do
+    start_supervised!(
+      {Gateway.Supervisor, token: "asdf", url: url, shard_index: 0, shard_count: 1},
+      id: test
+    )
+
+    DiscordCore.hello(core, 200, ["gateway-prd-main-bbqf"])
+    Process.sleep(300)
+    payload = Payload.from_json(DiscordCore.latest_frame?(core))
+    assert payload.opcode == :heartbeat
+  end
 end
