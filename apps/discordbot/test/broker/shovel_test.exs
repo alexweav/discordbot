@@ -46,6 +46,8 @@ defmodule DiscordBot.Broker.ShovelTest do
 
     assert Enum.member?(Broker.subscribers?(source, :test), shovel)
     assert Enum.member?(Broker.subscribers?(source, :topic), shovel)
+    assert Enum.member?(Shovel.topics?(shovel), :test)
+    assert Enum.member?(Shovel.topics?(shovel), :topic)
   end
 
   test "subscribes to newly added topics", %{source: source, destination: destination} do

@@ -23,6 +23,7 @@ defmodule DiscordBot.Broker.EventLoggerTest do
 
   test "subscribes to initial topics", %{broker: broker} do
     logger = start_supervised!({EventLogger, [broker: broker, topics: [:test, :topic]]}, id: Test)
+    Broker.publish(broker, :test, {})
     assert EventLogger.topics?(logger) == [:test, :topic]
     assert Enum.member?(Broker.subscribers?(broker, :test), logger)
     assert Enum.member?(Broker.subscribers?(broker, :topic), logger)
