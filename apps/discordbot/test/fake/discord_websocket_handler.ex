@@ -3,6 +3,7 @@ defmodule DiscordBot.Fake.DiscordWebsocketHandler do
   @behaviour :cowboy_websocket
 
   alias DiscordBot.Fake.DiscordCore
+  alias DiscordBot.Model.Payload
 
   def init(req, args) do
     [core] = args
@@ -11,6 +12,7 @@ defmodule DiscordBot.Fake.DiscordWebsocketHandler do
   end
 
   def websocket_init(state) do
+    DiscordCore.register(state[:core])
     {:ok, state}
   end
 
@@ -21,6 +23,11 @@ defmodule DiscordBot.Fake.DiscordWebsocketHandler do
   def websocket_handle({:text, text}, state) do
     DiscordCore.receive_text_frame(state[:core], text)
     {:ok, state}
+  end
+
+  def websocket_info({:hello, payload}, state) do
+    {:ok, json} = Payload.to_json(payload)
+    {:reply, [{:text, json}], state}
   end
 
   def websocket_info(_, state), do: {:ok, state}
