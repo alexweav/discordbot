@@ -6,7 +6,7 @@ defmodule DiscordBot.Model.Hello do
 
   use DiscordBot.Model.Serializable
 
-  alias DiscordBot.Model.Serializable
+  alias DiscordBot.Model.{Payload, Serializable}
 
   defstruct [
     :heartbeat_interval,
@@ -34,5 +34,16 @@ defmodule DiscordBot.Model.Hello do
   @spec from_map(map) :: __MODULE__.t()
   def from_map(map) do
     Serializable.struct_from_map(map, as: %__MODULE__{})
+  end
+
+  @doc """
+  Creates a hello payload.
+  """
+  @spec hello(integer, list(String.t())) :: Payload.t()
+  def hello(interval, trace) do
+    Payload.payload(:hello, %__MODULE__{
+      heartbeat_interval: interval,
+      _trace: trace
+    })
   end
 end
