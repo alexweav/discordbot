@@ -6,7 +6,7 @@ defmodule DiscordBot.Voice.Control do
   use WebSockex
   require Logger
 
-  alias DiscordBot.Model.VoicePayload
+  alias DiscordBot.Model.{VoiceIdentify, VoicePayload}
 
   def start_link(opts) do
     url = get_opt!(opts, :url, "#{__MODULE__} is missing required parameter :url")
@@ -29,6 +29,13 @@ defmodule DiscordBot.Voice.Control do
     }
 
     WebSockex.start_link(url, __MODULE__, state, opts)
+  end
+
+  @doc """
+  Sends an identify message over the websocket.
+  """
+  def identify(connection) do
+    WebSockex.cast(connection, :identify)
   end
 
   ## Handlers
@@ -57,6 +64,24 @@ defmodule DiscordBot.Voice.Control do
   def terminate({_, code, msg}, _) do
     Logger.error("Voice control connection closed with event #{code}: #{msg}")
     exit(:normal)
+  end
+
+  def handle_cast(:identify, state) do
+    Logger.info("Sending voice identification...")
+
+    message =
+      VoiceIdentify.voice_identify(
+        state[:server_id],
+        state[:user_id],
+        state[:session_id],
+        state[:token]
+      )
+
+    {:ok, json} =
+      message
+      |> VoicePayload.to_json()
+
+    {:reply, {:text, json}, state}
   end
 
   defp get_opt!(opts, key, msg) do
