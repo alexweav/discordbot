@@ -48,6 +48,7 @@ defmodule DiscordBot.Voice.Control do
   def handle_frame({:text, json}, state) do
     payload = VoicePayload.from_json(json)
     Logger.info("Received voice control frame: #{Kernel.inspect(payload)}")
+    attempt_authenticate(payload)
     {:ok, state}
   end
 
@@ -67,7 +68,9 @@ defmodule DiscordBot.Voice.Control do
   end
 
   def handle_cast(:identify, state) do
-    Logger.info("Sending voice identification...")
+    Logger.info(
+      "Sending voice identification for control connection #{Kernel.inspect(self())}..."
+    )
 
     message =
       VoiceIdentify.voice_identify(
@@ -90,4 +93,10 @@ defmodule DiscordBot.Voice.Control do
       :error -> raise ArgumentError, message: msg
     end
   end
+
+  defp attempt_authenticate(%VoicePayload{opcode: :hello}) do
+    identify(self())
+  end
+
+  defp attempt_authenticate(_), do: nil
 end
