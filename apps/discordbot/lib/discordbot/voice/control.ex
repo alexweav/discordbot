@@ -6,6 +6,8 @@ defmodule DiscordBot.Voice.Control do
   use WebSockex
   require Logger
 
+  alias DiscordBot.Model.{VoiceIdentify, VoicePayload}
+
   def start_link(opts) do
     url = get_opt!(opts, :url, "#{__MODULE__} is missing required parameter :url")
 
@@ -29,6 +31,13 @@ defmodule DiscordBot.Voice.Control do
     WebSockex.start_link(url, __MODULE__, state, opts)
   end
 
+  @doc """
+  Sends an identify message over the websocket.
+  """
+  def identify(connection) do
+    WebSockex.cast(connection, :identify)
+  end
+
   ## Handlers
 
   def handle_connect(_, state) do
@@ -37,7 +46,9 @@ defmodule DiscordBot.Voice.Control do
   end
 
   def handle_frame({:text, json}, state) do
-    Logger.info("Received voice control frame: #{json}")
+    payload = VoicePayload.from_json(json)
+    Logger.info("Received voice control frame: #{Kernel.inspect(payload)}")
+    attempt_authenticate(payload)
     {:ok, state}
   end
 
@@ -56,10 +67,36 @@ defmodule DiscordBot.Voice.Control do
     exit(:normal)
   end
 
+  def handle_cast(:identify, state) do
+    Logger.info(
+      "Sending voice identification for control connection #{Kernel.inspect(self())}..."
+    )
+
+    message =
+      VoiceIdentify.voice_identify(
+        state[:server_id],
+        state[:user_id],
+        state[:session_id],
+        state[:token]
+      )
+
+    {:ok, json} =
+      message
+      |> VoicePayload.to_json()
+
+    {:reply, {:text, json}, state}
+  end
+
   defp get_opt!(opts, key, msg) do
     case Keyword.fetch(opts, key) do
       {:ok, url} -> url
       :error -> raise ArgumentError, message: msg
     end
   end
+
+  defp attempt_authenticate(%VoicePayload{opcode: :hello}) do
+    identify(self())
+  end
+
+  defp attempt_authenticate(_), do: nil
 end

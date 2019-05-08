@@ -6,7 +6,7 @@ defmodule DiscordBot.Model.VoiceIdentify do
 
   use DiscordBot.Model.Serializable
 
-  alias DiscordBot.Model.Serializable
+  alias DiscordBot.Model.{Serializable, VoicePayload}
 
   defstruct([
     :server_id,
@@ -49,5 +49,18 @@ defmodule DiscordBot.Model.VoiceIdentify do
   def from_map(map) do
     map
     |> Serializable.struct_from_map(as: %__MODULE__{})
+  end
+
+  @doc """
+  Builds the VoiceIdentify struct.
+  """
+  @spec voice_identify(String.t(), String.t(), String.t(), String.t()) :: VoicePayload.t()
+  def voice_identify(server_id, user_id, session_id, token) do
+    VoicePayload.payload(:identify, %__MODULE__{
+      server_id: server_id,
+      user_id: user_id,
+      session_id: session_id,
+      token: token
+    })
   end
 end
