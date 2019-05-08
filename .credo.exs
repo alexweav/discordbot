@@ -143,11 +143,18 @@
         {Credo.Check.Refactor.DoubleBooleanNegation, false},
         {Credo.Check.Refactor.VariableRebinding, false},
         {Credo.Check.Warning.MapGetUnsafePass, false},
-        {Credo.Check.Warning.UnsafeToAtom, false}
+        {Credo.Check.Warning.UnsafeToAtom, false},
 
         #
         # Custom checks can be created using `mix credo.gen.check`.
         #
+        {CredoFilenameConsistency.Check.Consistency.FilenameConsistency,
+         acronyms: [{"DiscordBot", "discordbot"}],
+         excluded_paths: [
+           "apps/discordbot/test/fake",
+           "apps/discordbot/mix.exs",
+           "apps/services/mix.exs"
+         ]}
       ]
     }
   ]

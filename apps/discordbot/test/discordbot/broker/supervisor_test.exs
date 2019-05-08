@@ -1,4 +1,4 @@
-defmodule DiscordBot.Broker.SupervisorTests do
+defmodule DiscordBot.Broker.SupervisorTest do
   use ExUnit.Case, async: true
 
   alias DiscordBot.Broker
