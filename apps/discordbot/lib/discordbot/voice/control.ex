@@ -34,9 +34,9 @@ defmodule DiscordBot.Voice.Control do
   @doc """
   Sends a heartbeat message over the websocket.
   """
-  @spec heartbeat(atom | pid) :: :ok
-  def heartbeat(connection) do
-    WebSockex.cast(connection, :heartbeat)
+  @spec heartbeat(atom | pid, integer) :: :ok
+  def heartbeat(connection, nonce) do
+    WebSockex.cast(connection, {:heartbeat, nonce})
   end
 
   @doc """
@@ -76,9 +76,13 @@ defmodule DiscordBot.Voice.Control do
     exit(:normal)
   end
 
-  def handle_cast(:heartbeat, state) do
-    # TODO
-    {:ok, state}
+  def handle_cast({:heartbeat, nonce}, state) do
+    {:ok, json} =
+      nonce
+      |> VoicePayload.heartbeat()
+      |> VoicePayload.to_json()
+
+    {:ok, {:text, json}, state}
   end
 
   def handle_cast(:identify, state) do
