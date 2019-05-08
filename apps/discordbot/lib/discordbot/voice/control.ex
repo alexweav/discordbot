@@ -32,8 +32,17 @@ defmodule DiscordBot.Voice.Control do
   end
 
   @doc """
+  Sends a heartbeat message over the websocket.
+  """
+  @spec heartbeat(atom | pid) :: :ok
+  def heartbeat(connection) do
+    WebSockex.cast(connection, :heartbeat)
+  end
+
+  @doc """
   Sends an identify message over the websocket.
   """
+  @spec identify(atom | pid) :: :ok
   def identify(connection) do
     WebSockex.cast(connection, :identify)
   end
@@ -65,6 +74,11 @@ defmodule DiscordBot.Voice.Control do
   def terminate({_, code, msg}, _) do
     Logger.error("Voice control connection closed with event #{code}: #{msg}")
     exit(:normal)
+  end
+
+  def handle_cast(:heartbeat, state) do
+    # TODO
+    {:ok, state}
   end
 
   def handle_cast(:identify, state) do
