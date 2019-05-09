@@ -106,7 +106,7 @@ defmodule DiscordBot.Gateway.HeartbeatTest do
     }
 
     Broker.publish(broker, :hello, message)
-    assert_receive({:"$websockex_cast", {:heartbeat}}, 1_000)
+    assert_receive(:heartbeat, 1_000)
   end
 
   test "tracks timestamp of most recent send", %{heartbeat: heartbeat} do
@@ -123,7 +123,7 @@ defmodule DiscordBot.Gateway.HeartbeatTest do
 
     Broker.publish(broker, :hello, message)
     Broker.publish(broker, :heartbeat, {})
-    assert_receive({:"$websockex_cast", {:heartbeat}}, 1_000)
+    assert_receive(:heartbeat, 1_000)
   end
 
   test "waiting if OOB request is sent with no target", %{heartbeat: heartbeat, broker: broker} do
@@ -166,7 +166,7 @@ defmodule DiscordBot.Gateway.HeartbeatTest do
   test "disconnects after two beats without ack", %{heartbeat: heartbeat} do
     Heartbeat.schedule(heartbeat, 10)
     block_until_message(1_000)
-    assert_receive({:"$websockex_cast", {:disconnect, 4_000}}, 1_000)
+    assert_receive({:disconnect, 4_000}, 1_000)
   end
 
   @spec block_until_message(integer) :: nil
