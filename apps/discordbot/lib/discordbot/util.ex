@@ -30,6 +30,26 @@ defmodule DiscordBot.Util do
   @doc ~S"""
   Gets a required option from a keyword list.
 
+  Raises an `ArgumentError` if the option is not present.
+
+  ## Examples
+
+      iex> opts = [option: :value]
+      ...> DiscordBot.Util.require_opt!(opts, :option)
+      :value
+
+      iex> opts = [option: :value]
+      ...> DiscordBot.Util.require_opt!(opts, :not_present)
+      ** (ArgumentError) Required option :not_present is missing.
+  """
+  @spec require_opt!(list, atom) :: any()
+  def require_opt!(opts, key) do
+    require_opt!(opts, key, "Required option #{Kernel.inspect(key)} is missing.")
+  end
+
+  @doc ~S"""
+  Gets a required option from a keyword list with a custom message.
+
   Raises an `ArgumentError` with the provided `msg` if the option
   is not present.
 
