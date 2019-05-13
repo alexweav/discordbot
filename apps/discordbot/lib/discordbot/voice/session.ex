@@ -28,9 +28,26 @@ defmodule DiscordBot.Voice.Session do
     Supervisor.start_link(__MODULE__, values, opts)
   end
 
+  @doc """
+  Gets the PID of the heartbeater process managed by this session.
+  """
+  @spec heartbeat?(pid) :: {:ok, pid} | :error
+  def heartbeat?(session) do
+    Util.child_by_id(session, DiscordBot.Gateway.Heartbeat)
+  end
+
+  @doc """
+  Gets the PID of the control process managed by this session.
+  """
+  @spec control?(pid) :: {:ok, pid} | :error
+  def control?(session) do
+    Util.child_by_id(session, DiscordBot.Voice.Control)
+  end
+
   @doc false
   def init(values) do
     children = [
+      {DiscordBot.Gateway.Heartbeat, []},
       {DiscordBot.Voice.Control,
        url: values[:url],
        server_id: values[:server_id],

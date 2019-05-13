@@ -74,7 +74,7 @@ defmodule DiscordBot.Gateway.Heartbeat do
   - `:broker` - a `DiscordBot.Broker` process to listen to for events.
   """
   def start_link(opts) do
-    broker = Keyword.get(opts, :broker, Broker)
+    broker = Keyword.get(opts, :broker, Elixir.Broker)
 
     state = %State{
       status: :waiting,
