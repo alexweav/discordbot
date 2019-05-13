@@ -26,4 +26,28 @@ defmodule DiscordBot.Util do
   defp matches_id?({_, :restarting, _, _}, _), do: false
   defp matches_id?({id, _, _, _}, id), do: true
   defp matches_id?(_, _), do: false
+
+  @doc ~S"""
+  Gets a required option from a keyword list.
+
+  Raises an `ArgumentError` with the provided `msg` if the option
+  is not present.
+
+  ## Examples
+
+      iex> opts = [option: :value]
+      ...> DiscordBot.Util.require_opt!(opts, :option, "Error!")
+      :value
+
+      iex> opts = [option: :value]
+      ...> DiscordBot.Util.require_opt!(opts, :not_present, "Error!")
+      ** (ArgumentError) Error!
+  """
+  @spec require_opt!(list, atom, String.t()) :: any()
+  def require_opt!(opts, key, message) do
+    case Keyword.fetch(opts, key) do
+      {:ok, value} -> value
+      :error -> raise ArgumentError, message: message
+    end
+  end
 end
