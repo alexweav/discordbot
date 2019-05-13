@@ -10,26 +10,11 @@ defmodule DiscordBot.Voice.Control do
   alias DiscordBot.Util
 
   def start_link(opts) do
-    url = Util.require_opt!(opts, :url, "#{__MODULE__} is missing required parameter :url")
-
-    server_id =
-      Util.require_opt!(
-        opts,
-        :server_id,
-        "#{__MODULE__} is missing required parameter :server_id"
-      )
-
-    user_id =
-      Util.require_opt!(opts, :user_id, "#{__MODULE__} is missing required parameter :user_id")
-
-    session_id =
-      Util.require_opt!(
-        opts,
-        :session_id,
-        "#{__MODULE__} is missing required parameter :session_id"
-      )
-
-    token = Util.require_opt!(opts, :token, "#{__MODULE__} is missing required parameter :token")
+    url = Util.require_opt!(opts, :url)
+    server_id = Util.require_opt!(opts, :server_id)
+    user_id = Util.require_opt!(opts, :user_id)
+    session_id = Util.require_opt!(opts, :session_id)
+    token = Util.require_opt!(opts, :token)
 
     state = %{
       server_id: server_id,
