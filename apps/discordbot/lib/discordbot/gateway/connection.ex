@@ -230,6 +230,16 @@ defmodule DiscordBot.Gateway.Connection do
     {:close, {close_code, "Disconnecting"}, state}
   end
 
+  def handle_info(:heartbeat, state) do
+    heartbeat(self())
+    {:ok, state}
+  end
+
+  def handle_info({:disconnect, close_code}, state) do
+    disconnect(self(), close_code)
+    {:ok, state}
+  end
+
   defp log_gateway_close({_, code, msg}) do
     Logger.error("Connection was closed with event #{code}: #{msg}")
   end

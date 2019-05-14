@@ -1,5 +1,6 @@
 defmodule DiscordBot.UtilTest do
   use ExUnit.Case, async: true
+  doctest DiscordBot.Util
 
   alias DiscordBot.Util
 
@@ -21,5 +22,23 @@ defmodule DiscordBot.UtilTest do
 
     assert {:ok, pid} = Util.child_by_id(supervisor, :testid)
     assert is_pid(pid)
+  end
+
+  test "gets option if present" do
+    opts = [key: %{}]
+    assert Util.require_opt!(opts, :key, "asdf") == %{}
+    assert Util.require_opt!(opts, :key) == %{}
+  end
+
+  test "throws if option not present" do
+    opts = [key: %{}]
+
+    assert_raise ArgumentError, fn ->
+      Util.require_opt!(opts, :not_present, "asdf")
+    end
+
+    assert_raise ArgumentError, "Required option :not_present is missing.", fn ->
+      Util.require_opt!(opts, :not_present)
+    end
   end
 end

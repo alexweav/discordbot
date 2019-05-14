@@ -25,7 +25,6 @@ defmodule DiscordBot.Gateway.Heartbeat do
 
   alias DiscordBot.Broker
   alias DiscordBot.Broker.Event
-  alias DiscordBot.Gateway.Connection
 
   defmodule State do
     @enforce_keys [:status, :broker]
@@ -75,7 +74,7 @@ defmodule DiscordBot.Gateway.Heartbeat do
   - `:broker` - a `DiscordBot.Broker` process to listen to for events.
   """
   def start_link(opts) do
-    broker = Keyword.get(opts, :broker, Broker)
+    broker = Keyword.get(opts, :broker, Elixir.Broker)
 
     state = %State{
       status: :waiting,
@@ -163,6 +162,13 @@ defmodule DiscordBot.Gateway.Heartbeat do
     GenServer.call(provider, {:schedule, interval, pid})
   end
 
+  @doc """
+  Acknowledges the most recent heartbeat.
+  """
+  def acknowledge(provider) do
+    GenServer.call(provider, :acknowledge)
+  end
+
   ## Handlers
 
   def init(state) do
@@ -220,6 +226,10 @@ defmodule DiscordBot.Gateway.Heartbeat do
     {:reply, {:overwrote, state.target}, new_state}
   end
 
+  def handle_call(:acknowledge, _from, state) do
+    {:reply, :ok, acknowledge_internal(state)}
+  end
+
   def handle_info(%Event{publisher: pid, message: message, topic: :hello}, state) do
     interval = message.heartbeat_interval
     new_state = start_heartbeat(state, pid, interval)
@@ -229,22 +239,14 @@ defmodule DiscordBot.Gateway.Heartbeat do
   def handle_info(%Event{publisher: pid, topic: :heartbeat}, state) do
     if state.status == :running and pid == state.target do
       Logger.info("Discord requested a heartbeat to be sent out-of-band. Responding...")
-      Connection.heartbeat(pid)
+      send(pid, :heartbeat)
     end
 
     {:noreply, state}
   end
 
   def handle_info(%Event{topic: :heartbeat_ack}, state) do
-    utc_now = DateTime.utc_now()
-
-    {:noreply,
-     %{
-       state
-       | acked: true,
-         last_ack_time: utc_now,
-         ping: DateTime.diff(utc_now, state.last_heartbeat_time, :millisecond)
-     }}
+    {:noreply, acknowledge_internal(state)}
   end
 
   def handle_info({:DOWN, _ref, :process, _object, _reason}, state) do
@@ -258,7 +260,7 @@ defmodule DiscordBot.Gateway.Heartbeat do
         {:noreply, state}
 
       state.acked ->
-        Connection.heartbeat(state.target)
+        send(state.target, :heartbeat)
         sender = Process.send_after(self(), :heartbeat, state.interval)
 
         new_state = %{
@@ -275,7 +277,7 @@ defmodule DiscordBot.Gateway.Heartbeat do
           "Discord did not acknowledge a heartbeat for an entire cycle. Closing the affected connection and reestablishing."
         )
 
-        Connection.disconnect(state.target, 4_000)
+        send(state.target, {:disconnect, 4_000})
         {:noreply, go_idle(state)}
     end
   end
@@ -310,6 +312,17 @@ defmodule DiscordBot.Gateway.Heartbeat do
         last_ack_time: nil,
         last_heartbeat_time: nil,
         ping: nil
+    }
+  end
+
+  defp acknowledge_internal(state) do
+    utc_now = DateTime.utc_now()
+
+    %{
+      state
+      | acked: true,
+        last_ack_time: utc_now,
+        ping: DateTime.diff(utc_now, state.last_heartbeat_time, :millisecond)
     }
   end
 end

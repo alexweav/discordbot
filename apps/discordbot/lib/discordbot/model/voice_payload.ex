@@ -68,6 +68,14 @@ defmodule DiscordBot.Model.VoicePayload do
   end
 
   @doc """
+  Builds the voice control heartbeat message.
+  """
+  @spec heartbeat(integer) :: __MODULE__.t()
+  def heartbeat(nonce) do
+    payload(:heartbeat, nonce)
+  end
+
+  @doc """
   Converts a JSON map into a voice payload.
   """
   @spec from_map(map) :: __MODULE__.t()

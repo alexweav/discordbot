@@ -6,7 +6,7 @@ defmodule DiscordBot.Voice do
   alias DiscordBot.Entity.{Channel, ChannelManager}
   alias DiscordBot.Gateway.Api
   alias DiscordBot.Model.{VoiceServerUpdate, VoiceState}
-  alias DiscordBot.Voice.Control
+  alias DiscordBot.Voice.Session
 
   @doc """
   Connects to a voice channel.
@@ -41,7 +41,7 @@ defmodule DiscordBot.Voice do
     DynamicSupervisor.start_child(
       DiscordBot.Voice.ControlSupervisor,
       Supervisor.child_spec(
-        {Control,
+        {Session,
          url: preprocess_url(url),
          server_id: server_id,
          user_id: user_id,

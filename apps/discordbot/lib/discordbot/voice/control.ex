@@ -6,34 +6,42 @@ defmodule DiscordBot.Voice.Control do
   use WebSockex
   require Logger
 
-  alias DiscordBot.Model.{VoiceIdentify, VoicePayload}
+  alias DiscordBot.Gateway.Heartbeat
+  alias DiscordBot.Model.{VoiceHello, VoiceIdentify, VoicePayload}
+  alias DiscordBot.Util
+  alias DiscordBot.Voice.Session
 
   def start_link(opts) do
-    url = get_opt!(opts, :url, "#{__MODULE__} is missing required parameter :url")
-
-    server_id =
-      get_opt!(opts, :server_id, "#{__MODULE__} is missing required parameter :server_id")
-
-    user_id = get_opt!(opts, :user_id, "#{__MODULE__} is missing required parameter :user_id")
-
-    session_id =
-      get_opt!(opts, :session_id, "#{__MODULE__} is missing required parameter :session_id")
-
-    token = get_opt!(opts, :token, "#{__MODULE__} is missing required parameter :token")
+    url = Util.require_opt!(opts, :url)
+    server_id = Util.require_opt!(opts, :server_id)
+    user_id = Util.require_opt!(opts, :user_id)
+    session_id = Util.require_opt!(opts, :session_id)
+    token = Util.require_opt!(opts, :token)
 
     state = %{
       server_id: server_id,
       user_id: user_id,
       session_id: session_id,
-      token: token
+      token: token,
+      parent: self(),
+      heartbeat: nil
     }
 
     WebSockex.start_link(url, __MODULE__, state, opts)
   end
 
   @doc """
+  Sends a heartbeat message over the websocket.
+  """
+  @spec heartbeat(atom | pid, integer) :: :ok
+  def heartbeat(connection, nonce) do
+    WebSockex.cast(connection, {:heartbeat, nonce})
+  end
+
+  @doc """
   Sends an identify message over the websocket.
   """
+  @spec identify(atom | pid) :: :ok
   def identify(connection) do
     WebSockex.cast(connection, :identify)
   end
@@ -49,7 +57,12 @@ defmodule DiscordBot.Voice.Control do
     payload = VoicePayload.from_json(json)
     Logger.info("Received voice control frame: #{Kernel.inspect(payload)}")
     attempt_authenticate(payload)
-    {:ok, state}
+    handle_acknowledge(payload, state)
+
+    case setup_heartbeat(payload, state) do
+      nil -> {:ok, state}
+      new_state -> {:ok, new_state}
+    end
   end
 
   def handle_frame(frame, state) do
@@ -65,6 +78,17 @@ defmodule DiscordBot.Voice.Control do
   def terminate({_, code, msg}, _) do
     Logger.error("Voice control connection closed with event #{code}: #{msg}")
     exit(:normal)
+  end
+
+  def handle_cast({:heartbeat, nonce}, state) do
+    Logger.info("Sending voice control heartbeat.")
+
+    {:ok, json} =
+      nonce
+      |> VoicePayload.heartbeat()
+      |> VoicePayload.to_json()
+
+    {:reply, {:text, json}, state}
   end
 
   def handle_cast(:identify, state) do
@@ -87,11 +111,9 @@ defmodule DiscordBot.Voice.Control do
     {:reply, {:text, json}, state}
   end
 
-  defp get_opt!(opts, key, msg) do
-    case Keyword.fetch(opts, key) do
-      {:ok, url} -> url
-      :error -> raise ArgumentError, message: msg
-    end
+  def handle_info(:heartbeat, state) do
+    heartbeat(self(), :rand.uniform(999_999_999))
+    {:ok, state}
   end
 
   defp attempt_authenticate(%VoicePayload{opcode: :hello}) do
@@ -99,4 +121,35 @@ defmodule DiscordBot.Voice.Control do
   end
 
   defp attempt_authenticate(_), do: nil
+
+  defp setup_heartbeat(
+         %VoicePayload{
+           opcode: :hello,
+           data: %VoiceHello{heartbeat_interval: interval}
+         },
+         state
+       ) do
+    # According to discord docs, the correct heartbeat interval
+    # is provided in the Hello event, and is an erroneous value.
+    # Clients should take this heartbeat to be 75% of its
+    # given value.
+    # https://discordapp.com/developers/docs/topics/voice-connections
+    {:ok, heartbeat} = get_heartbeat(state)
+    Heartbeat.schedule(heartbeat, trunc(interval * 0.75))
+    %{state | heartbeat: heartbeat}
+  end
+
+  defp setup_heartbeat(_, _), do: nil
+
+  defp get_heartbeat(state) do
+    state
+    |> Map.get(:parent)
+    |> Session.heartbeat?()
+  end
+
+  defp handle_acknowledge(%VoicePayload{opcode: :heartbeat_ack}, state) do
+    Heartbeat.acknowledge(state[:heartbeat])
+  end
+
+  defp handle_acknowledge(_, _), do: nil
 end
