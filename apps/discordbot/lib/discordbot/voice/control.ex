@@ -134,9 +134,6 @@ defmodule DiscordBot.Voice.Control do
     # Clients should take this heartbeat to be 75% of its
     # given value.
     # https://discordapp.com/developers/docs/topics/voice-connections
-
-    # TODO: heartbeat will kill this process if things aren't ACKed,
-    # TODO: set up ACKs here too.
     {:ok, heartbeat} = get_heartbeat(state)
     Heartbeat.schedule(heartbeat, trunc(interval * 0.75))
     %{state | heartbeat: heartbeat}
