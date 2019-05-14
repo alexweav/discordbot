@@ -57,8 +57,12 @@ defmodule DiscordBot.Voice.Control do
     payload = VoicePayload.from_json(json)
     Logger.info("Received voice control frame: #{Kernel.inspect(payload)}")
     attempt_authenticate(payload)
-    new_state = setup_heartbeat(payload, state)
-    {:ok, new_state}
+    handle_acknowledge(payload, state)
+
+    case setup_heartbeat(payload, state) do
+      nil -> {:ok, state}
+      new_state -> {:ok, new_state}
+    end
   end
 
   def handle_frame(frame, state) do
@@ -145,4 +149,10 @@ defmodule DiscordBot.Voice.Control do
     |> Map.get(:parent)
     |> Session.heartbeat?()
   end
+
+  defp handle_acknowledge(%VoicePayload{opcode: :heartbeat_ack}, state) do
+    Heartbeat.acknowledge(state[:heartbeat])
+  end
+
+  defp handle_acknowledge(_, _), do: nil
 end
