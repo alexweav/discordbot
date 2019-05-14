@@ -162,6 +162,13 @@ defmodule DiscordBot.Gateway.Heartbeat do
     GenServer.call(provider, {:schedule, interval, pid})
   end
 
+  @doc """
+  Acknowledges the most recent heartbeat.
+  """
+  def acknowledge(provider) do
+    GenServer.call(provider, :acknowledge)
+  end
+
   ## Handlers
 
   def init(state) do
@@ -219,6 +226,10 @@ defmodule DiscordBot.Gateway.Heartbeat do
     {:reply, {:overwrote, state.target}, new_state}
   end
 
+  def handle_call(:acknowledge, _from, state) do
+    {:reply, :ok, acknowledge_internal(state)}
+  end
+
   def handle_info(%Event{publisher: pid, message: message, topic: :hello}, state) do
     interval = message.heartbeat_interval
     new_state = start_heartbeat(state, pid, interval)
@@ -235,15 +246,7 @@ defmodule DiscordBot.Gateway.Heartbeat do
   end
 
   def handle_info(%Event{topic: :heartbeat_ack}, state) do
-    utc_now = DateTime.utc_now()
-
-    {:noreply,
-     %{
-       state
-       | acked: true,
-         last_ack_time: utc_now,
-         ping: DateTime.diff(utc_now, state.last_heartbeat_time, :millisecond)
-     }}
+    {:noreply, acknowledge_internal(state)}
   end
 
   def handle_info({:DOWN, _ref, :process, _object, _reason}, state) do
@@ -309,6 +312,17 @@ defmodule DiscordBot.Gateway.Heartbeat do
         last_ack_time: nil,
         last_heartbeat_time: nil,
         ping: nil
+    }
+  end
+
+  defp acknowledge_internal(state) do
+    utc_now = DateTime.utc_now()
+
+    %{
+      state
+      | acked: true,
+        last_ack_time: utc_now,
+        ping: DateTime.diff(utc_now, state.last_heartbeat_time, :millisecond)
     }
   end
 end

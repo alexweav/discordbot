@@ -154,6 +154,13 @@ defmodule DiscordBot.Gateway.HeartbeatTest do
     assert abs(DateTime.diff(Heartbeat.last_ack_time?(heartbeat), DateTime.utc_now())) < 60
   end
 
+  test "acknowledged after acknowledge call", %{heartbeat: heartbeat} do
+    Heartbeat.schedule(heartbeat, 10)
+    block_until_message(1_000)
+    assert Heartbeat.acknowledge(heartbeat) == :ok
+    assert Heartbeat.acknowledged?(heartbeat) == true
+  end
+
   test "tracks time delta for most recent ack", %{heartbeat: heartbeat, broker: broker} do
     Heartbeat.schedule(heartbeat, 10)
     block_until_message(1_000)
