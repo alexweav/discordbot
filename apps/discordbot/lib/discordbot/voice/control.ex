@@ -9,6 +9,7 @@ defmodule DiscordBot.Voice.Control do
   alias DiscordBot.Gateway.Heartbeat
   alias DiscordBot.Model.{VoiceHello, VoiceIdentify, VoicePayload}
   alias DiscordBot.Util
+  alias DiscordBot.Voice.Session
 
   def start_link(opts) do
     url = Util.require_opt!(opts, :url)
@@ -49,7 +50,6 @@ defmodule DiscordBot.Voice.Control do
 
   def handle_connect(_, state) do
     Logger.info("Connected to voice control!")
-    send(self(), :after_connect)
     {:ok, state}
   end
 
@@ -57,8 +57,8 @@ defmodule DiscordBot.Voice.Control do
     payload = VoicePayload.from_json(json)
     Logger.info("Received voice control frame: #{Kernel.inspect(payload)}")
     attempt_authenticate(payload)
-    setup_heartbeat(payload, state[:heartbeat])
-    {:ok, state}
+    new_state = setup_heartbeat(payload, state)
+    {:ok, new_state}
   end
 
   def handle_frame(frame, state) do
@@ -77,13 +77,14 @@ defmodule DiscordBot.Voice.Control do
   end
 
   def handle_cast({:heartbeat, nonce}, state) do
+    Logger.info("Sending voice control heartbeat.")
+
     {:ok, json} =
       nonce
       |> VoicePayload.heartbeat()
-      |> IO.inspect()
       |> VoicePayload.to_json()
 
-    {:ok, {:text, json}, state}
+    {:reply, {:text, json}, state}
   end
 
   def handle_cast(:identify, state) do
@@ -106,13 +107,9 @@ defmodule DiscordBot.Voice.Control do
     {:reply, {:text, json}, state}
   end
 
-  def handle_info(:after_connect, state) do
-    {:ok, heartbeat} =
-      state
-      |> Map.get(:parent)
-      |> DiscordBot.Voice.Session.heartbeat?()
-
-    {:ok, %{state | heartbeat: IO.inspect(heartbeat)}}
+  def handle_info(:heartbeat, state) do
+    heartbeat(self(), :rand.uniform(999_999_999))
+    {:ok, state}
   end
 
   defp attempt_authenticate(%VoicePayload{opcode: :hello}) do
@@ -126,21 +123,26 @@ defmodule DiscordBot.Voice.Control do
            opcode: :hello,
            data: %VoiceHello{heartbeat_interval: interval}
          },
-         heartbeat
+         state
        ) do
-    IO.inspect("asdf")
     # According to discord docs, the correct heartbeat interval
     # is provided in the Hello event, and is an erroneous value.
     # Clients should take this heartbeat to be 75% of its
     # given value.
     # https://discordapp.com/developers/docs/topics/voice-connections
 
-    # TODO: send_after crashes if it's given a float.
-    # TODO: heartbeat should convert it.
     # TODO: heartbeat will kill this process if things aren't ACKed,
     # TODO: set up ACKs here too.
-    Heartbeat.schedule(heartbeat, interval * 0.75)
+    {:ok, heartbeat} = get_heartbeat(state)
+    Heartbeat.schedule(heartbeat, trunc(interval * 0.75))
+    %{state | heartbeat: heartbeat}
   end
 
   defp setup_heartbeat(_, _), do: nil
+
+  defp get_heartbeat(state) do
+    state
+    |> Map.get(:parent)
+    |> Session.heartbeat?()
+  end
 end
