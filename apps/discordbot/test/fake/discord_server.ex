@@ -37,6 +37,7 @@ defmodule DiscordBot.Fake.DiscordServer do
       {:_,
        [
          {"/gateway", DiscordWebsocketHandler, [args]},
+         {"/voice", VoiceWebsocketHandler, [args]},
          {:_, Handler, {DiscordServer, []}}
        ]}
     ]
