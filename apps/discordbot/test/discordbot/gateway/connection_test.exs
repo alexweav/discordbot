@@ -1,21 +1,17 @@
 defmodule DiscordBot.Gateway.ConnectionTest do
   use ExUnit.Case, async: true
 
+  use DiscordBot.Fake.Discord
+
   alias DiscordBot.Broker
-  alias DiscordBot.Fake.{DiscordCore, DiscordServer}
+  alias DiscordBot.Fake.DiscordCore
   alias DiscordBot.Gateway.Connection
   alias DiscordBot.Model.Payload
 
   setup context do
-    {:ok, {url, ref, core}} = DiscordServer.start()
-
-    on_exit(fn ->
-      DiscordServer.shutdown(ref)
-    end)
-
+    {url, core} = setup_discord()
     broker = start_supervised!({Broker, []}, id: Module.concat(context.test, :broker))
-
-    %{url: url, ref: ref, core: core, broker: broker, test: context.test}
+    %{url: url, core: core, broker: broker, test: context.test}
   end
 
   test "establishes websocket connection using URL", %{url: url, broker: broker, test: test} do

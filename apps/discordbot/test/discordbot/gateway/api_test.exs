@@ -1,19 +1,16 @@
 defmodule DiscordBot.Gateway.ApiTest do
   use ExUnit.Case, async: true
 
+  use DiscordBot.Fake.Discord
+
   alias DiscordBot.Broker
-  alias DiscordBot.Fake.{DiscordCore, DiscordServer}
+  alias DiscordBot.Fake.DiscordCore
   alias DiscordBot.Gateway
   alias DiscordBot.Gateway.Api
   alias DiscordBot.Model.Payload
 
   setup context do
-    {:ok, {url, ref, core}} = DiscordServer.start()
-
-    on_exit(fn ->
-      DiscordServer.shutdown(ref)
-    end)
-
+    {url, core} = setup_discord()
     broker = start_supervised!({Broker, []}, id: Module.concat(context.test, :broker))
 
     gateway =
@@ -25,7 +22,7 @@ defmodule DiscordBot.Gateway.ApiTest do
         id: Module.concat(context.test, :gateway)
       )
 
-    %{url: url, ref: ref, core: core, broker: broker, gateway: gateway, test: context.test}
+    %{url: url, core: core, broker: broker, gateway: gateway, test: context.test}
   end
 
   describe "update_status/2" do

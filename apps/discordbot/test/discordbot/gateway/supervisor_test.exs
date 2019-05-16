@@ -1,26 +1,23 @@
 defmodule DiscordBot.Gateway.SupervisorTest do
   use ExUnit.Case, async: true
 
+  use DiscordBot.Fake.Discord
+
   alias DiscordBot.Broker
+  alias DiscordBot.Fake.DiscordCore
   alias DiscordBot.Gateway
   alias DiscordBot.Gateway.Heartbeat
-  alias DiscordBot.Fake.{DiscordCore, DiscordServer}
   alias DiscordBot.Model.Payload
 
   setup context do
-    {:ok, {url, ref, core}} = DiscordServer.start()
-
-    on_exit(fn ->
-      DiscordServer.shutdown(ref)
-    end)
-
+    {url, core} = setup_discord()
     broker = start_supervised!({Broker, []}, id: Module.concat(context.test, :broker))
 
     start_supervised!(
       {DynamicSupervisor, name: DiscordBot.Gateway.BrokerSupervisor, strategy: :one_for_one}
     )
 
-    %{url: url, ref: ref, core: core, broker: broker, test: context.test}
+    %{url: url, core: core, broker: broker, test: context.test}
   end
 
   test "establishes connection on launch", %{url: url, core: core, test: test} do
