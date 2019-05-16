@@ -1,15 +1,15 @@
 defmodule DiscordBot.Fake.Discord do
   @moduledoc false
 
-  alias DiscordBot.Fake.{DiscordCore, DiscordServer}
+  alias DiscordBot.Fake.Discord.{Core, Server}
 
   defmacro __using__(_) do
     quote([]) do
       def setup_discord do
-        {:ok, {url, ref, core}} = DiscordServer.start()
+        {:ok, {url, ref, core}} = Server.start()
 
         on_exit(fn ->
-          DiscordServer.shutdown(ref)
+          Server.shutdown(ref)
         end)
 
         {url, core}
@@ -17,9 +17,9 @@ defmodule DiscordBot.Fake.Discord do
     end
   end
 
-  defdelegate api_version?(discord), to: DiscordCore
-  defdelegate encoding?(discord), to: DiscordCore
-  defdelegate latest_frame?(discord), to: DiscordCore
-  defdelegate all_frames?(discord), to: DiscordCore
-  defdelegate hello(discord, interval, trace), to: DiscordCore
+  defdelegate api_version?(discord), to: Core
+  defdelegate encoding?(discord), to: Core
+  defdelegate latest_frame?(discord), to: Core
+  defdelegate all_frames?(discord), to: Core
+  defdelegate hello(discord, interval, trace), to: Core
 end

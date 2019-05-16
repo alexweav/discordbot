@@ -1,10 +1,10 @@
-defmodule DiscordBot.Fake.DiscordServer do
+defmodule DiscordBot.Fake.Discord.Server do
   @moduledoc false
   use Plug.Router
 
-  alias DiscordBot.Fake.DiscordCore
-  alias DiscordBot.Fake.DiscordServer
-  alias DiscordBot.Fake.DiscordWebsocketHandler
+  alias DiscordBot.Fake.Discord.Core
+  alias DiscordBot.Fake.Discord.Server
+  alias DiscordBot.Fake.Discord.WebsocketHandler
   alias Plug.Adapters.Cowboy
   alias Plug.Cowboy.Handler
 
@@ -15,7 +15,7 @@ defmodule DiscordBot.Fake.DiscordServer do
     ref = make_ref()
     port = generate_port()
     url = "ws://localhost:#{port}/gateway"
-    {:ok, core} = DiscordCore.start_link([])
+    {:ok, core} = Core.start_link([])
     opts = [port: port, ref: ref, dispatch: dispatch(core)]
 
     case Cowboy.http(__MODULE__, [], opts) do
@@ -36,8 +36,8 @@ defmodule DiscordBot.Fake.DiscordServer do
     [
       {:_,
        [
-         {"/gateway", DiscordWebsocketHandler, [args]},
-         {:_, Handler, {DiscordServer, []}}
+         {"/gateway", WebsocketHandler, [args]},
+         {:_, Handler, {Server, []}}
        ]}
     ]
   end
