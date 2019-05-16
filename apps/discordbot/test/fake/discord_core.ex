@@ -3,7 +3,7 @@ defmodule DiscordBot.Fake.DiscordCore do
 
   use GenServer
 
-  alias DiscordBot.Model.Hello
+  alias DiscordBot.Model.{Guild, Hello}
 
   def start_link(opts) do
     state = %{
@@ -53,6 +53,10 @@ defmodule DiscordBot.Fake.DiscordCore do
     GenServer.call(core, {:hello, interval, trace})
   end
 
+  def guild_create(core, guild) do
+    GenServer.call(core, {:guild_create, guild})
+  end
+
   ## Handlers
 
   def init(state) do
@@ -95,6 +99,11 @@ defmodule DiscordBot.Fake.DiscordCore do
 
   def handle_call({:hello, interval, trace}, _from, state) do
     send(state[:handler], {:hello, Hello.hello(interval, trace)})
+    {:reply, :ok, state}
+  end
+
+  def handle_call({:guild_create, guild}, _from, state) do
+    send(state[:handler], {:guild_create, Guild.guild_create(guild)})
     {:reply, :ok, state}
   end
 end

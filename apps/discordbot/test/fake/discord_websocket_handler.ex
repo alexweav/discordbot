@@ -30,6 +30,11 @@ defmodule DiscordBot.Fake.DiscordWebsocketHandler do
     {:reply, [{:text, json}], state}
   end
 
+  def websocket_info({:guild_create, payload}, state) do
+    {:ok, json} = Payload.to_json(payload)
+    {:reply, [{:text, json}], state}
+  end
+
   def websocket_info(_, state), do: {:ok, state}
 
   def terminate(_reason, _req, _state), do: :ok

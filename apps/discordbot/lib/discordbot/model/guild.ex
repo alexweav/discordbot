@@ -6,7 +6,7 @@ defmodule DiscordBot.Model.Guild do
 
   use DiscordBot.Model.Serializable
 
-  alias DiscordBot.Model.{Channel, Emoji, GuildMember, Role, Serializable, VoiceState}
+  alias DiscordBot.Model.{Channel, Emoji, GuildMember, Payload, Role, Serializable, VoiceState}
 
   defstruct [
     :id,
@@ -264,5 +264,13 @@ defmodule DiscordBot.Model.Guild do
       &Enum.map(&1, fn state -> VoiceState.from_map(state) end)
     )
     |> Serializable.struct_from_map(as: %__MODULE__{})
+  end
+
+  @doc """
+  Creates a guild_create payload.
+  """
+  @spec guild_create(__MODULE__.t()) :: Payload.t()
+  def guild_create(guild) do
+    Payload.payload(:guild_create, guild)
   end
 end
