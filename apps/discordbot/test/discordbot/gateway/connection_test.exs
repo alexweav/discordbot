@@ -9,9 +9,9 @@ defmodule DiscordBot.Gateway.ConnectionTest do
   alias DiscordBot.Model.Payload
 
   setup context do
-    {url, core} = setup_discord()
+    {url, discord} = setup_discord()
     broker = start_supervised!({Broker, []}, id: Module.concat(context.test, :broker))
-    %{url: url, core: core, broker: broker, test: context.test}
+    %{url: url, discord: discord, broker: broker, test: context.test}
   end
 
   test "establishes websocket connection using URL", %{url: url, broker: broker, test: test} do
@@ -19,12 +19,12 @@ defmodule DiscordBot.Gateway.ConnectionTest do
     assert Connection.disconnect(pid, 4001) == :ok
   end
 
-  test "uses correct API version", %{url: url, test: test, core: discord} do
+  test "uses correct API version", %{url: url, test: test, discord: discord} do
     start_supervised!({Connection, token: "asdf", url: url}, id: test)
     assert Discord.api_version?(discord) == "6"
   end
 
-  test "uses plain JSON encoding", %{url: url, test: test, core: discord} do
+  test "uses plain JSON encoding", %{url: url, test: test, discord: discord} do
     start_supervised!({Connection, token: "asdf", url: url}, id: test)
     assert Discord.encoding?(discord) == "json"
   end
@@ -43,7 +43,7 @@ defmodule DiscordBot.Gateway.ConnectionTest do
     end
   end
 
-  test "can update status", %{url: url, test: test, core: discord} do
+  test "can update status", %{url: url, test: test, discord: discord} do
     pid = start_supervised!({Connection, token: "asdf", url: url}, id: test)
     Connection.update_status(pid, :dnd)
     # increase this if this test fails intermittently.
@@ -56,7 +56,7 @@ defmodule DiscordBot.Gateway.ConnectionTest do
     assert payload.data.status == :dnd
   end
 
-  test "can update status and activity", %{url: url, test: test, core: discord} do
+  test "can update status and activity", %{url: url, test: test, discord: discord} do
     pid = start_supervised!({Connection, token: "asdf", url: url}, id: test)
     Connection.update_status(pid, :online, :playing, "CS:GO")
     Process.sleep(100)
@@ -69,7 +69,7 @@ defmodule DiscordBot.Gateway.ConnectionTest do
     assert payload.data.game == %{"name" => "CS:GO", "type" => 0}
   end
 
-  test "can update voice state", %{url: url, test: test, core: discord} do
+  test "can update voice state", %{url: url, test: test, discord: discord} do
     pid = start_supervised!({Connection, token: "asdf", url: url}, id: test)
     Connection.update_voice_state(pid, "a-guild", "a-channel", true, false)
     Process.sleep(100)

@@ -10,17 +10,17 @@ defmodule DiscordBot.Gateway.SupervisorTest do
   alias DiscordBot.Model.Payload
 
   setup context do
-    {url, core} = setup_discord()
+    {url, discord} = setup_discord()
     broker = start_supervised!({Broker, []}, id: Module.concat(context.test, :broker))
 
     start_supervised!(
       {DynamicSupervisor, name: DiscordBot.Gateway.BrokerSupervisor, strategy: :one_for_one}
     )
 
-    %{url: url, core: core, broker: broker, test: context.test}
+    %{url: url, discord: discord, broker: broker, test: context.test}
   end
 
-  test "establishes connection on launch", %{url: url, core: discord, test: test} do
+  test "establishes connection on launch", %{url: url, discord: discord, test: test} do
     start_supervised!(
       {Gateway.Supervisor, token: "asdf", url: url, shard_index: 0, shard_count: 1},
       id: test
@@ -50,7 +50,7 @@ defmodule DiscordBot.Gateway.SupervisorTest do
     assert Heartbeat.target?(heartbeat) == nil
   end
 
-  test "authenticates after hello event", %{url: url, test: test, core: discord} do
+  test "authenticates after hello event", %{url: url, test: test, discord: discord} do
     start_supervised!(
       {Gateway.Supervisor, token: "asdf", url: url, shard_index: 0, shard_count: 1},
       id: test
@@ -70,7 +70,7 @@ defmodule DiscordBot.Gateway.SupervisorTest do
     assert payload.data.properties."$os" == "linux"
   end
 
-  test "heartbeat sets interval from hello event", %{url: url, test: test, core: discord} do
+  test "heartbeat sets interval from hello event", %{url: url, test: test, discord: discord} do
     pid =
       start_supervised!(
         {Gateway.Supervisor, token: "asdf", url: url, shard_index: 0, shard_count: 1},
@@ -83,7 +83,7 @@ defmodule DiscordBot.Gateway.SupervisorTest do
     assert Heartbeat.interval?(heartbeat) == 123
   end
 
-  test "send heartbeat after hello with short interval", %{url: url, test: test, core: discord} do
+  test "send heartbeat after hello with short interval", %{url: url, test: test, discord: discord} do
     start_supervised!(
       {Gateway.Supervisor, token: "asdf", url: url, shard_index: 0, shard_count: 1},
       id: test

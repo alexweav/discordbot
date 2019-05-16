@@ -10,7 +10,7 @@ defmodule DiscordBot.Gateway.ApiTest do
   alias DiscordBot.Model.Payload
 
   setup context do
-    {url, core} = setup_discord()
+    {url, discord} = setup_discord()
     broker = start_supervised!({Broker, []}, id: Module.concat(context.test, :broker))
 
     gateway =
@@ -22,11 +22,11 @@ defmodule DiscordBot.Gateway.ApiTest do
         id: Module.concat(context.test, :gateway)
       )
 
-    %{url: url, core: core, broker: broker, gateway: gateway, test: context.test}
+    %{url: url, discord: discord, broker: broker, gateway: gateway, test: context.test}
   end
 
   describe "update_status/2" do
-    test "sends update event", %{core: discord, gateway: gateway} do
+    test "sends update event", %{discord: discord, gateway: gateway} do
       assert Api.update_status(gateway, :online) == :ok
       Process.sleep(100)
       json = Discord.latest_frame?(discord)
@@ -42,7 +42,7 @@ defmodule DiscordBot.Gateway.ApiTest do
   end
 
   describe "update_status/4" do
-    test "sends update event", %{core: discord, gateway: gateway} do
+    test "sends update event", %{discord: discord, gateway: gateway} do
       assert Api.update_status(gateway, :online, :streaming, "CS:GO") == :ok
       Process.sleep(100)
       json = Discord.latest_frame?(discord)
