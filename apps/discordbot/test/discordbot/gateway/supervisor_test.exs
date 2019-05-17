@@ -1,35 +1,32 @@
 defmodule DiscordBot.Gateway.SupervisorTest do
   use ExUnit.Case, async: true
 
+  use DiscordBot.Fake.Discord
+
   alias DiscordBot.Broker
+  alias DiscordBot.Fake.Discord
   alias DiscordBot.Gateway
   alias DiscordBot.Gateway.Heartbeat
-  alias DiscordBot.Fake.{DiscordCore, DiscordServer}
   alias DiscordBot.Model.Payload
 
   setup context do
-    {:ok, {url, ref, core}} = DiscordServer.start()
-
-    on_exit(fn ->
-      DiscordServer.shutdown(ref)
-    end)
-
+    {url, discord} = setup_discord()
     broker = start_supervised!({Broker, []}, id: Module.concat(context.test, :broker))
 
     start_supervised!(
       {DynamicSupervisor, name: DiscordBot.Gateway.BrokerSupervisor, strategy: :one_for_one}
     )
 
-    %{url: url, ref: ref, core: core, broker: broker, test: context.test}
+    %{url: url, discord: discord, broker: broker, test: context.test}
   end
 
-  test "establishes connection on launch", %{url: url, core: core, test: test} do
+  test "establishes connection on launch", %{url: url, discord: discord, test: test} do
     start_supervised!(
       {Gateway.Supervisor, token: "asdf", url: url, shard_index: 0, shard_count: 1},
       id: test
     )
 
-    assert DiscordCore.api_version?(core) == "6"
+    assert Discord.api_version?(discord) == "6"
   end
 
   test "authenticator running before hello event", %{url: url, test: test} do
@@ -53,15 +50,15 @@ defmodule DiscordBot.Gateway.SupervisorTest do
     assert Heartbeat.target?(heartbeat) == nil
   end
 
-  test "authenticates after hello event", %{url: url, test: test, core: core} do
+  test "authenticates after hello event", %{url: url, test: test, discord: discord} do
     start_supervised!(
       {Gateway.Supervisor, token: "asdf", url: url, shard_index: 0, shard_count: 1},
       id: test
     )
 
-    DiscordCore.hello(core, 41_250, ["gateway-prd-main-bbqf"])
+    Discord.hello(discord, 41_250, ["gateway-prd-main-bbqf"])
     Process.sleep(100)
-    payload = Payload.from_json(DiscordCore.latest_frame?(core))
+    payload = Payload.from_json(Discord.latest_frame?(discord))
 
     assert payload.opcode == :identify
     assert payload.data.compress == false
@@ -73,28 +70,28 @@ defmodule DiscordBot.Gateway.SupervisorTest do
     assert payload.data.properties."$os" == "linux"
   end
 
-  test "heartbeat sets interval from hello event", %{url: url, test: test, core: core} do
+  test "heartbeat sets interval from hello event", %{url: url, test: test, discord: discord} do
     pid =
       start_supervised!(
         {Gateway.Supervisor, token: "asdf", url: url, shard_index: 0, shard_count: 1},
         id: test
       )
 
-    DiscordCore.hello(core, 123, ["gateway-prd-main-bbqf"])
+    Discord.hello(discord, 123, ["gateway-prd-main-bbqf"])
     Process.sleep(100)
     {:ok, heartbeat} = Gateway.Supervisor.heartbeat?(pid)
     assert Heartbeat.interval?(heartbeat) == 123
   end
 
-  test "send heartbeat after hello with short interval", %{url: url, test: test, core: core} do
+  test "send heartbeat after hello with short interval", %{url: url, test: test, discord: discord} do
     start_supervised!(
       {Gateway.Supervisor, token: "asdf", url: url, shard_index: 0, shard_count: 1},
       id: test
     )
 
-    DiscordCore.hello(core, 200, ["gateway-prd-main-bbqf"])
+    Discord.hello(discord, 200, ["gateway-prd-main-bbqf"])
     Process.sleep(300)
-    payload = Payload.from_json(DiscordCore.latest_frame?(core))
+    payload = Payload.from_json(Discord.latest_frame?(discord))
     assert payload.opcode == :heartbeat
   end
 end
