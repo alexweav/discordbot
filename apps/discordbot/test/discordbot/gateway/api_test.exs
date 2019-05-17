@@ -4,6 +4,7 @@ defmodule DiscordBot.Gateway.ApiTest do
   use DiscordBot.Fake.Discord
 
   alias DiscordBot.Broker
+  alias DiscordBot.Entity.Guild
   alias DiscordBot.Fake.Discord
   alias DiscordBot.Gateway
   alias DiscordBot.Gateway.Api
@@ -12,6 +13,7 @@ defmodule DiscordBot.Gateway.ApiTest do
   setup context do
     {url, discord} = setup_discord()
     broker = start_supervised!({Broker, []}, id: Module.concat(context.test, :broker))
+    guild = start_supervised!({Guild, [broker: broker, api: DiscordBot.ApiMock]})
 
     gateway =
       start_supervised!(
@@ -22,7 +24,14 @@ defmodule DiscordBot.Gateway.ApiTest do
         id: Module.concat(context.test, :gateway)
       )
 
-    %{url: url, discord: discord, broker: broker, gateway: gateway, test: context.test}
+    %{
+      url: url,
+      discord: discord,
+      broker: broker,
+      gateway: gateway,
+      guild: guild,
+      test: context.test
+    }
   end
 
   describe "update_status/2" do
@@ -57,6 +66,12 @@ defmodule DiscordBot.Gateway.ApiTest do
       assert Api.update_status(gateway, :invalid, :streaming, "CS:GO") == :error
       assert Api.update_status(gateway, :online, nil, "CS:GO") == :error
       assert Api.update_status(gateway, :online, :invalid, "CS:GO") == :error
+    end
+  end
+
+  describe "update_voice_state/4" do
+    test "errors if guild does not exist" do
+      assert Api.update_voice_state("not-real", "not-a-channel") == :error
     end
   end
 end
