@@ -1,4 +1,4 @@
-defmodule DiscordBot.Fake.DiscordCore do
+defmodule DiscordBot.Fake.Discord.Core do
   @moduledoc false
 
   use GenServer
