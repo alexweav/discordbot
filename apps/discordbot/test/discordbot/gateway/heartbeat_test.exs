@@ -155,7 +155,7 @@ defmodule DiscordBot.Gateway.HeartbeatTest do
   end
 
   test "acknowledged after acknowledge call", %{heartbeat: heartbeat} do
-    Heartbeat.schedule(heartbeat, 10)
+    Heartbeat.schedule(heartbeat, 100)
     block_until_message(1_000)
     assert Heartbeat.acknowledge(heartbeat) == :ok
     assert Heartbeat.acknowledged?(heartbeat) == true

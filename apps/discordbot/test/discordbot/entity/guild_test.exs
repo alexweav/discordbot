@@ -2,16 +2,25 @@ defmodule DiscordBot.Entity.GuildTest do
   use ExUnit.Case, async: false
   doctest DiscordBot.Entity.Guild
 
+  use DiscordBot.Fake.Discord
+
   alias DiscordBot.Broker
   alias DiscordBot.Entity.Guild
   alias DiscordBot.Entity.GuildRecord
+  alias DiscordBot.Fake.Discord
+  alias DiscordBot.Gateway.Connection
 
-  setup do
+  setup context do
+    {url, discord} = setup_discord()
     broker = start_supervised!(Broker)
-
     guild = start_supervised!({Guild, [broker: broker, api: DiscordBot.ApiMock]})
 
-    %{broker: broker, guild: guild}
+    connection =
+      start_supervised!({Connection, token: "asdf", url: url, broker: broker},
+        id: Module.concat(context.test, :connection)
+      )
+
+    %{broker: broker, guild: guild, discord: discord, connection: connection}
   end
 
   test "lookup non-existant guild ID returns error" do
@@ -99,5 +108,16 @@ defmodule DiscordBot.Entity.GuildTest do
     # with the registry.
     Guild.create(guild, %DiscordBot.Model.Guild{})
     assert Guild.lookup_by_id(initial.id) == :error
+  end
+
+  test "adds guilds sent through gateway", %{discord: discord, connection: connection} do
+    model = %DiscordBot.Model.Guild{
+      id: "test-id"
+    }
+
+    assert Guild.lookup_by_id(model.id) == :error
+    Discord.guild_create(discord, model)
+    Process.sleep(100)
+    assert Guild.lookup_by_id(model.id) == {:ok, GuildRecord.new(connection, model)}
   end
 end

@@ -12,6 +12,7 @@ defmodule DiscordBot.Gateway.Supervisor do
     url = Keyword.fetch!(opts, :url)
     shard_index = Keyword.fetch!(opts, :shard_index)
     shard_count = Keyword.fetch!(opts, :shard_count)
+    broker = Keyword.get(opts, :broker, Broker)
     broker_supervisor = Keyword.get(opts, :broker_supervisor, DiscordBot.Gateway.BrokerSupervisor)
     delay = Keyword.get(opts, :spawn_delay, 0)
 
@@ -23,19 +24,19 @@ defmodule DiscordBot.Gateway.Supervisor do
 
     Supervisor.start_link(
       __MODULE__,
-      {token, url, shard_index, shard_count, broker_supervisor},
+      {token, url, shard_index, shard_count, broker, broker_supervisor},
       opts
     )
   end
 
   @impl true
-  def init({token, url, shard_index, shard_count, broker_supervisor}) do
+  def init({token, url, shard_index, shard_count, broker, broker_supervisor}) do
     {:ok, instance_broker} = DynamicSupervisor.start_child(broker_supervisor, DiscordBot.Broker)
 
     children = [
       {Shovel,
        source: instance_broker,
-       destination: Broker,
+       destination: broker,
        topics: [
          :dispatch,
          :status_update,
