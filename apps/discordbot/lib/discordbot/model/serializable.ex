@@ -96,4 +96,12 @@ defmodule DiscordBot.Model.Serializable do
 
     Map.merge(struct, converted)
   end
+
+  def deserialize_array(map, key, mapper) do
+    Map.update(map, key, nil, fn value ->
+      if value do
+        Enum.map(value, mapper)
+      end
+    end)
+  end
 end

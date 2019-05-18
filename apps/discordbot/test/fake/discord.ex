@@ -4,6 +4,7 @@ defmodule DiscordBot.Fake.Discord do
   """
 
   alias DiscordBot.Fake.Discord.{Core, Server}
+  alias DiscordBot.Model.Guild
 
   defmacro __using__(_) do
     quote([]) do
@@ -55,4 +56,10 @@ defmodule DiscordBot.Fake.Discord do
   """
   @spec hello(pid, integer, String.t()) :: :ok
   defdelegate hello(discord, interval, trace), to: Core
+
+  @doc """
+  Sends a Guild Create message from the server to the client.
+  """
+  @spec guild_create(pid, Guild.t()) :: :ok
+  defdelegate guild_create(discord, guild), to: Core
 end

@@ -6,7 +6,7 @@ defmodule DiscordBot.Model.Guild do
 
   use DiscordBot.Model.Serializable
 
-  alias DiscordBot.Model.{Channel, Emoji, GuildMember, Role, Serializable, VoiceState}
+  alias DiscordBot.Model.{Channel, Emoji, GuildMember, Payload, Role, Serializable, VoiceState}
 
   defstruct [
     :id,
@@ -238,31 +238,19 @@ defmodule DiscordBot.Model.Guild do
   @spec from_map(map) :: __MODULE__.t()
   def from_map(map) do
     map
-    |> Map.update(
-      "members",
-      nil,
-      &Enum.map(&1, fn member -> GuildMember.from_map(member) end)
-    )
-    |> Map.update(
-      "emojis",
-      nil,
-      &Enum.map(&1, fn emoji -> Emoji.from_map(emoji) end)
-    )
-    |> Map.update(
-      "roles",
-      nil,
-      &Enum.map(&1, fn role -> Role.from_map(role) end)
-    )
-    |> Map.update(
-      "channels",
-      nil,
-      &Enum.map(&1, fn channel -> Channel.from_map(channel) end)
-    )
-    |> Map.update(
-      "voice_states",
-      nil,
-      &Enum.map(&1, fn state -> VoiceState.from_map(state) end)
-    )
+    |> Serializable.deserialize_array("members", &GuildMember.from_map(&1))
+    |> Serializable.deserialize_array("emojis", &Emoji.from_map(&1))
+    |> Serializable.deserialize_array("roles", &Role.from_map(&1))
+    |> Serializable.deserialize_array("channels", &Channel.from_map(&1))
+    |> Serializable.deserialize_array("voice_states", &VoiceState.from_map(&1))
     |> Serializable.struct_from_map(as: %__MODULE__{})
+  end
+
+  @doc """
+  Creates a guild_create payload.
+  """
+  @spec guild_create(__MODULE__.t()) :: Payload.t()
+  def guild_create(guild) do
+    Payload.payload(:dispatch, guild, 0, "GUILD_CREATE")
   end
 end
