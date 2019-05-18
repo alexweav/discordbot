@@ -96,4 +96,33 @@ defmodule DiscordBot.Model.Serializable do
 
     Map.merge(struct, converted)
   end
+
+  @doc """
+  Deserializes an array in a map.
+
+  If `key` is not present in `map`, it is inserted with value `nil`.
+  If the value at `key` is a list, `mapper` is applied to each list value.
+
+  ## Examples
+
+      iex> map = %{}
+      ...> DiscordBot.Model.Serializable.deserialize_array(map, "test", &(&1))
+      %{"test" => nil}
+
+      iex> map = %{"test" => nil}
+      ...> DiscordBot.Model.Serializable.deserialize_array(map, "test", &(&1))
+      %{"test" => nil}
+
+      iex> map = %{"test" => [1, 2, 3]}
+      ...> DiscordBot.Model.Serializable.deserialize_array(map, "test", &(&1 * 2))
+      %{"test" => [2, 4, 6]}
+  """
+  @spec deserialize_array(map, any(), (any() -> any())) :: map
+  def deserialize_array(map, key, mapper) do
+    Map.update(map, key, nil, fn value ->
+      if value do
+        Enum.map(value, mapper)
+      end
+    end)
+  end
 end
