@@ -5,6 +5,7 @@ defmodule DiscordBot.Fake.Discord.Server do
   alias DiscordBot.Fake.Discord.Core
   alias DiscordBot.Fake.Discord.Server
   alias DiscordBot.Fake.Discord.WebsocketHandler
+  alias DiscordBot.Fake.Voice
   alias Plug.Adapters.Cowboy
   alias Plug.Cowboy.Handler
 
@@ -37,7 +38,7 @@ defmodule DiscordBot.Fake.Discord.Server do
       {:_,
        [
          {"/gateway", WebsocketHandler, [args]},
-         {"/voice", VoiceWebsocketHandler, [args]},
+         {"/voice", Voice.WebsocketHandler, [args]},
          {:_, Handler, {Server, []}}
        ]}
     ]

@@ -1,4 +1,4 @@
-defmodule DiscordBot.Fake.VoiceWebsocketHandler do
+defmodule DiscordBot.Fake.Voice.WebsocketHandler do
   @moduledoc false
   @behaviour :cowboy_websocket
 
