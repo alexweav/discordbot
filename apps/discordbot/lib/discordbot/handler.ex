@@ -12,9 +12,12 @@ defmodule DiscordBot.Handler do
 
       use GenServer
 
+      alias DiscordBot.Broker
       alias DiscordBot.Broker.Event
 
-      def init({_event_types, init_arg}) do
+      @doc false
+      def init({event_types, broker, init_arg}) do
+        for type <- event_types, do: Broker.subscribe(broker, type)
         handler_init(init_arg)
       end
     end
@@ -48,7 +51,8 @@ defmodule DiscordBot.Handler do
 
   def start_link(module, event_types, init_arg, options)
       when is_atom(module) and is_list(options) and is_list(event_types) do
-    GenServer.start_link(module, {event_types, init_arg}, options)
+    broker = Keyword.get(options, :broker, Broker)
+    GenServer.start_link(module, {event_types, broker, init_arg}, options)
   end
 
   @doc """
@@ -64,6 +68,7 @@ defmodule DiscordBot.Handler do
 
   def start(module, event_types, init_arg, options)
       when is_atom(module) and is_list(options) and is_list(event_types) do
-    GenServer.start(module, {event_types, init_arg}, options)
+    broker = Keyword.get(options, :broker, Broker)
+    GenServer.start(module, {event_types, broker, init_arg}, options)
   end
 end
