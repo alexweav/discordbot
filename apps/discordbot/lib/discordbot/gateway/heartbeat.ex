@@ -98,6 +98,7 @@ defmodule DiscordBot.Gateway.Heartbeat do
   Returns either `:waiting:`, if the provider is inactive,
   or `:running:`, if the provider is actively providing heartbeats.
   """
+  @spec status?(pid) :: :running | :waiting
   def status?(provider) do
     GenServer.call(provider, {:status})
   end
@@ -106,6 +107,7 @@ defmodule DiscordBot.Gateway.Heartbeat do
   Returns the process that the provider is working for,
   or `nil` if there is none.
   """
+  @spec target?(pid) :: pid | nil
   def target?(provider) do
     GenServer.call(provider, {:target})
   end
@@ -114,6 +116,7 @@ defmodule DiscordBot.Gateway.Heartbeat do
   Returns the interval of the current scheduled heartbeat,
   or `nil` if there is none.
   """
+  @spec interval?(pid) :: integer | nil
   def interval?(provider) do
     GenServer.call(provider, {:interval})
   end
@@ -121,6 +124,7 @@ defmodule DiscordBot.Gateway.Heartbeat do
   @doc """
   Returns whether the most recently sent heartbeat has been acknowledged.
   """
+  @spec acknowledged?(pid) :: bool
   def acknowledged?(provider) do
     GenServer.call(provider, {:acknowledged})
   end
@@ -128,6 +132,7 @@ defmodule DiscordBot.Gateway.Heartbeat do
   @doc """
   Returns the time of the most recent heartbeat acknowledgement.
   """
+  @spec last_ack_time?(pid) :: DateTime.t() | nil
   def last_ack_time?(provider) do
     GenServer.call(provider, {:last_ack_time})
   end
@@ -135,6 +140,7 @@ defmodule DiscordBot.Gateway.Heartbeat do
   @doc """
   Returns the time of the most recent heartbeat.
   """
+  @spec last_heartbeat_time?(pid) :: DateTime.t() | nil
   def last_heartbeat_time?(provider) do
     GenServer.call(provider, {:last_heartbeat_time})
   end
@@ -142,6 +148,7 @@ defmodule DiscordBot.Gateway.Heartbeat do
   @doc """
   Gets the most recently measured ping value, or `nil` if no such value exists.
   """
+  @spec ping?(pid) :: integer | nil
   def ping?(provider) do
     GenServer.call(provider, {:ping})
   end
@@ -150,6 +157,7 @@ defmodule DiscordBot.Gateway.Heartbeat do
   Schedules the provider to send a heartbeat message
   every `interval` milliseconds.
   """
+  @spec schedule(pid, integer) :: :ok | {:overwrote, pid}
   def schedule(provider, interval) do
     GenServer.call(provider, {:schedule, interval})
   end
@@ -158,6 +166,7 @@ defmodule DiscordBot.Gateway.Heartbeat do
   Schedules the provider to send a heartbeat message
   every `interval` milliseconds, to the process `pid`.
   """
+  @spec schedule(pid, integer, pid) :: :ok | {:overwrote, pid}
   def schedule(provider, interval, pid) do
     GenServer.call(provider, {:schedule, interval, pid})
   end
@@ -165,6 +174,7 @@ defmodule DiscordBot.Gateway.Heartbeat do
   @doc """
   Acknowledges the most recent heartbeat.
   """
+  @spec acknowledge(pid) :: :ok
   def acknowledge(provider) do
     GenServer.call(provider, :acknowledge)
   end
