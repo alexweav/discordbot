@@ -6,6 +6,34 @@ defmodule DiscordBot.Handler do
 
   alias DiscordBot.Broker.Event
 
+  defmodule State do
+    @moduledoc """
+    The internal state of a generic event handler.
+    """
+    @enforce_keys [:worker_supervisor]
+
+    defstruct [
+      :client_state,
+      :worker_supervisor
+    ]
+
+    @typedoc """
+    The consumer's application-specific state.
+    """
+    @type client_state :: any
+
+    @typedoc """
+    The pid of the supervisor for this handler's
+    worker processes.
+    """
+    @type worker_supervisor :: pid
+
+    @type t :: %__MODULE__{
+            client_state: client_state,
+            worker_supervisor: worker_supervisor
+          }
+  end
+
   defmacro __using__(_opts) do
     quote([]) do
       @behaviour DiscordBot.Handler
@@ -18,14 +46,25 @@ defmodule DiscordBot.Handler do
       @doc false
       def init({event_types, broker, init_arg}) do
         for type <- event_types, do: Broker.subscribe(broker, type)
-        {:ok, pid} = DynamicSupervisor.start_link(strategy: :one_for_one)
-        handler_init(init_arg)
+        {:ok, pid} = Task.Supervisor.start_link(strategy: :one_for_one)
+
+        case handler_init(init_arg) do
+          {:stop, reason} ->
+            {:stop, reason}
+
+          {:ok, client_state} ->
+            {:ok,
+             %State{
+               client_state: client_state,
+               worker_supervisor: pid
+             }}
+        end
       end
 
       @doc false
-      def handle_info(%Event{} = event, state) do
-        :ok = handle_event(event, state)
-        {:noreply, state}
+      def handle_info(%Event{} = event, %State{client_state: state, worker_supervisor: supervisor}) do
+        Task.Supervisor.start_child(supervisor, fn -> handle_event(event, state) end)
+        {:noreply, %State{client_state: state, worker_supervisor: supervisor}}
       end
     end
   end
