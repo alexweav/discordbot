@@ -1,6 +1,6 @@
 defmodule DiscordBot.Handler do
   @moduledoc """
-  A handler is a process which is used to perform actions
+  A handler is a set of processes which is used to perform actions
   based on events occurring in the bot.
   """
 
@@ -21,6 +21,14 @@ defmodule DiscordBot.Handler do
   """
   @callback handle_event(event :: Event.t(), state :: term) ::
               {:ok, new_state}
+            when new_state: term
+
+  @doc """
+  Invoked when the handler is started, in the main process.
+  """
+  @callback handler_init(any) ::
+              {:ok, new_state}
+              | {:stop, reason :: any}
             when new_state: term
 
   @doc """

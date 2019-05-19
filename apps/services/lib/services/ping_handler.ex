@@ -9,6 +9,10 @@ defmodule Services.PingHandler do
     {:ok, :ok}
   end
 
+  def handler_init(:ok) do
+    {:ok, :ok}
+  end
+
   def handle_event(_, :ok) do
     {:ok, :ok}
   end
