@@ -44,6 +44,7 @@ defmodule DiscordBot.Handler do
       alias DiscordBot.Broker.Event
 
       @doc false
+      @dialyzer {:no_match, init: 1}
       def init({event_types, broker, init_arg}) do
         for type <- event_types, do: Broker.subscribe(broker, type)
         {:ok, pid} = Task.Supervisor.start_link(strategy: :one_for_one)
