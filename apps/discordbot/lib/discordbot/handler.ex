@@ -80,7 +80,7 @@ defmodule DiscordBot.Handler do
   @doc """
   Invoked to handle events.
   """
-  @callback handle_event(event :: Event.t(), state :: term) :: :ok
+  @callback handle_event(event :: Event.t(), state :: term) :: any
 
   @doc """
   Starts a Handler process linked to the current process.
