@@ -2,10 +2,10 @@ defmodule Services.PingHandler do
   use DiscordBot.Handler
 
   def start_link(opts) do
-    DiscordBot.Handler.start_link(__MODULE__, :ok, opts)
+    DiscordBot.Handler.start_link(__MODULE__, :message_create, :ok, opts)
   end
 
-  def init(:ok) do
+  def init({_, :ok}) do
     {:ok, :ok}
   end
 

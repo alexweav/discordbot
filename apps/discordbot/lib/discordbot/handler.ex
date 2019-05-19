@@ -26,16 +26,32 @@ defmodule DiscordBot.Handler do
   @doc """
   Starts a Handler process linked to the current process.
   """
-  @spec start_link(atom, any, list) :: GenServer.on_start()
-  def start_link(module, init_arg, options \\ []) when is_atom(module) and is_list(options) do
-    GenServer.start_link(module, init_arg, options)
+  @spec start_link(atom, atom | list(atom), any, list) :: GenServer.on_start()
+  def start_link(module, event_types, init_arg, options \\ [])
+
+  def start_link(module, event_type, init_arg, options)
+      when is_atom(module) and is_list(options) and is_atom(event_type) do
+    start_link(module, [event_type], init_arg, options)
+  end
+
+  def start_link(module, event_types, init_arg, options)
+      when is_atom(module) and is_list(options) and is_list(event_types) do
+    GenServer.start_link(module, {event_types, init_arg}, options)
   end
 
   @doc """
   Starts a Handler process without links (outside of a supervision tree).
   """
-  @spec start(atom, any, list) :: GenServer.on_start()
-  def start(module, init_arg, options \\ []) when is_atom(module) and is_list(options) do
-    GenServer.start(module, init_arg, options)
+  @spec start(atom, atom | list(atom), any, list) :: GenServer.on_start()
+  def start(module, event_types, init_arg, options \\ [])
+
+  def start(module, event_type, init_arg, options)
+      when is_atom(module) and is_list(options) and is_atom(event_type) do
+    start_link(module, [event_type], init_arg, options)
+  end
+
+  def start(module, event_types, init_arg, options)
+      when is_atom(module) and is_list(options) and is_list(event_types) do
+    GenServer.start(module, {event_types, init_arg}, options)
   end
 end
