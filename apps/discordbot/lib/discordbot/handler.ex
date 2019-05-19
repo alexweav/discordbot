@@ -13,6 +13,10 @@ defmodule DiscordBot.Handler do
       use GenServer
 
       alias DiscordBot.Broker.Event
+
+      def init({_event_types, init_arg}) do
+        handler_init(init_arg)
+      end
     end
   end
 
