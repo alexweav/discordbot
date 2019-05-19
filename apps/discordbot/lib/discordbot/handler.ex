@@ -18,6 +18,7 @@ defmodule DiscordBot.Handler do
       @doc false
       def init({event_types, broker, init_arg}) do
         for type <- event_types, do: Broker.subscribe(broker, type)
+        {:ok, pid} = DynamicSupervisor.start_link(strategy: :one_for_one)
         handler_init(init_arg)
       end
     end
