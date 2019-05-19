@@ -13,7 +13,6 @@ defmodule Services do
   def init(:ok) do
     children = [
       {Services.Help, [broker: Broker, name: Services.Help]},
-      {Services.Ping, Broker},
       {Services.PingHandler, []},
       {Services.TtsSplitter.Supervisor, [broker: Broker]},
       {Services.Search.Supervisor, [broker: Broker]},

@@ -78,7 +78,7 @@ defmodule DiscordBot.Handler do
             when new_state: term
 
   @doc """
-  Invoked to handle events.
+  Invoked to handle generic events.
   """
   @callback handle_event(event :: Event.t(), state :: term) :: any
 
