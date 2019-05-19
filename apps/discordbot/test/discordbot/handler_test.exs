@@ -11,6 +11,10 @@ defmodule DiscordBot.HandlerTest do
     def handler_init(:ok) do
       {:ok, :ok}
     end
+
+    def handle_event(_, state) do
+      {:ok, state}
+    end
   end
 
   setup context do

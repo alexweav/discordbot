@@ -21,15 +21,14 @@ defmodule DiscordBot.Handler do
         {:ok, pid} = DynamicSupervisor.start_link(strategy: :one_for_one)
         handler_init(init_arg)
       end
+
+      @doc false
+      def handle_info(%Event{} = event, state) do
+        {:ok, new_state} = handle_event(event, state)
+        {:noreply, new_state}
+      end
     end
   end
-
-  @doc """
-  Invoked to handle events.
-  """
-  @callback handle_event(event :: Event.t(), state :: term) ::
-              {:ok, new_state}
-            when new_state: term
 
   @doc """
   Invoked when the handler is started, in the main process.
@@ -37,6 +36,13 @@ defmodule DiscordBot.Handler do
   @callback handler_init(any) ::
               {:ok, new_state}
               | {:stop, reason :: any}
+            when new_state: term
+
+  @doc """
+  Invoked to handle events.
+  """
+  @callback handle_event(event :: Event.t(), state :: term) ::
+              {:ok, new_state}
             when new_state: term
 
   @doc """
