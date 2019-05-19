@@ -41,6 +41,11 @@ defmodule DiscordBot.Gateway.HeartbeatTest do
     assert Heartbeat.interval?(heartbeat) == 10_000
   end
 
+  test "notifies on schedule overwrite", %{heartbeat: heartbeat} do
+    Heartbeat.schedule(heartbeat, 10_000)
+    assert Heartbeat.schedule(heartbeat, 10_000) == {:overwrote, self()}
+  end
+
   test "running after schedule other", %{heartbeat: heartbeat} do
     {:ok, pid} =
       Task.start_link(fn ->
@@ -52,6 +57,11 @@ defmodule DiscordBot.Gateway.HeartbeatTest do
     :ok = Heartbeat.schedule(heartbeat, 10_000, pid)
     assert Heartbeat.target?(heartbeat) == pid
     assert Heartbeat.interval?(heartbeat) == 10_000
+  end
+
+  test "notifies on schedule other overwrite", %{heartbeat: heartbeat} do
+    Heartbeat.schedule(heartbeat, 10_000)
+    assert Heartbeat.schedule(heartbeat, 10_000, self()) == {:overwrote, self()}
   end
 
   test "idle after scheduled process closes", %{heartbeat: heartbeat} do
