@@ -19,7 +19,7 @@ defmodule DiscordBot.HandlerTest do
 
   setup context do
     broker = start_supervised!({Broker, []}, id: Module.concat(context.test, :broker))
-    %{broker: broker}
+    %{broker: broker, test: context.test}
   end
 
   describe "start_link" do
@@ -36,6 +36,10 @@ defmodule DiscordBot.HandlerTest do
       assert Enum.member?(Broker.subscribers?(broker, :test), pid)
       assert Enum.member?(Broker.subscribers?(broker, :topic), pid)
     end
+
+    test "defaults to named broker" do
+      Handler.start_link(TestHandler, :test, :ok)
+    end
   end
 
   describe "start" do
@@ -51,6 +55,10 @@ defmodule DiscordBot.HandlerTest do
       {:ok, pid} = Handler.start(TestHandler, [:test, :topic], :ok, broker: broker)
       assert Enum.member?(Broker.subscribers?(broker, :test), pid)
       assert Enum.member?(Broker.subscribers?(broker, :topic), pid)
+    end
+
+    test "defaults to named broker" do
+      Handler.start(TestHandler, :test, :ok)
     end
   end
 end
