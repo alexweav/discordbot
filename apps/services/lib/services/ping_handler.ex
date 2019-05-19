@@ -11,6 +11,6 @@ defmodule Services.PingHandler do
   end
 
   def handle_event(_, :ok) do
-    {:ok, :ok}
+    :ok
   end
 end

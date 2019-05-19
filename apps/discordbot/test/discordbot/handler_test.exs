@@ -12,8 +12,8 @@ defmodule DiscordBot.HandlerTest do
       {:ok, :ok}
     end
 
-    def handle_event(_, state) do
-      {:ok, state}
+    def handle_event(_event, _state) do
+      :ok
     end
   end
 

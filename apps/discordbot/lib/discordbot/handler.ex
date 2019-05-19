@@ -24,8 +24,8 @@ defmodule DiscordBot.Handler do
 
       @doc false
       def handle_info(%Event{} = event, state) do
-        {:ok, new_state} = handle_event(event, state)
-        {:noreply, new_state}
+        :ok = handle_event(event, state)
+        {:noreply, state}
       end
     end
   end
@@ -41,9 +41,7 @@ defmodule DiscordBot.Handler do
   @doc """
   Invoked to handle events.
   """
-  @callback handle_event(event :: Event.t(), state :: term) ::
-              {:ok, new_state}
-            when new_state: term
+  @callback handle_event(event :: Event.t(), state :: term) :: :ok
 
   @doc """
   Starts a Handler process linked to the current process.
