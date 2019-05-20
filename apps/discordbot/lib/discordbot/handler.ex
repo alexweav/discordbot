@@ -42,6 +42,7 @@ defmodule DiscordBot.Handler do
 
       alias DiscordBot.Broker
       alias DiscordBot.Broker.Event
+      alias DiscordBot.Model.Message
 
       @doc false
       @dialyzer {:no_match, init: 1}
@@ -63,14 +64,38 @@ defmodule DiscordBot.Handler do
       end
 
       @doc false
-      def handle_info(%Event{} = event, %State{client_state: state, worker_supervisor: supervisor}) do
-        Task.Supervisor.start_child(supervisor, fn -> handle_event(event, state) end)
-        {:noreply, %State{client_state: state, worker_supervisor: supervisor}}
+      def handle_info(
+            %Event{
+              topic: :message_create,
+              message: %Message{channel_id: channel_id, content: content}
+            } = event,
+            state
+          ) do
+        case handle_message(content, state.client_state) do
+          {:stop, reason} -> {:stop, reason}
+          {:noreply} -> generic_handle(event, state)
+          {:reply, {:text, response}} -> {:noreply, state}
+        end
+
+        {:noreply, state}
       end
 
+      def handle_info(%Event{} = event, state) do
+        generic_handle(event, state)
+      end
+
+      @doc false
       def handle_message(_, _), do: {:noreply}
 
       defoverridable handle_message: 2
+
+      defp generic_handle(event, state) do
+        Task.Supervisor.start_child(state.worker_supervisor, fn ->
+          handle_event(event, state.client_state)
+        end)
+
+        {:noreply, state}
+      end
     end
   end
 
