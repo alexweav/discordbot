@@ -42,6 +42,7 @@ defmodule DiscordBot.Handler do
 
       alias DiscordBot.Broker
       alias DiscordBot.Broker.Event
+      alias DiscordBot.Entity.ChannelManager
       alias DiscordBot.Model.Message
 
       @doc false
@@ -68,14 +69,17 @@ defmodule DiscordBot.Handler do
       def handle_info(
             %Event{
               topic: :message_create,
-              message: %Message{channel_id: channel_id, content: content}
+              message: %Message{content: content} = message
             } = event,
             state
           ) do
         Task.Supervisor.start_child(state.worker_supervisor, fn ->
           case handle_message(content, state.client_state) do
-            {:noreply} -> nil
-            {:reply, {:text, response}} -> nil
+            {:noreply} ->
+              nil
+
+            {:reply, {:text, response}} ->
+              ChannelManager.reply(message, response)
           end
 
           handle_event(event, state.client_state)
