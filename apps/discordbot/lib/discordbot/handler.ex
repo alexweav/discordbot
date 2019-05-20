@@ -42,6 +42,8 @@ defmodule DiscordBot.Handler do
 
       alias DiscordBot.Broker
       alias DiscordBot.Broker.Event
+      alias DiscordBot.Entity.ChannelManager
+      alias DiscordBot.Model.Message
 
       @doc false
       @dialyzer {:no_match, init: 1}
@@ -63,10 +65,44 @@ defmodule DiscordBot.Handler do
       end
 
       @doc false
-      def handle_info(%Event{} = event, %State{client_state: state, worker_supervisor: supervisor}) do
-        Task.Supervisor.start_child(supervisor, fn -> handle_event(event, state) end)
-        {:noreply, %State{client_state: state, worker_supervisor: supervisor}}
+      @dialyzer {:no_match, handle_info: 2}
+      def handle_info(
+            %Event{
+              topic: :message_create,
+              message: %Message{content: content} = message
+            } = event,
+            state
+          ) do
+        Task.Supervisor.start_child(state.worker_supervisor, fn ->
+          case handle_message(content, state.client_state) do
+            {:noreply} ->
+              nil
+
+            {:reply, {:text, response}} ->
+              ChannelManager.reply(message, response)
+          end
+
+          handle_event(event, state.client_state)
+        end)
+
+        {:noreply, state}
       end
+
+      def handle_info(%Event{} = event, state) do
+        Task.Supervisor.start_child(state.worker_supervisor, fn ->
+          handle_event(event, state.client_state)
+        end)
+
+        {:noreply, state}
+      end
+
+      @doc false
+      def handle_message(_, _), do: {:noreply}
+
+      @doc false
+      def handle_event(_, _), do: nil
+
+      defoverridable handle_message: 2, handle_event: 2
     end
   end
 
@@ -74,14 +110,22 @@ defmodule DiscordBot.Handler do
   Invoked when the handler is started, in the main process.
   """
   @callback handler_init(any) ::
-              {:ok, new_state}
+              {:ok, new_state :: term}
               | {:stop, reason :: any}
-            when new_state: term
 
   @doc """
-  Invoked to handle generic events.
+  Invoked to handle any subscribed event.
   """
   @callback handle_event(event :: Event.t(), state :: term) :: any
+
+  @doc """
+  Invoked to handle message_create events.
+  """
+  @callback handle_message(message :: String.t(), state :: term) ::
+              {:reply, {:text, response :: String.t()}}
+              | {:noreply}
+
+  @optional_callbacks handle_message: 2
 
   @doc """
   Starts a Handler process linked to the current process.
