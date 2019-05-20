@@ -72,29 +72,30 @@ defmodule DiscordBot.Handler do
             } = event,
             state
           ) do
-        case handle_message(content, state.client_state) do
-          {:stop, reason} -> {:stop, reason}
-          {:noreply} -> generic_handle(event, state)
-          {:reply, {:text, response}} -> generic_handle(event, state)
-        end
+        Task.Supervisor.start_child(state.worker_supervisor, fn ->
+          case handle_message(content, state.client_state) do
+            {:noreply} -> nil
+            {:reply, {:text, response}} -> nil
+          end
+
+          handle_event(event, state.client_state)
+        end)
+
+        {:noreply, state}
       end
 
       def handle_info(%Event{} = event, state) do
-        generic_handle(event, state)
-      end
-
-      @doc false
-      def handle_message(_, _), do: {:noreply}
-
-      defoverridable handle_message: 2
-
-      defp generic_handle(event, state) do
         Task.Supervisor.start_child(state.worker_supervisor, fn ->
           handle_event(event, state.client_state)
         end)
 
         {:noreply, state}
       end
+
+      @doc false
+      def handle_message(_, _), do: {:noreply}
+
+      defoverridable handle_message: 2
     end
   end
 
@@ -116,7 +117,6 @@ defmodule DiscordBot.Handler do
   @callback handle_message(message :: String.t(), state :: term) ::
               {:reply, {:text, response :: String.t()}}
               | {:noreply}
-              | {:stop, reason :: any}
 
   @optional_callbacks handle_message: 2
 
