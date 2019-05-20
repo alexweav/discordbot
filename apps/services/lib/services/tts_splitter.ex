@@ -18,9 +18,9 @@ defmodule Services.TtsSplitter do
 
   use DiscordBot.Handler
 
-  alias Services.Help
   alias DiscordBot.Entity.ChannelManager
   alias DiscordBot.Model.Message
+  alias Services.Help
 
   def start_link(opts) do
     help = Keyword.get(opts, :help, Services.Help)
