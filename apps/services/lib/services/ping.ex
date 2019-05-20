@@ -15,18 +15,19 @@ defmodule Services.Ping do
   Starts this handler inside a new process.
   """
   def start_link(opts) do
-    DiscordBot.Handler.start_link(__MODULE__, :message_create, :ok, opts)
+    help = Keyword.get(opts, :help, Services.Help)
+    DiscordBot.Handler.start_link(__MODULE__, :message_create, help, opts)
   end
 
   @doc false
-  def handler_init(:ok) do
-    Help.register_info(Services.Help, %Help.Info{
+  def handler_init(help) do
+    Help.register_info(help, %Help.Info{
       command_key: "!ping",
       name: "Ping",
       description: "Replies with \"Pong\""
     })
 
-    Help.register_info(Services.Help, %Help.Info{
+    Help.register_info(help, %Help.Info{
       command_key: "!source",
       name: "Source",
       description: "Replies with a link to this bot's source"
