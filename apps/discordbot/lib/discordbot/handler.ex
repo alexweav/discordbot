@@ -64,7 +64,7 @@ defmodule DiscordBot.Handler do
       end
 
       @doc false
-      @dialyzer {:no_match, init: 1}
+      @dialyzer {:no_match, handle_info: 2}
       def handle_info(
             %Event{
               topic: :message_create,
