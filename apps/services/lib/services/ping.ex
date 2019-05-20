@@ -37,13 +37,13 @@ defmodule Services.Ping do
   end
 
   @doc false
-  def handle_message("!ping", _) do
+  def handle_message("!ping", _, _) do
     {:reply, {:text, "Pong!"}}
   end
 
-  def handle_message("!source", _) do
+  def handle_message("!source", _, _) do
     {:reply, {:text, "https://github.com/alexweav/discordbot"}}
   end
 
-  def handle_message(_, _), do: {:noreply}
+  def handle_message(_, _, _), do: {:noreply}
 end
