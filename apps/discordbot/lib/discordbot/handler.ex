@@ -99,7 +99,10 @@ defmodule DiscordBot.Handler do
       @doc false
       def handle_message(_, _), do: {:noreply}
 
-      defoverridable handle_message: 2
+      @doc false
+      def handle_event(_, _), do: nil
+
+      defoverridable handle_message: 2, handle_event: 2
     end
   end
 

@@ -9,8 +9,6 @@ defmodule Services.Ping do
 
   use DiscordBot.Handler
 
-  alias DiscordBot.Entity.{Channel, ChannelManager}
-  alias DiscordBot.Model.Message
   alias Services.Help
 
   @doc """
@@ -38,23 +36,13 @@ defmodule Services.Ping do
   end
 
   @doc false
-  def handle_event(%Event{message: %Message{channel_id: channel_id, content: content}}, :ok) do
-    handle_content(content, channel_id)
+  def handle_message("!ping", _) do
+    {:reply, {:text, "Pong!"}}
   end
 
-  def handle_event(_, _), do: nil
-
-  defp handle_content("!ping", channel_id) do
-    {:ok, channel} = ChannelManager.lookup_by_id(DiscordBot.ChannelManager, channel_id)
-    Channel.create_message(channel, "Pong")
+  def handle_message("!source", _) do
+    {:reply, {:text, "https://github.com/alexweav/discordbot"}}
   end
 
-  defp handle_content("!source", channel_id) do
-    {:ok, channel} = ChannelManager.lookup_by_id(DiscordBot.ChannelManager, channel_id)
-    Channel.create_message(channel, "https://github.com/alexweav/discordbot")
-  end
-
-  defp handle_content(_, _) do
-    :noop
-  end
+  def handle_message(_, _), do: {:noreply}
 end
