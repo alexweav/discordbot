@@ -64,6 +64,7 @@ defmodule DiscordBot.Handler do
       end
 
       @doc false
+      @dialyzer {:no_match, init: 1}
       def handle_info(
             %Event{
               topic: :message_create,
@@ -74,10 +75,8 @@ defmodule DiscordBot.Handler do
         case handle_message(content, state.client_state) do
           {:stop, reason} -> {:stop, reason}
           {:noreply} -> generic_handle(event, state)
-          {:reply, {:text, response}} -> {:noreply, state}
+          {:reply, {:text, response}} -> generic_handle(event, state)
         end
-
-        {:noreply, state}
       end
 
       def handle_info(%Event{} = event, state) do
