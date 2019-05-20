@@ -67,6 +67,10 @@ defmodule DiscordBot.Handler do
         Task.Supervisor.start_child(supervisor, fn -> handle_event(event, state) end)
         {:noreply, %State{client_state: state, worker_supervisor: supervisor}}
       end
+
+      def handle_message(_, _), do: {:noreply}
+
+      defoverridable handle_message: 2
     end
   end
 
@@ -74,14 +78,23 @@ defmodule DiscordBot.Handler do
   Invoked when the handler is started, in the main process.
   """
   @callback handler_init(any) ::
-              {:ok, new_state}
+              {:ok, new_state :: term}
               | {:stop, reason :: any}
-            when new_state: term
 
   @doc """
-  Invoked to handle generic events.
+  Invoked to handle any subscribed event.
   """
   @callback handle_event(event :: Event.t(), state :: term) :: any
+
+  @doc """
+  Invoked to handle message_create events.
+  """
+  @callback handle_message(message :: String.t(), state :: term) ::
+              {:reply, {:text, response :: String.t()}}
+              | {:noreply}
+              | {:stop, reason :: any}
+
+  @optional_callbacks handle_message: 2
 
   @doc """
   Starts a Handler process linked to the current process.
