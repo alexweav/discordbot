@@ -13,6 +13,11 @@ defmodule DiscordBot.Entity.ChannelManager do
   alias DiscordBot.Model.Message
 
   @doc """
+  Sends a reply to the given message on the appropriate channel.
+  """
+  @callback reply(message :: Message.t(), response :: String.t(), opts :: list) :: any
+
+  @doc """
   Starts the channel manager.
 
   - `opts` - a keyword list of options. See below.
@@ -89,10 +94,9 @@ defmodule DiscordBot.Entity.ChannelManager do
   - `content` - the contents of the reply message.
   - `opts` - a keyword list of options to pass to `DiscordBot.Entity.Channel.create_message/3`.
   """
-  @spec reply(Message.t(), String.t()) :: any
+  @spec reply(Message.t(), String.t(), list) :: any
   def reply(message, content, opts \\ []) do
     %Message{channel_id: channel_id} = message
-    # TODO: pass in manager rather than look it up
     {:ok, channel} = lookup_by_id(DiscordBot.ChannelManager, channel_id)
     Channel.create_message(channel, content, opts)
   end

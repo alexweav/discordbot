@@ -6,7 +6,7 @@ defmodule Services.MixProject do
       app: :services,
       version: "0.1.0",
       build_path: "../../_build",
-      config_path: "../../config/config.exs",
+      config_paths: ~w(../../config/config.exs ../../config/#{Mix.env()}.exs),
       deps_path: "../../deps",
       lockfile: "../../mix.lock",
       elixir: "~> 1.8",

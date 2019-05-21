@@ -14,7 +14,23 @@ defmodule Services.TtsSplitter do
   host a handler for the logic in this module.
   """
 
+  use DiscordBot.Handler
+
+  alias DiscordBot.Entity.ChannelManager
+  alias DiscordBot.Model.Message
+  alias Services.Help
+
   @default_character_threshold 175
+  @reply_interval Application.get_env(
+                    :services,
+                    :tts_response_interval,
+                    3_000
+                  )
+
+  def start_link(opts) do
+    help = Keyword.get(opts, :help, Services.Help)
+    DiscordBot.Handler.start_link(__MODULE__, :message_create, help, opts)
+  end
 
   @doc """
   Returns the given text as a list of TTS-compatible chunks
@@ -28,7 +44,7 @@ defmodule Services.TtsSplitter do
 
   @doc """
   Groups and concatenates a list of words into space-separated
-  strings which are each shorter than `character_threshold` 
+  strings which are each shorter than `character_threshold`
   """
   @spec group_words(list(String.t()), integer) :: list(String.t())
   def group_words([], _character_threshold), do: []
@@ -94,5 +110,42 @@ defmodule Services.TtsSplitter do
     |> Enum.reverse()
     |> Enum.take(amount)
     |> Enum.reverse()
+  end
+
+  ## Handlers
+
+  @doc false
+  def handler_init(help) do
+    Help.register_info(help, %Help.Info{
+      command_key: "!tts_split",
+      name: "TTS Split",
+      description: "Splits long text into segments and repeats them using /tts"
+    })
+
+    {:ok, :ok}
+  end
+
+  @doc false
+  def handle_message("!tts_split " <> text, message, _) do
+    chunks = tts_split(text)
+    send_tts_chunks(chunks, message)
+    {:noreply}
+  end
+
+  def handle_message(_, _, _), do: {:noreply}
+
+  defp send_tts_chunks(chunks, message) do
+    for chunk <- chunks do
+      channel_manager().reply(message, chunk, tts: true)
+      Process.sleep(@reply_interval)
+    end
+  end
+
+  defp channel_manager do
+    Application.get_env(
+      :services,
+      :channel_manager,
+      ChannelManager
+    )
   end
 end

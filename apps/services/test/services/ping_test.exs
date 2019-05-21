@@ -3,6 +3,7 @@ defmodule Services.PingTest do
   doctest Services.Ping
 
   alias DiscordBot.Broker
+  alias DiscordBot.Model.Message
   alias Services.{Help, Ping}
 
   setup context do
@@ -21,18 +22,18 @@ defmodule Services.PingTest do
   end
 
   test "responds to ping query" do
-    assert Ping.handle_message("!ping", :ok) == {:reply, {:text, "Pong!"}}
+    assert Ping.handle_message("!ping", %Message{}, :ok) == {:reply, {:text, "Pong!"}}
   end
 
   test "responds to source query" do
-    assert Ping.handle_message("!source", :ok) ==
+    assert Ping.handle_message("!source", %Message{}, :ok) ==
              {:reply, {:text, "https://github.com/alexweav/discordbot"}}
   end
 
   test "ignores other queries" do
-    assert Ping.handle_message("!Ping", :ok) == {:noreply}
-    assert Ping.handle_message("asdfasdf", :ok) == {:noreply}
-    assert Ping.handle_message("", :ok) == {:noreply}
+    assert Ping.handle_message("!Ping", %Message{}, :ok) == {:noreply}
+    assert Ping.handle_message("asdfasdf", %Message{}, :ok) == {:noreply}
+    assert Ping.handle_message("", %Message{}, :ok) == {:noreply}
   end
 
   test "registers help info on start", %{help: help} do
