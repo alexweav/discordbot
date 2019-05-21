@@ -14,13 +14,18 @@ defmodule Services.TtsSplitter do
   host a handler for the logic in this module.
   """
 
-  @default_character_threshold 175
-
   use DiscordBot.Handler
 
   alias DiscordBot.Entity.ChannelManager
   alias DiscordBot.Model.Message
   alias Services.Help
+
+  @default_character_threshold 175
+  @channel_manager Application.get_env(
+                     :services,
+                     :channel_manager,
+                     ChannelManager
+                   )
 
   def start_link(opts) do
     help = Keyword.get(opts, :help, Services.Help)
@@ -131,7 +136,7 @@ defmodule Services.TtsSplitter do
 
   defp send_tts_chunks(chunks, message) do
     for chunk <- chunks do
-      ChannelManager.reply(message, chunk, tts: true)
+      @channel_manager.reply(message, chunk, tts: true)
       Process.sleep(3_000)
     end
   end
