@@ -21,6 +21,11 @@ defmodule Services.TtsSplitter do
   alias Services.Help
 
   @default_character_threshold 175
+  @reply_interval Application.get_env(
+                    :services,
+                    :tts_response_interval,
+                    3_000
+                  )
 
   def start_link(opts) do
     help = Keyword.get(opts, :help, Services.Help)
@@ -132,7 +137,7 @@ defmodule Services.TtsSplitter do
   defp send_tts_chunks(chunks, message) do
     for chunk <- chunks do
       channel_manager().reply(message, chunk, tts: true)
-      Process.sleep(3_000)
+      Process.sleep(@reply_interval)
     end
   end
 

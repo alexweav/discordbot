@@ -72,4 +72,15 @@ defmodule Services.TtsSplitterTest do
     Process.sleep(100)
     verify!(DiscordBot.Entity.ChannelManagerMock)
   end
+
+  test "ignores non matching messages", %{broker: broker} do
+    message = %Message{
+      channel_id: "a-channel",
+      content: "non-matching"
+    }
+
+    Broker.publish(broker, :message_create, message)
+    Process.sleep(100)
+    verify!(DiscordBot.Entity.ChannelManagerMock)
+  end
 end
