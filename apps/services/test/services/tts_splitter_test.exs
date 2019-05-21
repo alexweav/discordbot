@@ -65,11 +65,11 @@ defmodule Services.TtsSplitterTest do
     }
 
     DiscordBot.Entity.ChannelManagerMock
-    |> expect(:reply, fn _msg, _content, _opts -> :ok end)
+    |> expect(:reply, fn ^message, "asdf", [tts: true] -> :ok end)
     |> allow(self(), splitter)
 
     Broker.publish(broker, :message_create, message)
     Process.sleep(100)
-    verify!()
+    verify!(DiscordBot.Entity.ChannelManagerMock)
   end
 end
