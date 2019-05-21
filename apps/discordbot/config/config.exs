@@ -30,3 +30,4 @@ config :logger, :error,
 # should be included in this directory. Otherwise, it should be
 # set in the config files in rel/config instead.
 import_config "*.secret.exs"
+import_config "#{Mix.env()}.exs"

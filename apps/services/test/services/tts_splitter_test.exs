@@ -2,7 +2,10 @@ defmodule Services.TtsSplitterTest do
   use ExUnit.Case, async: true
   doctest Services.TtsSplitter
 
+  import Mox
+
   alias DiscordBot.Broker
+  alias DiscordBot.Model.Message
   alias Services.{Help, TtsSplitter}
 
   setup context do
@@ -53,5 +56,20 @@ defmodule Services.TtsSplitterTest do
 
   test "subscribes to messages on start", %{broker: broker, splitter: splitter} do
     assert Enum.member?(Broker.subscribers?(broker, :message_create), splitter)
+  end
+
+  test "responds to matching messages", %{broker: broker, splitter: splitter} do
+    message = %Message{
+      channel_id: "a-channel",
+      content: "!tts_split asdf"
+    }
+
+    DiscordBot.Entity.ChannelManagerMock
+    |> expect(:reply, fn _msg, _content, _opts -> :ok end)
+    |> allow(self(), splitter)
+
+    Broker.publish(broker, :message_create, message)
+    Process.sleep(100)
+    verify!()
   end
 end
