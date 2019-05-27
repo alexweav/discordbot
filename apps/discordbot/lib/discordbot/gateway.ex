@@ -77,5 +77,5 @@ defmodule DiscordBot.Gateway do
   defp id_from_index(shard_index), do: "DiscordBot.GatewayInstance-#{shard_index}"
 
   defp spawn_delay(0), do: 0
-  defp spawn_delay(_), do: 5000
+  defp spawn_delay(_), do: 6000
 end
