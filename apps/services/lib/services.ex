@@ -16,7 +16,7 @@ defmodule Services do
       {Services.Ping, []},
       {Services.TtsSplitter, []},
       {Services.Search.Supervisor, [broker: Broker]},
-      {Services.Netstat.Supervisor, [broker: Broker]}
+      {Services.Netstat, []}
     ]
 
     Logger.info("Launching services...")
