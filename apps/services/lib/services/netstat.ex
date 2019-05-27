@@ -3,7 +3,33 @@ defmodule Services.Netstat do
   Provides network statistics and connectivity information.
   """
 
+  use DiscordBot.Handler
+
   alias DiscordBot.Gateway.Heartbeat
+  alias Services.Help
+
+  def start_link(opts) do
+    help = Keyword.get(opts, :help, Services.Help)
+    DiscordBot.Handler.start_link(__MODULE__, :message_create, help, opts)
+  end
+
+  @doc false
+  def handler_init(help) do
+    Help.register_info(help, %Help.Info{
+      command_key: "!netstat",
+      name: "Netstat",
+      description: "Provides network connectivity information"
+    })
+
+    {:ok, :ok}
+  end
+
+  @doc false
+  def handle_message("!netstat", _, _) do
+    {:reply, {:text, stats_message()}}
+  end
+
+  def handle_message(_, _, _), do: {:noreply}
 
   @doc """
   Builds a message describing the current network statistics.
