@@ -25,7 +25,7 @@ defmodule Services.MixProject do
     [
       extra_applications: [:logger],
       mod: {Services.Application, []},
-      applications: applications(Mix.env)
+      applications: applications(Mix.env())
     ]
   end
 
