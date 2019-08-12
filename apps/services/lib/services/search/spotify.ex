@@ -8,8 +8,15 @@ defmodule Services.Search.Spotify do
   alias Services.Search.Spotify
   alias Services.Search.TokenManager
 
+  @token_base_url Application.get_env(
+                    :services,
+                    :spotify_token_base_url,
+                    "https://accounts.spotify.com"
+                  )
+  @api_base_url Application.get_env(:services, :spotify_api_base_url, "https://api.spotify.com")
+
   def request_temporary_token do
-    url = "https://accounts.spotify.com/api/token"
+    url = @token_base_url <> "/api/token"
 
     body = URI.encode("grant_type=client_credentials")
 
@@ -32,7 +39,7 @@ defmodule Services.Search.Spotify do
 
   def search_albums(term, take \\ 1) do
     url =
-      "https://api.spotify.com/v1/search?type=album"
+      (@api_base_url <> "/v1/search?type=album")
       |> apply_query(term)
       |> apply_take(take)
 
@@ -48,7 +55,7 @@ defmodule Services.Search.Spotify do
 
   def search_tracks(term, take \\ 1) do
     url =
-      "https://api.spotify.com/v1/search?type=track"
+      (@api_base_url <> "/v1/search?type=track")
       |> apply_query(term)
       |> apply_take(take)
 
