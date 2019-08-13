@@ -3,6 +3,8 @@ defmodule Services.Fake.Spotify.Router do
   Router for the mock Spotify server.
   """
 
+  @fake_token "test"
+
   use Plug.Router
 
   plug(Plug.Parsers,
@@ -16,6 +18,6 @@ defmodule Services.Fake.Spotify.Router do
 
   post "/api/token" do
     conn
-    |> Plug.Conn.send_resp(200, nil)
+    |> Plug.Conn.send_resp(200, Poison.encode!(%{access_token: @fake_token}))
   end
 end
