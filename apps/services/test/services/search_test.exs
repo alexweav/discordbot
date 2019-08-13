@@ -2,11 +2,13 @@ defmodule Services.SearchTest do
   use ExUnit.Case, async: true
   doctest Services.Search
 
+  use Services.Fake.Spotify
+
   alias Services.Search
 
   setup do
     _ = start_supervised!({Services.Search.TokenManager, name: Services.Search.TokenManager})
-
+    setup_spotify()
     Search.Spotify.start()
     Search.setup_handler()
     :ok
