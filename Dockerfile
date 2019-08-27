@@ -11,7 +11,7 @@ COPY . .
 # Use distillery to build a release
 RUN rm -rf _build && \
     mix deps.get && \
-    mix release
+    mix distillery.release
 
 # Extract distillery tarball
 RUN APP_NAME="discordbot_umbrella" && \
