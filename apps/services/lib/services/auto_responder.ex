@@ -14,9 +14,9 @@ defmodule Services.AutoResponder do
 
   @doc false
   def handler_init(:ok) do
-    rules = %{
-      ~r/^i('?m|\sam)\s(?<rest>.+)$/i => "Hi {rest}, I'm Dad!"
-    }
+    rules = [
+      {~r/^i('?m|\sam)\s(?<rest>.+)$/i, "Hi {rest}, I'm Dad!"}
+    ]
 
     {:ok, rules}
   end
