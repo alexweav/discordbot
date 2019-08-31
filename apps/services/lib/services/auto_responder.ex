@@ -5,6 +5,9 @@ defmodule Services.AutoResponder do
 
   use DiscordBot.Handler
 
+  alias DiscordBot.Self
+  alias DiscordBot.Model.User
+
   @doc """
   Starts this handler.
   """
@@ -22,5 +25,12 @@ defmodule Services.AutoResponder do
   end
 
   @doc false
+  def handle_message(_text, %Message{author: %User{id: author_id}}, _) do
+    case Self.user?() do
+      %User{id: ^author_id} -> {:noreply}
+      _ -> {:reply, {:text, "test"}}
+    end
+  end
+
   def handle_message(_, _, _), do: {:noreply}
 end
