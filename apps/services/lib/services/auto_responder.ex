@@ -5,8 +5,18 @@ defmodule Services.AutoResponder do
 
   use DiscordBot.Handler
 
-  alias DiscordBot.Self
   alias DiscordBot.Model.User
+  alias DiscordBot.Self
+
+  @typedoc """
+  Represents a single auto-response rule. A rule consists
+  of a regex, and a response string. If a message is given which matches
+  the rule, the bot will respond with the matching response.
+
+  Named capture groups in the rule regex may be inserted into the
+  response by wrapping the name in curly braces.
+  """
+  @type rule :: {Regex.t(), String.t()}
 
   @doc """
   Starts this handler.
@@ -34,6 +44,7 @@ defmodule Services.AutoResponder do
 
   def handle_message(_, _, _), do: {:noreply}
 
+  @spec generate_response(list(rule), String.t()) :: {:reply, {:text, String.t()}} | {:noreply}
   def generate_response(rules, text) do
     case evaluate_rules(rules, text) do
       nil -> {:noreply}
@@ -41,6 +52,7 @@ defmodule Services.AutoResponder do
     end
   end
 
+  @spec evaluate_rules(list(rule), String.t()) :: String.t() | nil
   def evaluate_rules([{rule, response} | rest], text) do
     case Regex.named_captures(rule, text) do
       nil -> evaluate_rules(rest, text)
@@ -50,6 +62,7 @@ defmodule Services.AutoResponder do
 
   def evaluate_rules([], _), do: nil
 
+  @spec insert_string_args(String.t(), map) :: String.t()
   def insert_string_args(string, args) do
     args
     |> Map.to_list()
