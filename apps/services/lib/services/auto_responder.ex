@@ -50,7 +50,11 @@ defmodule Services.AutoResponder do
 
   def evaluate_rules([], _), do: nil
 
-  def insert_string_args(string, _args) do
-    string
+  def insert_string_args(string, args) do
+    args
+    |> Map.to_list()
+    |> Enum.reduce(string, fn {key, insert}, str ->
+      String.replace(str, "{#{key}}", insert)
+    end)
   end
 end
