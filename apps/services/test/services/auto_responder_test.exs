@@ -4,6 +4,23 @@ defmodule Services.AutoResponderTest do
 
   alias Services.AutoResponder
 
+  test "responds if rules match" do
+    rules = [
+      {~r/abc(?<group>.+)/, "captured {group}"}
+    ]
+
+    expected = {:reply, {:text, "captured test"}}
+    assert AutoResponder.generate_response(rules, "abctest") == expected
+  end
+
+  test "no response if rules don't match" do
+    rules = [
+      {~r/abc(?<group>.+)/, "captured {group}"}
+    ]
+
+    assert AutoResponder.generate_response(rules, "xyz") == {:noreply}
+  end
+
   test "evaluates rules and performs capture inserts" do
     rules = [
       {~r/abc(?<group>.+)/, "captured {group}"}

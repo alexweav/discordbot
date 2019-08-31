@@ -44,6 +44,10 @@ defmodule Services.AutoResponder do
 
   def handle_message(_, _, _), do: {:noreply}
 
+  @doc """
+  Generates a reply tuple containing the response produced when evaluating
+  a list of rules against a string. See `evaluate_rules`.
+  """
   @spec generate_response(list(rule), String.t()) :: {:reply, {:text, String.t()}} | {:noreply}
   def generate_response(rules, text) do
     case evaluate_rules(rules, text) do
