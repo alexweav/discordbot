@@ -4,6 +4,22 @@ defmodule Services.AutoResponderTest do
 
   alias Services.AutoResponder
 
+  test "evaluates rules and performs capture inserts" do
+    rules = [
+      {~r/abc(?<group>.+)/, "captured {group}"}
+    ]
+
+    assert AutoResponder.evaluate_rules(rules, "abctest") == "captured test"
+  end
+
+  test ":error if no rules match" do
+    rules = [
+      {~r/abc(?<group>.+)/, "captured {group}"}
+    ]
+
+    assert AutoResponder.evaluate_rules(rules, "xyz") == :error
+  end
+
   test "inserts args into strings" do
     string = "A {arg}"
     args = %{"foo" => "bar", "arg" => "test"}

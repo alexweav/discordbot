@@ -47,12 +47,26 @@ defmodule Services.AutoResponder do
   @spec generate_response(list(rule), String.t()) :: {:reply, {:text, String.t()}} | {:noreply}
   def generate_response(rules, text) do
     case evaluate_rules(rules, text) do
-      nil -> {:noreply}
+      :error -> {:noreply}
       response -> {:reply, {:text, response}}
     end
   end
 
-  @spec evaluate_rules(list(rule), String.t()) :: String.t() | nil
+  @doc """
+  Evaluates a list of rules against a string. Returns the response given
+  by the first matching rule. Returns `:error` if no given rules match the string.
+
+  ## Examples
+
+      iex> rules = [{~r/abc/, "def"}]
+      ...> Services.AutoResponder.evaluate_rules(rules, "abc")
+      "def"
+
+      iex> rules = [{~r/abc/, "def"}]
+      ...> Services.AutoResponder.evaluate_rules(rules, "xyz")
+      :error
+  """
+  @spec evaluate_rules(list(rule), String.t()) :: String.t() | :error
   def evaluate_rules([{rule, response} | rest], text) do
     case Regex.named_captures(rule, text) do
       nil -> evaluate_rules(rest, text)
@@ -60,7 +74,7 @@ defmodule Services.AutoResponder do
     end
   end
 
-  def evaluate_rules([], _), do: nil
+  def evaluate_rules([], _), do: :error
 
   @doc """
   Inserts a set of named arguments into a string. The arguments
