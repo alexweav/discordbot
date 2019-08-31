@@ -25,12 +25,32 @@ defmodule Services.AutoResponder do
   end
 
   @doc false
-  def handle_message(_text, %Message{author: %User{id: author_id}}, _) do
+  def handle_message(text, %Message{author: %User{id: author_id}}, rules) do
     case Self.user?() do
       %User{id: ^author_id} -> {:noreply}
-      _ -> {:reply, {:text, "test"}}
+      _ -> generate_response(rules, text)
     end
   end
 
   def handle_message(_, _, _), do: {:noreply}
+
+  def generate_response(rules, text) do
+    case evaluate_rules(rules, text) do
+      nil -> {:noreply}
+      response -> {:reply, {:text, response}}
+    end
+  end
+
+  def evaluate_rules([{rule, response} | rest], text) do
+    case Regex.named_captures(rule, text) do
+      nil -> evaluate_rules(rest, text)
+      captures -> insert_string_args(response, captures)
+    end
+  end
+
+  def evaluate_rules([], _), do: nil
+
+  def insert_string_args(string, _args) do
+    string
+  end
 end

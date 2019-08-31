@@ -15,7 +15,7 @@ defmodule Services do
       {Services.Help, [broker: Broker, name: Services.Help]},
       {Services.Ping, []},
       {Services.TtsSplitter, []},
-      {Services.Search.Supervisor, [broker: Broker]},
+      # {Services.Search.Supervisor, [broker: Broker]},
       {Services.Netstat, []},
       {Services.AutoResponder, []}
     ]
