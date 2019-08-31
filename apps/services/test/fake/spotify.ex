@@ -23,6 +23,8 @@ defmodule Services.Fake.Spotify do
         on_exit(fn ->
           Cowboy.shutdown(pid)
         end)
+
+        pid
       end
     end
   end

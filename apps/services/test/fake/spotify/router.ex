@@ -8,7 +8,7 @@ defmodule Services.Fake.Spotify.Router do
   use Plug.Router
 
   plug(Plug.Parsers,
-    parsers: [:json],
+    parsers: [:json, :urlencoded],
     pass: ["text/*"],
     json_decoder: Poison
   )
@@ -18,6 +18,12 @@ defmodule Services.Fake.Spotify.Router do
 
   post "/api/token" do
     conn
-    |> Plug.Conn.send_resp(200, Poison.encode!(%{access_token: @fake_token}))
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Poison.encode!(%{access_token: @fake_token}))
+  end
+
+  match _ do
+    conn
+    |> send_resp(404, "Oops")
   end
 end

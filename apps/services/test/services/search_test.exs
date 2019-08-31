@@ -15,7 +15,7 @@ defmodule Services.SearchTest do
   end
 
   test "parses Spotify access token" do
-    assert is_binary(Search.request_spotify_access_token())
+    assert Search.request_spotify_access_token() == "test"
   end
 
   @tag :skip

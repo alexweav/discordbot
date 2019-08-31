@@ -17,7 +17,6 @@ defmodule Services.Search.Spotify do
 
   def request_temporary_token do
     url = @token_base_url <> "/api/token"
-    IO.inspect(url)
     body = URI.encode("grant_type=client_credentials")
 
     header = [
