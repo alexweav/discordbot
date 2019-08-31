@@ -6,9 +6,13 @@ defmodule Services.SearchTest do
 
   alias Services.Search
 
+  setup_all do
+    setup_spotify()
+    :ok
+  end
+
   setup do
     _ = start_supervised!({Services.Search.TokenManager, name: Services.Search.TokenManager})
-    setup_spotify()
     Search.Spotify.start()
     Search.setup_handler()
     :ok

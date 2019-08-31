@@ -16,8 +16,6 @@ defmodule Services.Fake.Spotify do
       @spec setup_spotify() :: {String.t(), pid}
       def setup_spotify do
         options = [port: 8081]
-        # child_spec = {Plug.Cowboy, scheme: :http, plug: Router, options: options}
-        # TODO: start this somehow, and on_exit shutdown
         {:ok, pid} = Cowboy.http(Services.Fake.Spotify.Router, [], options)
 
         on_exit(fn ->
