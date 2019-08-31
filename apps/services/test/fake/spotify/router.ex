@@ -23,6 +23,10 @@ defmodule Services.Fake.Spotify.Router do
       |> put_resp_content_type("application/json")
       |> send_resp(200, Poison.encode!(%{access_token: @fake_token}))
     else
+      {:error, :invalid_client} ->
+        conn
+        |> send_resp(401, Poison.encode!(%{"error" => "invalid_client"}))
+
       error ->
         conn
         |> send_resp(400, "Request for token did not match: #{error}")
@@ -54,8 +58,8 @@ defmodule Services.Fake.Spotify.Router do
     expected_token = client_id <> ":" <> client_secret
 
     case Base.url_decode64(token) do
-      {:ok, expected_token} -> :ok
-      {:ok, _} -> {:error, "Incorrect auth token. Got #{token}, expected #{expected_token}"}
+      {:ok, ^expected_token} -> :ok
+      {:ok, _} -> {:error, :invalid_client}
       :error -> {:error, "Bad auth token encoding: #{token}"}
     end
   end
