@@ -1,6 +1,6 @@
 defmodule Services.Search.Spotify do
   @moduledoc """
-  API client for Spotify
+  A simple API client for Spotify.
   """
 
   use HTTPoison.Base
@@ -15,6 +15,15 @@ defmodule Services.Search.Spotify do
                   )
   @api_base_url Application.get_env(:services, :spotify_api_base_url, "https://api.spotify.com")
 
+  @doc """
+  Requests an access token from Spotify.
+
+  Authenticates using the user's client ID and Spotify API key, provided
+  via application configuration or environment variable.
+  The returned token is valid for one hour, and must be passed via a header
+  to other API endpoints.
+  """
+  @spec request_temporary_token() :: map | {:error, :invalid_client} | {:error, HTTPoison.Response.t()}
   def request_temporary_token do
     url = @token_base_url <> "/api/token"
     body = URI.encode("grant_type=client_credentials")
