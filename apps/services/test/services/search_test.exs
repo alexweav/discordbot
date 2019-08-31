@@ -14,7 +14,7 @@ defmodule Services.SearchTest do
   setup do
     _ = start_supervised!({Services.Search.TokenManager, name: Services.Search.TokenManager})
     Search.Spotify.start()
-    # Search.setup_handler()
+    Search.setup_handler()
     :ok
   end
 
