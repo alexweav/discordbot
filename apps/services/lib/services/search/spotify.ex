@@ -23,7 +23,8 @@ defmodule Services.Search.Spotify do
   The returned token is valid for one hour, and must be passed via a header
   to other API endpoints.
   """
-  @spec request_temporary_token() :: map | {:error, :invalid_client} | {:error, HTTPoison.Response.t()}
+  @spec request_temporary_token() ::
+          map | {:error, :invalid_client} | {:error, HTTPoison.Response.t()}
   def request_temporary_token do
     url = @token_base_url <> "/api/token"
     body = URI.encode("grant_type=client_credentials")
