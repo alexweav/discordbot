@@ -62,6 +62,15 @@ defmodule Services.AutoResponder do
 
   def evaluate_rules([], _), do: nil
 
+  @doc """
+  Inserts a set of named arguments into a string. The arguments
+  within the string are indicated by names wrapped in curly braces.
+
+  ## Examples
+
+      iex> Services.AutoResponder.insert_string_args("Hello {arg}!", %{"arg" => "World"})
+      "Hello World!"
+  """
   @spec insert_string_args(String.t(), map) :: String.t()
   def insert_string_args(string, args) do
     args
