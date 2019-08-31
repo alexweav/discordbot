@@ -4,7 +4,7 @@ defmodule DiscordBot.ConfigProvider do
   # This is a modification of the default Elixir config provider that
   # ships with Distillery, which allows for optional config files
 
-  use Mix.Releases.Config.Provider
+  use Distillery.Releases.Config.Provider
 
   @impl Provider
   def init([path]) do
