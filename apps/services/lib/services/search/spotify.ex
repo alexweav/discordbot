@@ -83,21 +83,11 @@ defmodule Services.Search.Spotify do
   end
 
   def client_id do
-    with nil <- Map.get(System.get_env(), "SPOTIFY_CLIENT_ID"),
-         nil <- Application.get_env(:discordbot, :spotify_client_id) do
-      nil
-    else
-      token -> token
-    end
+    Application.get_env(:discordbot, :spotify_client_id, nil)
   end
 
   def api_key do
-    with nil <- Map.get(System.get_env(), "SPOTIFY_CLIENT_SECRET"),
-         nil <- Application.get_env(:discordbot, :spotify_client_secret) do
-      nil
-    else
-      token -> token
-    end
+    Application.get_env(:discordbot, :spotify_client_secret, nil)
   end
 
   def full_auth_key(client_id, api_key) do
