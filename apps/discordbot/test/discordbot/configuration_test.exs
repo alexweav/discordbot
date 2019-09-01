@@ -24,4 +24,15 @@ defmodule DiscordBot.ConfigurationTest do
       :error -> nil
     end
   end
+
+  test "loads env vars into application env" do
+    System.put_env("TEST_KEY", "TEST_VALUE")
+    assert DiscordBot.Configuration.load_env_var("TEST_KEY", :discordbot, :test_key) == :ok
+    assert Application.fetch_env(:discordbot, :test_key) == {:ok, "TEST_VALUE"}
+  end
+
+  test "doesn't set app env key if env var doesn't exist" do
+    assert DiscordBot.Configuration.load_env_var("NOT_EXIST", :discordbot, :not_exist) == :error
+    assert Application.fetch_env(:discordbot, :not_exist) == :error
+  end
 end

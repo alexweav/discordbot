@@ -74,4 +74,22 @@ defmodule DiscordBot.Configuration do
   def shards_config do
     Application.get_env(:discordbot, :shards)
   end
+
+  @doc """
+  Loads a system environment variable into the configuration for a
+  certain application.
+
+  The given environment variable may then be
+  accessed via `Application.get_env/3` or `Application.fetch_env/1`.
+  The given configuration key is not set if the environment variable
+  is not defined - this is useful for overriding application config keys
+  with environment variables.
+  """
+  @spec load_env_var(String.t(), atom, atom) :: :ok | :error
+  def load_env_var(name, app, key) do
+    case System.fetch_env(name) do
+      {:ok, value} -> Application.put_env(app, key, value)
+      :error -> :error
+    end
+  end
 end
