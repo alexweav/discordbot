@@ -1,6 +1,6 @@
 defmodule Services.Search.Spotify do
   @moduledoc """
-  API client for Spotify
+  A simple API client for Spotify.
   """
 
   use HTTPoison.Base
@@ -8,9 +8,25 @@ defmodule Services.Search.Spotify do
   alias Services.Search.Spotify
   alias Services.Search.TokenManager
 
-  def request_temporary_token do
-    url = "https://accounts.spotify.com/api/token"
+  @token_base_url Application.get_env(
+                    :services,
+                    :spotify_token_base_url,
+                    "https://accounts.spotify.com"
+                  )
+  @api_base_url Application.get_env(:services, :spotify_api_base_url, "https://api.spotify.com")
 
+  @doc """
+  Requests an access token from Spotify.
+
+  Authenticates using the user's client ID and Spotify API key, provided
+  via application configuration or environment variable.
+  The returned token is valid for one hour, and must be passed via a header
+  to other API endpoints.
+  """
+  @spec request_temporary_token() ::
+          map | {:error, :invalid_client} | {:error, HTTPoison.Response.t()}
+  def request_temporary_token do
+    url = @token_base_url <> "/api/token"
     body = URI.encode("grant_type=client_credentials")
 
     header = [
@@ -32,7 +48,7 @@ defmodule Services.Search.Spotify do
 
   def search_albums(term, take \\ 1) do
     url =
-      "https://api.spotify.com/v1/search?type=album"
+      (@api_base_url <> "/v1/search?type=album")
       |> apply_query(term)
       |> apply_take(take)
 
@@ -48,7 +64,7 @@ defmodule Services.Search.Spotify do
 
   def search_tracks(term, take \\ 1) do
     url =
-      "https://api.spotify.com/v1/search?type=track"
+      (@api_base_url <> "/v1/search?type=track")
       |> apply_query(term)
       |> apply_take(take)
 
@@ -67,21 +83,11 @@ defmodule Services.Search.Spotify do
   end
 
   def client_id do
-    with nil <- Map.get(System.get_env(), "SPOTIFY_CLIENT_ID"),
-         nil <- Application.get_env(:discordbot, :spotify_client_id) do
-      nil
-    else
-      token -> token
-    end
+    Application.get_env(:discordbot, :spotify_client_id, nil)
   end
 
   def api_key do
-    with nil <- Map.get(System.get_env(), "SPOTIFY_CLIENT_SECRET"),
-         nil <- Application.get_env(:discordbot, :spotify_client_secret) do
-      nil
-    else
-      token -> token
-    end
+    Application.get_env(:discordbot, :spotify_client_secret, nil)
   end
 
   def full_auth_key(client_id, api_key) do
