@@ -1,6 +1,6 @@
 defmodule DiscordBot.Configuration do
   @moduledoc """
-  Helpers for keeping track of the bot token
+  Helpers for keeping track of the bot token.
   """
 
   @token_env_var_key "TOKEN"
