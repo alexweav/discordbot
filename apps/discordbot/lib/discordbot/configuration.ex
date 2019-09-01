@@ -77,4 +77,24 @@ defmodule DiscordBot.Configuration do
       :error -> :error
     end
   end
+
+  @doc """
+  Loads an integer system environment variable into the app config.
+
+  Converts the system env var into an integer instead of the usual
+  string representation.
+
+  Similar to `DiscordBot.Configuration.load_env_var/3`, but is
+  specifically useful for environment variables which store integer
+  values.
+  """
+  @spec(load_int_env_var(String.t(), atom, atom) :: :ok, :error)
+  def load_int_env_var(name, app, key) do
+    with {:ok, value} <- System.fetch_env(name),
+         {numeric, _} <- value |> to_string() |> Integer.parse() do
+      Application.put_env(app, key, numeric)
+    else
+      _ -> :error
+    end
+  end
 end
