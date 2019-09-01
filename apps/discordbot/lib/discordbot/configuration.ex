@@ -29,35 +29,11 @@ defmodule DiscordBot.Configuration do
   """
   @spec shards() :: integer | nil
   def shards do
-    with nil <- shards_env(),
-         nil <- shards_config() do
-      nil
-    else
-      shards -> shards
-    end
-  end
-
-  @doc """
-  Gets the shard count, if defined via env variable, or `nil` otherwise.
-  """
-  @spec shards_env() :: integer | nil
-  def shards_env do
-    case System.get_env()
-         |> Map.get(@shards_env_var_key)
-         # Workaround for bug in Integer.parse() where an exception occurs if `nil` is passed in
-         |> to_string()
-         |> Integer.parse() do
-      {int, _} -> int
+    load_int_env_var(@shards_env_var_key, :discordbot, :shards)
+    case Application.fetch_env(:discordbot, :shards) do
+      {:ok, shards} -> shards
       :error -> nil
     end
-  end
-
-  @doc """
-  Gets the shard count, if defined via app config, or `nil` otherwise.
-  """
-  @spec shards_config() :: integer | nil
-  def shards_config do
-    Application.get_env(:discordbot, :shards)
   end
 
   @doc """
