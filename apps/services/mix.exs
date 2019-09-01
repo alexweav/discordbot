@@ -29,13 +29,9 @@ defmodule Services.MixProject do
   def application do
     [
       extra_applications: [:logger],
-      mod: {Services.Application, []},
-      applications: applications(Mix.env())
+      mod: {Services.Application, []}
     ]
   end
-
-  defp applications(:test), do: applications(:default) ++ [:cowboy, :plug]
-  defp applications(_), do: [:httpoison]
 
   defp deps do
     [
