@@ -9,7 +9,7 @@ defmodule Services.MixProject do
       config_paths: ~w(../../config/config.exs ../../config/#{Mix.env()}.exs),
       deps_path: "../../deps",
       lockfile: "../../mix.lock",
-      elixir: "~> 1.8",
+      elixir: "~> 1.9",
       start_permanent: Mix.env() == :prod,
       elixirc_paths: elixirc_paths(Mix.env()),
       deps: deps(),
