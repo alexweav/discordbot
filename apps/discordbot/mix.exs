@@ -5,7 +5,7 @@ defmodule DiscordBot.MixProject do
     [
       app: :discordbot,
       version: "0.1.0",
-      elixir: "~> 1.8",
+      elixir: "~> 1.9",
       build_path: "../../_build",
       config_paths: ~w(../../config/config.exs ../../config/#{Mix.env()}.exs),
       deps_path: "../../deps",
