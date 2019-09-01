@@ -30,6 +30,7 @@ defmodule DiscordBot.Configuration do
   @spec shards() :: integer | nil
   def shards do
     load_int_env_var(@shards_env_var_key, :discordbot, :shards)
+
     case Application.fetch_env(:discordbot, :shards) do
       {:ok, shards} -> shards
       :error -> nil
