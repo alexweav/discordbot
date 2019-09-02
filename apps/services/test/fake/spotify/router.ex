@@ -33,6 +33,20 @@ defmodule Services.Fake.Spotify.Router do
     end
   end
 
+  get "/v1/search" do
+    with :ok <- validate_query_headers(conn.req_headers),
+         :ok <- validate_limit(conn.query_params),
+         {:ok, resp} <- execute_query(conn.query_params) do
+      conn
+      |> put_resp_content_type("application/json")
+      |> send_resp(200, Poison.encode!(resp))
+    else
+      error ->
+        conn
+        |> send_resp(400, "Search request failed: #{error}")
+    end
+  end
+
   match _ do
     conn
     |> send_resp(404, "Oops")
@@ -65,4 +79,66 @@ defmodule Services.Fake.Spotify.Router do
   end
 
   defp validate_auth_token(token), do: {:error, "Invalid auth token #{token}"}
+
+  defp validate_query_headers(headers) do
+    auth_header =
+      headers
+      |> Enum.find(fn {key, _} -> String.downcase(key) == "authorization" end)
+
+    case auth_header do
+      {_key, value} -> validate_temp_token(value)
+      nil -> {:error, "No bearer token header"}
+    end
+  end
+
+  def validate_temp_token("Bearer #{@fake_token}"), do: :ok
+  def validate_temp_token(token), do: {:error, "Invalid bearer token: #{token}"}
+
+  def validate_limit(%{"limit" => "1"}), do: :ok
+  def validate_limit(%{"limit" => limit}), do: {:error, "Invalid limit: #{limit}"}
+  def validate_limit(_), do: {:error, "No limit parameter provided"}
+
+  def execute_query(%{"type" => "album", "q" => query}) do
+    case query do
+      "Portal of I" ->
+        {:ok,
+         %{
+           "albums" => %{
+             "items" => [
+               %{
+                 "external_urls" => %{
+                   "spotify" => "https://open.spotify.com/album/2AX3vMS7gYbrS7tALE4U7Q"
+                 }
+               }
+             ]
+           }
+         }}
+
+      _ ->
+        nil
+    end
+  end
+
+  def execute_query(%{"type" => "track", "q" => query}) do
+    case query do
+      "Disease, Injury, Madness" ->
+        {:ok,
+         %{
+           "tracks" => %{
+             "items" => [
+               %{
+                 "external_urls" => %{
+                   "spotify" => "https://open.spotify.com/track/78aw2e4YuglThxQs1THTDo"
+                 }
+               }
+             ]
+           }
+         }}
+
+      _ ->
+        nil
+    end
+  end
+
+  def execute_query(params), do: {:error, "Invalid query params: #{params}"}
 end
