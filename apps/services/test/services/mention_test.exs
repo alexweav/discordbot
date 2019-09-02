@@ -10,7 +10,7 @@ defmodule Services.MentionTest do
 
   setup_all do
     broker = start_supervised!({Broker, []})
-    start_supervised!({DiscordBot.Self, broker: broker, name: Elixir.Self})
+    start_supervised!({Self, broker: broker, name: DiscordBot.Self})
     :ok
   end
 
