@@ -25,8 +25,6 @@ defmodule Services.Mention do
   def handle_message(_, %Message{mentions: mentions}, _) do
     %User{id: self_id} = Self.user?()
 
-    IO.inspect self_id
-    IO.inspect mentions
     if Enum.any?(mentions, fn user -> user.id == self_id end) do
       {:reply, {:text, "can you dont"}}
     else

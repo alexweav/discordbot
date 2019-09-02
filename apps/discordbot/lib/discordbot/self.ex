@@ -117,6 +117,12 @@ defmodule DiscordBot.Self do
     GenServer.call(Self, :id)
   end
 
+  @doc false
+  @spec set_user(User.t()) :: :ok
+  def set_user(user) do
+    GenServer.call(Self, {:set_user, user})
+  end
+
   ## Handlers
 
   def init(state) do
@@ -142,6 +148,10 @@ defmodule DiscordBot.Self do
 
   def handle_call(:id, _from, state) do
     {:reply, state.user.id, state}
+  end
+
+  def handle_call({:set_user, user}, _from, state) when user != nil do
+    {:reply, :ok, %{state | user: user}}
   end
 
   def handle_cast({:update_status, status}, state) do
