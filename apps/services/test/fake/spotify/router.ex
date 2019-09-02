@@ -34,12 +34,15 @@ defmodule Services.Fake.Spotify.Router do
   end
 
   get "/v1/search" do
-    IO.inspect conn.query_params
     with :ok <- validate_query_headers(conn.req_headers),
-         :ok <- validate_limit(conn.query_params) do
+         :ok <- validate_limit(conn.query_params),
+         {:ok, resp} <- execute_query(conn.query_params) do
       conn
       |> put_resp_content_type("application/json")
-      |> send_resp(200, "{}")
+      |> send_resp(
+        200,
+        Poison.encode!(%{"albums" => %{"items" => [%{"external_urls" => %{"spotify" => resp}}]}})
+      )
     else
       error ->
         conn
@@ -85,10 +88,10 @@ defmodule Services.Fake.Spotify.Router do
       headers
       |> Enum.find(fn {key, _} -> String.downcase(key) == "authorization" end)
 
-      case auth_header do
-        {_key, value} -> validate_temp_token(value)
-        nil -> {:error, "No bearer token header"}
-      end
+    case auth_header do
+      {_key, value} -> validate_temp_token(value)
+      nil -> {:error, "No bearer token header"}
+    end
   end
 
   def validate_temp_token("Bearer #{@fake_token}"), do: :ok
@@ -97,4 +100,13 @@ defmodule Services.Fake.Spotify.Router do
   def validate_limit(%{"limit" => "1"}), do: :ok
   def validate_limit(%{"limit" => limit}), do: {:error, "Invalid limit: #{limit}"}
   def validate_limit(_), do: {:error, "No limit parameter provided"}
+
+  def execute_query(%{"type" => "album", "q" => query}) do
+    case query do
+      "Portal of I" -> {:ok, "https://open.spotify.com/album/2AX3vMS7gYbrS7tALE4U7Q"}
+      _ -> nil
+    end
+  end
+
+  def execute_query(params), do: {:error, "Invalid query params: #{params}"}
 end
