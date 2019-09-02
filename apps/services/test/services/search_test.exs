@@ -27,8 +27,7 @@ defmodule Services.SearchTest do
              "https://open.spotify.com/album/2AX3vMS7gYbrS7tALE4U7Q"
   end
 
-  @tag :skip
-  test "parses tracks from Spotify" do
+  test "gets track links from Spotify" do
     assert Search.search_spotify_tracks("Disease, Injury, Madness") ==
              "https://open.spotify.com/track/78aw2e4YuglThxQs1THTDo"
   end

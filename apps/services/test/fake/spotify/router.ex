@@ -119,5 +119,26 @@ defmodule Services.Fake.Spotify.Router do
     end
   end
 
+  def execute_query(%{"type" => "track", "q" => query}) do
+    case query do
+      "Disease, Injury, Madness" ->
+        {:ok,
+         %{
+           "tracks" => %{
+             "items" => [
+               %{
+                 "external_urls" => %{
+                   "spotify" => "https://open.spotify.com/track/78aw2e4YuglThxQs1THTDo"
+                 }
+               }
+             ]
+           }
+         }}
+
+      _ ->
+        nil
+    end
+  end
+
   def execute_query(params), do: {:error, "Invalid query params: #{params}"}
 end
