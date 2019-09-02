@@ -22,8 +22,7 @@ defmodule Services.SearchTest do
     assert Search.request_spotify_access_token() == "test"
   end
 
-  @tag :skip
-  test "parses albums from Spotify" do
+  test "gets album links from Spotify" do
     assert Search.search_spotify_albums("Portal of I") ==
              "https://open.spotify.com/album/2AX3vMS7gYbrS7tALE4U7Q"
   end
