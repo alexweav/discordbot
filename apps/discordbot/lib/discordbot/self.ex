@@ -58,7 +58,7 @@ defmodule DiscordBot.Self do
   """
   @spec update_status(atom) :: :ok
   def update_status(status) do
-    GenServer.cast(Self, {:update_status, status})
+    GenServer.cast(DiscordBot.Self, {:update_status, status})
   end
 
   @doc """
@@ -72,7 +72,7 @@ defmodule DiscordBot.Self do
   """
   @spec update_status(atom, atom, String.t()) :: :ok
   def update_status(status, type, name) do
-    GenServer.cast(Self, {:update_status, status, type, name})
+    GenServer.cast(DiscordBot.Self, {:update_status, status, type, name})
   end
 
   @doc """
@@ -82,7 +82,7 @@ defmodule DiscordBot.Self do
   """
   @spec status?() :: atom
   def status? do
-    GenServer.call(Self, :status)
+    GenServer.call(DiscordBot.Self, :status)
   end
 
   @doc """
@@ -90,7 +90,7 @@ defmodule DiscordBot.Self do
   """
   @spec user?() :: User.t()
   def user? do
-    GenServer.call(Self, :user)
+    GenServer.call(DiscordBot.Self, :user)
   end
 
   @doc """
@@ -98,7 +98,7 @@ defmodule DiscordBot.Self do
   """
   @spec username?() :: String.t() | nil
   def username? do
-    GenServer.call(Self, :username)
+    GenServer.call(DiscordBot.Self, :username)
   end
 
   @doc """
@@ -106,7 +106,7 @@ defmodule DiscordBot.Self do
   """
   @spec discriminator?() :: String.t() | nil
   def discriminator? do
-    GenServer.call(Self, :discriminator)
+    GenServer.call(DiscordBot.Self, :discriminator)
   end
 
   @doc """
@@ -114,13 +114,13 @@ defmodule DiscordBot.Self do
   """
   @spec id?() :: String.t() | nil
   def id? do
-    GenServer.call(Self, :id)
+    GenServer.call(DiscordBot.Self, :id)
   end
 
   @doc false
   @spec set_user(User.t()) :: :ok
   def set_user(user) do
-    GenServer.call(Self, {:set_user, user})
+    GenServer.call(DiscordBot.Self, {:set_user, user})
   end
 
   ## Handlers

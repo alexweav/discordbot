@@ -46,7 +46,7 @@ defmodule DiscordBot do
          broker_name: Broker
        ]},
       {DiscordBot.Entity.Supervisor, []},
-      {DiscordBot.Self, name: Self},
+      {DiscordBot.Self, name: DiscordBot.Self},
       {DiscordBot.Gateway, url: url, name: DiscordBot.GatewaySupervisor},
       {DynamicSupervisor,
        name: DiscordBot.Voice.AcceptorSupervisor, strategy: :one_for_one, restart: :transient},
