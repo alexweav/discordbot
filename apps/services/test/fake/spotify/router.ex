@@ -33,6 +33,20 @@ defmodule Services.Fake.Spotify.Router do
     end
   end
 
+  get "/v1/search" do
+    IO.inspect conn.query_params
+    with :ok <- validate_query_headers(conn.req_headers),
+         :ok <- validate_limit(conn.query_params) do
+      conn
+      |> put_resp_content_type("application/json")
+      |> send_resp(200, "{}")
+    else
+      error ->
+        conn
+        |> send_resp(400, "Search request failed: #{error}")
+    end
+  end
+
   match _ do
     conn
     |> send_resp(404, "Oops")
@@ -65,4 +79,22 @@ defmodule Services.Fake.Spotify.Router do
   end
 
   defp validate_auth_token(token), do: {:error, "Invalid auth token #{token}"}
+
+  defp validate_query_headers(headers) do
+    auth_header =
+      headers
+      |> Enum.find(fn {key, _} -> String.downcase(key) == "authorization" end)
+
+      case auth_header do
+        {_key, value} -> validate_temp_token(value)
+        nil -> {:error, "No bearer token header"}
+      end
+  end
+
+  def validate_temp_token("Bearer #{@fake_token}"), do: :ok
+  def validate_temp_token(token), do: {:error, "Invalid bearer token: #{token}"}
+
+  def validate_limit(%{"limit" => "1"}), do: :ok
+  def validate_limit(%{"limit" => limit}), do: {:error, "Invalid limit: #{limit}"}
+  def validate_limit(_), do: {:error, "No limit parameter provided"}
 end
