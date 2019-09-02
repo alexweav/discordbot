@@ -31,6 +31,4 @@ defmodule Services.Mention do
       {:noreply}
     end
   end
-
-  def handle_message(_, _, _), do: {:noreply}
 end
