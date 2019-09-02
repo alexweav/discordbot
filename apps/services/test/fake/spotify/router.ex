@@ -39,10 +39,7 @@ defmodule Services.Fake.Spotify.Router do
          {:ok, resp} <- execute_query(conn.query_params) do
       conn
       |> put_resp_content_type("application/json")
-      |> send_resp(
-        200,
-        Poison.encode!(%{"albums" => %{"items" => [%{"external_urls" => %{"spotify" => resp}}]}})
-      )
+      |> send_resp(200, Poison.encode!(resp))
     else
       error ->
         conn
@@ -103,8 +100,22 @@ defmodule Services.Fake.Spotify.Router do
 
   def execute_query(%{"type" => "album", "q" => query}) do
     case query do
-      "Portal of I" -> {:ok, "https://open.spotify.com/album/2AX3vMS7gYbrS7tALE4U7Q"}
-      _ -> nil
+      "Portal of I" ->
+        {:ok,
+         %{
+           "albums" => %{
+             "items" => [
+               %{
+                 "external_urls" => %{
+                   "spotify" => "https://open.spotify.com/album/2AX3vMS7gYbrS7tALE4U7Q"
+                 }
+               }
+             ]
+           }
+         }}
+
+      _ ->
+        nil
     end
   end
 
