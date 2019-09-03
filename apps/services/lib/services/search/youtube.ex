@@ -26,8 +26,6 @@ defmodule Services.Search.Youtube do
       |> apply_query(term)
       |> apply_api_key()
 
-    IO.inspect(uri)
-
     case Youtube.get(uri) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
         {:ok, body}
