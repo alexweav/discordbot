@@ -20,13 +20,14 @@ defmodule Services.Search.Youtube do
   """
   def search_videos(term, take \\ 1) do
     uri =
-      @api_base_url <> "/v3/search?part=snippet"
+      (@api_base_url <> "/v3/search?part=snippet")
       |> apply_type(:video)
       |> apply_take(take)
       |> apply_query(term)
       |> apply_api_key()
 
-    IO.inspect uri
+    IO.inspect(uri)
+
     case Youtube.get(uri) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
         {:ok, body}

@@ -36,6 +36,6 @@ defmodule Services.SearchTest do
 
   test "gets video links from youtube" do
     assert Search.search_youtube("test video") ==
-      "https://www.youtube.com/watch?v=test-id"
+             "https://www.youtube.com/watch?v=test-id"
   end
 end
