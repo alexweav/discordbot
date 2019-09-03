@@ -18,9 +18,10 @@ defmodule Services.Fake.Youtube.Router do
     with :ok <- validate_api_key_param(conn.query_params),
          :ok <- validate_part(conn.query_params),
          :ok <- validate_type(conn.query_params),
-         :ok <- validate_take(conn.query_params) do
+         :ok <- validate_take(conn.query_params),
+         {:ok, resp} <- execute_query(conn.query_params) do
       conn
-      |> send_resp(200, "{}")
+      |> send_resp(200, Poison.encode!(resp))
     else
       error ->
         conn
@@ -43,4 +44,19 @@ defmodule Services.Fake.Youtube.Router do
   defp validate_take(%{"maxResults" => "1"}), do: :ok
   defp validate_take(%{"maxResults" => take}), do: {:error, "Invalid take: #{take}"}
   defp validate_take(_), do: {:error, "Missing take param"}
+
+  defp execute_query(%{"q" => "test video"}) do
+    {:ok,
+     %{
+       "items" => [
+         %{
+           "id" => %{
+             "videoId" => "test-id"
+           }
+         }
+       ]
+     }}
+  end
+
+  defp execute_query(params), do: {:error, "Invalid query params: #{params}"}
 end
