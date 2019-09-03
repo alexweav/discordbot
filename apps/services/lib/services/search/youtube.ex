@@ -7,6 +7,12 @@ defmodule Services.Search.Youtube do
 
   alias Services.Search.Youtube
 
+  @api_base_url Application.get_env(
+                  :services,
+                  :youtube_api_base_url,
+                  "https://www.googleapis.com/youtube"
+                )
+
   @doc """
   Searches videos on YouTube given a term.
   `take` indicates maximum number of elements to return,
@@ -36,7 +42,7 @@ defmodule Services.Search.Youtube do
 
   @doc false
   def process_request_url(uri) do
-    "https://www.googleapis.com/youtube/" <> uri
+    @api_base_url <> uri
   end
 
   @doc false
