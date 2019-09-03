@@ -33,4 +33,9 @@ defmodule Services.SearchTest do
     assert Search.search_spotify_tracks("Disease, Injury, Madness") ==
              "https://open.spotify.com/track/78aw2e4YuglThxQs1THTDo"
   end
+
+  test "gets video links from youtube" do
+    assert Search.search_youtube("test video") ==
+      "https://www.youtube.com/watch?v=test-id"
+  end
 end

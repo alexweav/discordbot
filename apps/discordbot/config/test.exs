@@ -2,7 +2,8 @@ use Mix.Config
 
 config :discordbot,
   spotify_client_id: "spotify-test-id",
-  spotify_client_secret: "spotify-client-secret"
+  spotify_client_secret: "spotify-client-secret",
+  youtube_data_api_key: "youtube-api-key"
 
 config :services,
   channel_manager: DiscordBot.Entity.ChannelManagerMock,
