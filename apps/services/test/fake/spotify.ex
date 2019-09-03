@@ -13,7 +13,7 @@ defmodule Services.Fake.Spotify do
 
       Must be called from a module using `ExUnit.Case`.
       """
-      @spec setup_spotify() :: {String.t(), pid}
+      @spec setup_spotify() :: pid
       def setup_spotify do
         options = [port: 8081]
         {:ok, pid} = Cowboy.http(Services.Fake.Spotify.Router, [], options)
