@@ -10,4 +10,5 @@ config :services,
   tts_response_interval: 10,
   spotify_token_base_url: "http://localhost:8081",
   spotify_api_base_url: "http://localhost:8081",
-  youtube_api_base_url: "http://localhost:8082"
+  youtube_api_base_url: "http://localhost:8082",
+  wikipedia_api_base_url: "http://localhost:8083"

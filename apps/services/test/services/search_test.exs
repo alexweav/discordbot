@@ -3,12 +3,14 @@ defmodule Services.SearchTest do
   doctest Services.Search
 
   use Services.Fake.Spotify
+  use Services.Fake.Wikipedia
   use Services.Fake.Youtube
 
   alias Services.Search
 
   setup_all do
     setup_spotify()
+    setup_wikipedia()
     setup_youtube()
     :ok
   end
