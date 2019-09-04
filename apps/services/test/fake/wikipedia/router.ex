@@ -31,6 +31,9 @@ defmodule Services.Fake.Wikipedia.Router do
   defp validate_action(_), do: {:error, "Missing action param"}
 
   defp validate_namespace(%{"namespace" => "0"}), do: :ok
-  defp validate_namespace(%{"namespace" => namespace}), do: {:error, "Invalid namespace: #{namespace}"}
+
+  defp validate_namespace(%{"namespace" => namespace}),
+    do: {:error, "Invalid namespace: #{namespace}"}
+
   defp validate_namespace(_), do: {:error, "Missing namespace param"}
 end

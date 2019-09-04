@@ -43,6 +43,6 @@ defmodule Services.SearchTest do
 
   test "gets article links from wikipedia" do
     assert Search.search_wikipedia("test article") ==
-      "wikipedia link what does it look like i'm on a plane"
+             "wikipedia link what does it look like i'm on a plane"
   end
 end
