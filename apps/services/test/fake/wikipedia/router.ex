@@ -15,7 +15,17 @@ defmodule Services.Fake.Wikipedia.Router do
   plug(:dispatch)
 
   get "/w/api.php" do
-    conn
-    |> send_resp(200, "{}")
+    with :ok <- validate_action(conn.query_params) do
+      conn
+      |> send_resp(200, "{}")
+    else
+      error ->
+        conn
+        |> send_resp(400, "Search request failed: #{error}")
+    end
   end
+
+  defp validate_action(%{"action" => "opensearch"}), do: :ok
+  defp validate_action(%{"action" => action}), do: {:error, "Invalid action: #{action}"}
+  defp validate_action(_), do: {:error, "Missing action param"}
 end
