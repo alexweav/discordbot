@@ -13,6 +13,7 @@ defmodule Services.Search.Spotify do
                     :spotify_token_base_url,
                     "https://accounts.spotify.com"
                   )
+
   @api_base_url Application.get_env(:services, :spotify_api_base_url, "https://api.spotify.com")
 
   @doc """

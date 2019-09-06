@@ -1,6 +1,6 @@
 defmodule Services.Fake.Spotify.Router do
   @moduledoc """
-  Router for the mock Spotify server.
+  Router for the fake Spotify server.
   """
 
   @fake_token "test"

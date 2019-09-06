@@ -3,11 +3,13 @@ defmodule Services.SearchTest do
   doctest Services.Search
 
   use Services.Fake.Spotify
+  use Services.Fake.Youtube
 
   alias Services.Search
 
   setup_all do
     setup_spotify()
+    setup_youtube()
     :ok
   end
 
@@ -30,5 +32,10 @@ defmodule Services.SearchTest do
   test "gets track links from Spotify" do
     assert Search.search_spotify_tracks("Disease, Injury, Madness") ==
              "https://open.spotify.com/track/78aw2e4YuglThxQs1THTDo"
+  end
+
+  test "gets video links from youtube" do
+    assert Search.search_youtube("test video") ==
+             "https://www.youtube.com/watch?v=test-id"
   end
 end
