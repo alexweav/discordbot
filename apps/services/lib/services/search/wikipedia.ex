@@ -35,17 +35,8 @@ defmodule Services.Search.Wikipedia do
   end
 
   @doc false
-  def process_request_url("/" <> uri) do
-    process_request_url(uri)
-  end
-
-  @doc false
-  def process_request_url(uri) do
-    "https://en.wikipedia.org/" <> uri
-  end
-
-  @doc false
   def process_response_body(body) do
+    IO.inspect body
     body
     |> Poison.decode!()
   end
