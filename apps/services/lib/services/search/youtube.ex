@@ -42,16 +42,7 @@ defmodule Services.Search.Youtube do
   end
 
   defp api_key do
-    case Map.get(System.get_env(), "YOUTUBE_DATA_API_KEY") do
-      nil ->
-        case Application.get_env(:discordbot, :youtube_data_api_key) do
-          nil -> nil
-          token -> token
-        end
-
-      token ->
-        token
-    end
+    Application.get_env(:discordbot, :youtube_data_api_key)
   end
 
   defp apply_type(url, :video) do
