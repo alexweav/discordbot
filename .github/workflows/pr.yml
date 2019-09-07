@@ -35,6 +35,8 @@ jobs:
       run: mix credo
 
     - name: Run Tests
+      env:
+        mix_env: test
       run: mix test --no-start
 
     - name: Calculate Test Coverage
@@ -43,4 +45,6 @@ jobs:
       run: mix coveralls.json --umbrella --no-start
 
     - name: Upload Coverage to Codecov.io
+      env:
+        codecov_token: ${{ secrets.CODECOV_TOKEN }}
       run: bash -c "bash <(curl -s https://codecov.io/bash)"
