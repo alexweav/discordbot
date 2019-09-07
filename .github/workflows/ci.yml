@@ -37,4 +37,4 @@ jobs:
         mix_env: test
       run: |
         mix coveralls.json --umbrella --no-start
-        bash <(curl -s https://codecov.io/bash)
+        bash < curl -s https://codecov.io/bash
