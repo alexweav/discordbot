@@ -35,6 +35,8 @@ jobs:
       run: mix credo
 
     - name: Run Tests
+      env:
+        mix_env: test
       run: mix test --no-start
 
     - name: Calculate Test Coverage
