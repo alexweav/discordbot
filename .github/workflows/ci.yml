@@ -31,3 +31,10 @@ jobs:
 
     - name: Run Tests
       run: mix test --no-start
+
+    - name: Calculate Test Coverage
+      env:
+        mix_env: test
+      run: |
+        mix coveralls.json --umbrella --no-start
+        bash <(curl -s https://codecov.io/bash)
