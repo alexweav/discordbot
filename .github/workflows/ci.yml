@@ -37,6 +37,6 @@ jobs:
         mix_env: test
       run: |
         mix coveralls.json --umbrella --no-start
-   
-   - name: Upload Coverage to Codecov.io
-     run: bash <(curl -s https://codecov.io/bash)
+
+    - name: Upload Coverage to Codecov.io
+      run: bash <(curl -s https://codecov.io/bash)
