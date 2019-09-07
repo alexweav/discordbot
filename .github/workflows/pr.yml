@@ -43,4 +43,6 @@ jobs:
       run: mix coveralls.json --umbrella --no-start
 
     - name: Upload Coverage to Codecov.io
+      env:
+        codecov_token: ${{ secrets.CODECOV_TOKEN }}
       run: bash -c "bash <(curl -s https://codecov.io/bash)"
