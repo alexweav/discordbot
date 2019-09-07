@@ -1,4 +1,4 @@
-name: DiscordBot CI
+name: DiscordBot-PR
 
 on: push
 
