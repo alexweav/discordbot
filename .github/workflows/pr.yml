@@ -19,10 +19,15 @@ jobs:
         mix local.hex --force
         mix deps.get
 
-    - name: Linter
+    - name: Lint
       env:
         mix_env: test
       run: mix format --check-formatted
+
+    - name: Build
+      env:
+        mix_env: test
+      run: mix compile
 
     - name: Static Analysis
       env:
@@ -35,8 +40,7 @@ jobs:
     - name: Calculate Test Coverage
       env:
         mix_env: test
-      run: |
-        mix coveralls.json --umbrella --no-start
+      run: mix coveralls.json --umbrella --no-start
 
     - name: Upload Coverage to Codecov.io
       run: bash -c "bash <(curl -s https://codecov.io/bash)"
