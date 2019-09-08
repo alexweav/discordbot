@@ -24,7 +24,7 @@ defmodule Services.Ping do
     Help.register_info(help, %Help.Info{
       command_key: "!ping",
       name: "Ping",
-      description: "Replies with \"Pong\""
+      description: "Replies with \"Pong!\""
     })
 
     Help.register_info(help, %Help.Info{
