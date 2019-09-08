@@ -1,0 +1,38 @@
+name: DiscordBot-CI
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build-and-test:
+
+    runs-on: ubuntu-latest
+
+    container:
+      image: elixir:1.9.1-slim
+    
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Install Dependencies
+      run: |
+        mix local.rebar --force
+        mix local.hex --force
+        mix deps.get
+    
+    - name: Build
+      env:
+        mix_env: test
+      run: mix compile
+
+    - name: Calculate Test Coverage
+      env:
+        mix_env: test
+      run: mix coveralls.json --umbrella --no-start
+
+    - name: Upload Coverage to Codecov.io
+      uses: codecov/codecov-action@v1.0.2
+      with:
+        token: ${{secrets.CODECOV_TOKEN}}
