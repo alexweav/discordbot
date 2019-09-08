@@ -14,6 +14,7 @@ env:
 jobs:
   include:
     - stage: test
+      if: branch = master AND type = push AND fork = false
       install:
         - mix local.rebar --force
         - mix local.hex --force
