@@ -36,3 +36,16 @@ jobs:
       uses: codecov/codecov-action@v1.0.2
       with:
         token: ${{secrets.CODECOV_TOKEN}}
+
+  build-container:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Get Docker Version
+      run: docker --version
+
+    - name: Generate App Configuration
+      run: rel/config/generate.sh
