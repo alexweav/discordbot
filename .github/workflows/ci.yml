@@ -49,10 +49,10 @@ jobs:
 
     - name: Generate App Configuration
       env:
-        discord_token: ${{secrets.DISCORD_TOKEN}}
-        spotify_client_id: ${{secrets.SPOTIFY_CLIENT_ID}}
-        spotify_client_secret: ${{secrets.SPOTIFY_CLIENT_SECRET}}
-        youtube_data_api_key: ${{secrets.YOUTUBE_DATA_API_KEY}}
+        DISCORD_TOKEN: ${{secrets.DISCORD_TOKEN}}
+        SPOTIFY_CLIENT_ID: ${{secrets.SPOTIFY_CLIENT_ID}}
+        SPOTIFY_CLIENT_SECRET: ${{secrets.SPOTIFY_CLIENT_SECRET}}
+        YOUTUBE_DATA_API_KEY: ${{secrets.YOUTUBE_DATA_API_KEY}}
       run: ./rel/config/generate.sh
 
     - name: Build Container
@@ -60,10 +60,10 @@ jobs:
 
     - name: Push to ECR
       env:
-        aws_access_key_id: ${{secrets.AWS_ACCESS_KEY_ID}}
-        aws_account_id: ${{secrets.AWS_ACCOUNT_ID}}
-        aws_secret_access_key: ${{secrets.AWS_SECRET_ACCESS_KEY}}
-        aws_region: us-east-2
+        AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
+        AWS_ACCOUNT_ID: ${{secrets.AWS_ACCOUNT_ID}}
+        AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
+        AWS_REGION: us-east-2
       run: |
         docker tag discordbot:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/discordbot:latest
         docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/discordbot:latest
