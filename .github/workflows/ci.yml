@@ -65,5 +65,5 @@ jobs:
         aws_secret_access_key: ${{secrets.AWS_SECRET_ACCESS_KEY}}
         aws_region: us-east-2
       run: |
-        docker tag discordbot:latest "${AWS_ACCOUNT_ID}".dkr.ecr."${AWS_REGION}".amazonaws.com/discordbot:latest
-        docker push "${AWS_ACCOUNT_ID}".dkr.ecr."${AWS_REGION}".amazonaws.com/discordbot:latest
+        docker tag discordbot:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/discordbot:latest
+        docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/discordbot:latest
