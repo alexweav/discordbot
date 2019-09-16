@@ -58,14 +58,24 @@ jobs:
     - name: Build Container
       run: docker build . -t discordbot
 
-    - name: Push to ECR
+    - name: ECR Login
       uses: actions/aws/cli@master
       env:
         AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
         AWS_ACCOUNT_ID: ${{secrets.AWS_ACCOUNT_ID}}
         AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
         AWS_REGION: us-east-2
-      run: |
-        eval $(aws ecr get-login --no-include-email --region ${AWS_REGION})
-        docker tag discordbot:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/discordbot:latest
-        docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/discordbot:latest
+      with:
+        args: ecr get-login --no-include-email --region ${AWS_REGION} | sh
+
+    #- name: Push to ECR
+    #  uses: actions/aws/cli@master
+    #  env:
+    #    AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
+    #    AWS_ACCOUNT_ID: ${{secrets.AWS_ACCOUNT_ID}}
+    #    AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
+    #    AWS_REGION: us-east-2
+    #  run: |
+    #    eval $(aws ecr get-login --no-include-email --region ${AWS_REGION})
+    #    docker tag discordbot:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/discordbot:latest
+    #    docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/discordbot:latest
