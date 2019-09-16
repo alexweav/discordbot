@@ -48,7 +48,7 @@ jobs:
       run: docker --version
 
     - name: Generate App Configuration
-      with:
+      env:
         discord_token: ${{secrets.DISCORD_TOKEN}}
         spotify_client_id: ${{secrets.SPOTIFY_CLIENT_ID}}
         spotify_client_secret: ${{secrets.SPOTIFY_CLIENT_SECRET}}
