@@ -53,7 +53,7 @@ jobs:
         spotify_client_id: ${{secrets.SPOTIFY_CLIENT_ID}}
         spotify_client_secret: ${{secrets.SPOTIFY_CLIENT_SECRET}}
         youtube_data_api_key: ${{secrets.YOUTUBE_DATA_API_KEY}}
-      run: rel/config/generate.sh
+      run: ./rel/config/generate.sh
 
     - name: Build Container
       run: docker build -t "discordbot"
