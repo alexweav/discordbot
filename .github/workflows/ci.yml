@@ -56,4 +56,4 @@ jobs:
       run: ./rel/config/generate.sh
 
     - name: Build Container
-      run: docker build -t "discordbot"
+      run: docker build -t discordbot
