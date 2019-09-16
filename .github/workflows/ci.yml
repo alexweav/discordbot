@@ -67,7 +67,7 @@ jobs:
         AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
         AWS_REGION: us-east-2
       with:
-        args: ecr get-login --no-include email --region ${AWS_REGION} | sh
+        args: ecr get-login --no-include-email --region ${AWS_REGION} | sh
 
     #- name: Push to ECR
     #  uses: actions/aws/cli@master
