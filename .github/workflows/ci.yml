@@ -67,7 +67,7 @@ jobs:
         AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
         AWS_REGION: us-east-2
       with:
-        args: ecr get-login --no-include-email --region ${AWS_REGION} | sh
+        args: ecr get-login --no-include-email --region ${AWS_REGION} | sh && docker tag discordbot:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/discordbot:latest && docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/discordbot:latest
 
     - name: Push Image to ECR
       env:
