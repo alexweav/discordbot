@@ -1,0 +1,50 @@
+name: DiscordBot-PR
+
+on: push
+
+jobs:
+  build:
+    name: PR Build
+    runs-on: ubuntu-latest
+
+    container:
+      image: elixir:1.9.1-slim
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Install Dependencies
+      run: |
+        mix local.rebar --force
+        mix local.hex --force
+        mix deps.get
+
+    - name: Lint
+      env:
+        mix_env: test
+      run: mix format --check-formatted
+
+    - name: Build
+      env:
+        mix_env: test
+      run: mix compile
+
+    - name: Static Analysis
+      env:
+        mix_env: test
+      run: mix credo
+
+    - name: Run Tests
+      env:
+        mix_env: test
+      run: mix test --no-start
+
+    - name: Calculate Test Coverage
+      env:
+        mix_env: test
+      run: mix coveralls.json --umbrella --no-start
+
+    - name: Upload Coverage to Codecov.io
+      uses: codecov/codecov-action@v1.0.2
+      with:
+        token: ${{secrets.CODECOV_TOKEN}}

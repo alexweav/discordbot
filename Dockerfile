@@ -21,7 +21,7 @@ RUN APP_NAME="discordbot_umbrella" && \
 
 #Deploy
 
-FROM bitwalker/alpine-elixir:1.8.1
+FROM bitwalker/alpine-elixir:1.9.1
 
 # Copy release from previous stage
 COPY --from=build /export/ .

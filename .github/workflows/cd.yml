@@ -1,0 +1,84 @@
+name: DiscordBot-CD
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build-and-test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+
+    container:
+      image: elixir:1.9.1-slim
+    
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Install Dependencies
+      run: |
+        mix local.rebar --force
+        mix local.hex --force
+        mix deps.get
+    
+    - name: Build
+      env:
+        mix_env: test
+      run: mix compile
+
+    - name: Calculate Test Coverage
+      env:
+        mix_env: test
+      run: mix coveralls.json --umbrella --no-start
+
+    - name: Upload Coverage to Codecov.io
+      uses: codecov/codecov-action@v1.0.2
+      with:
+        token: ${{secrets.CODECOV_TOKEN}}
+
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    needs: build-and-test
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Get Docker Version
+      run: docker --version
+
+    - name: Generate App Configuration
+      env:
+        DISCORD_TOKEN: ${{secrets.DISCORD_TOKEN}}
+        SPOTIFY_CLIENT_ID: ${{secrets.SPOTIFY_CLIENT_ID}}
+        SPOTIFY_CLIENT_SECRET: ${{secrets.SPOTIFY_CLIENT_SECRET}}
+        YOUTUBE_DATA_API_KEY: ${{secrets.YOUTUBE_DATA_API_KEY}}
+      run: ./rel/config/generate.sh
+
+    - name: Build Container
+      run: docker build . -t discordbot
+
+    - name: ECR Login
+      uses: actions/aws/cli@master
+      env:
+        AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
+        AWS_ACCOUNT_ID: ${{secrets.AWS_ACCOUNT_ID}}
+        AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
+        AWS_REGION: us-east-2
+      with:
+        args: >
+          ecr get-login --no-include-email --region ${AWS_REGION} | sh
+          && docker tag discordbot:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/discordbot:latest
+          && docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/discordbot:latest
+
+    - name: Deploy
+      uses: actions/aws/cli@master
+      env:
+        AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
+        AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
+        CLUSTER_NAME: discordbot-prod
+        SERVICE_NAME: DiscordBot
+        AWS_REGION: us-east-2
+      with:
+        args: ecs update-service --cluster ${CLUSTER_NAME} --service ${SERVICE_NAME} --region ${AWS_REGION} --force-new-deployment
