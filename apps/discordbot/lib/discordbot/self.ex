@@ -120,6 +120,7 @@ defmodule DiscordBot.Self do
   @doc false
   @spec set_user(User.t()) :: :ok
   def set_user(user) do
+    # Only to be used for testing.
     GenServer.call(DiscordBot.Self, {:set_user, user})
   end
 
