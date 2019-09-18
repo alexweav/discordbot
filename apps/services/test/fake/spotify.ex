@@ -4,7 +4,6 @@ defmodule Services.Fake.Spotify do
   """
 
   alias Plug.Adapters.Cowboy
-  alias Services.Fake.Spotify.Router
 
   defmacro __using__(_) do
     quote([]) do
