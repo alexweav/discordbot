@@ -36,8 +36,6 @@ defmodule Services.Search.Wikipedia do
 
   @doc false
   def process_response_body(body) do
-    IO.inspect(body)
-
     body
     |> Poison.decode!()
   end

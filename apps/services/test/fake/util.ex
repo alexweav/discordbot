@@ -11,9 +11,9 @@ defmodule Services.Fake.Util do
     params
     |> Map.fetch(key)
     |> case do
-      ^value -> :ok
-      :error -> {:error, "Missing param: #{key}"}
-      actual -> {:error, "Invalid #{key} value: #{actual}"}
+        {:ok, ^value} -> :ok
+        :error -> {:error, "Missing param: #{key}"}
+        actual -> {:error, "Invalid #{key} value: #{actual}"}
     end
   end
 end
