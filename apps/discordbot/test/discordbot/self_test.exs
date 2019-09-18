@@ -1,5 +1,5 @@
 defmodule DiscordBot.SelfTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
   doctest DiscordBot.Self
 
   alias DiscordBot.Broker
@@ -13,5 +13,10 @@ defmodule DiscordBot.SelfTest do
   test "subscribes to ready topic on launch", %{broker: broker} do
     {:ok, pid} = Self.start_link(broker: broker)
     assert Broker.subscribers?(broker, :ready) == [pid]
+  end
+
+  test "uninitialized on launch", %{broker: broker} do
+    Self.start_link(broker: broker, name: DiscordBot.Self)
+    assert Self.status?() == :uninitialized
   end
 end
