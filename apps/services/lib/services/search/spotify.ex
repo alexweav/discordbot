@@ -84,11 +84,17 @@ defmodule Services.Search.Spotify do
   end
 
   def client_id do
-    Application.get_env(:discordbot, :spotify_client_id, nil)
+    case Application.fetch_env(:discordbot, :spotify_client_id) do
+      :error -> raise "Spotify ID not found in application config"
+      {:ok, id} -> id
+    end
   end
 
   def api_key do
-    Application.get_env(:discordbot, :spotify_client_secret, nil)
+    case Application.fetch_env(:discordbot, :spotify_client_secret) do
+      :error -> raise "Spotify secret not found in application config"
+      {:ok, secret} -> secret
+    end
   end
 
   def full_auth_key(client_id, api_key) do
