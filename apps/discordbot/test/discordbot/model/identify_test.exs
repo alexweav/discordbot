@@ -37,7 +37,7 @@ defmodule DiscordBot.Model.IdentifyTest do
       |> Identify.to_json()
 
     assert serialized ==
-             "{\"t\":null,\"s\":null,\"op\":2,\"d\":{\"token\":\"TOKEN\",\"shard\":[1,3],\"properties\":{\"$os\":\"linux\",\"$device\":\"DiscordBot\",\"$browser\":\"DiscordBot\"},\"large_threshold\":250,\"compress\":false}}"
+             "{\"t\":null,\"s\":null,\"op\":2,\"d\":{\"token\":\"TOKEN\",\"shard\":[1,3],\"properties\":{\"$os\":\"linux\",\"$device\":\"DiscordBot\",\"$browser\":\"DiscordBot\"},\"presence\":{\"status\":\"online\",\"since\":0,\"game\":null,\"afk\":false},\"large_threshold\":250,\"compress\":false}}"
   end
 
   test "deserializes correctly" do

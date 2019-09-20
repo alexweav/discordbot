@@ -6,7 +6,13 @@ defmodule DiscordBot.Model.Identify do
 
   use DiscordBot.Model.Serializable
 
-  alias DiscordBot.Model.{Payload, Serializable}
+  alias DiscordBot.Model.{Payload, Serializable, StatusUpdate}
+
+  @default_presence %StatusUpdate{
+    afk: false,
+    status: :online,
+    since: 0
+  }
 
   defmodule ConnectionProperties do
     @derive [Poison.Encoder]
@@ -74,7 +80,8 @@ defmodule DiscordBot.Model.Identify do
     :properties,
     :compress,
     :large_threshold,
-    :shard
+    :shard,
+    :presence
   ]
 
   @typedoc """
@@ -103,12 +110,18 @@ defmodule DiscordBot.Model.Identify do
   """
   @type shard :: list(number)
 
+  @typedoc """
+  The initial status of the bot.
+  """
+  @type presence :: nil | StatusUpdate.t()
+
   @type t :: %__MODULE__{
           token: token,
           properties: properties,
           compress: compress,
           large_threshold: large_threshold,
-          shard: shard
+          shard: shard,
+          presence: presence
         }
 
   @doc """
@@ -126,13 +139,14 @@ defmodule DiscordBot.Model.Identify do
   the bot token `token`, the shard index `shard`, and
   the shard count `num_shards`
   """
-  def identify(token, shard, num_shards) do
+  def identify(token, shard, num_shards, presence \\ @default_presence) do
     Payload.payload(:identify, %__MODULE__{
       token: token,
       properties: ConnectionProperties.connection_properties(),
       compress: false,
       large_threshold: 250,
-      shard: [shard, num_shards]
+      shard: [shard, num_shards],
+      presence: presence
     })
   end
 end

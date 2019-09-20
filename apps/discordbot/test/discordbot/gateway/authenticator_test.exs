@@ -31,7 +31,9 @@ defmodule DiscordBot.Gateway.AuthenticatorTest do
 
     Process.sleep(10)
     Broker.publish(broker, :hello, {})
-    assert_receive({:"$websockex_cast", {:identify, "test", 0, 1}}, 1_000)
+    assert_receive({:"$websockex_cast", {:identify, data}}, 1_000)
+    assert data.data.token == "test"
+    assert data.data.shard == [0, 1]
   end
 
   test ":hello with custom sharding authenticates", %{broker: broker, context: context} do
@@ -42,6 +44,8 @@ defmodule DiscordBot.Gateway.AuthenticatorTest do
 
     Process.sleep(10)
     Broker.publish(broker, :hello, {})
-    assert_receive({:"$websockex_cast", {:identify, "asdf", 31, 128}}, 1_000)
+    assert_receive({:"$websockex_cast", {:identify, data}}, 1_000)
+    assert data.data.token == "asdf"
+    assert data.data.shard == [31, 128]
   end
 end

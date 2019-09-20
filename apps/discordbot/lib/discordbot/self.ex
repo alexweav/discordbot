@@ -6,7 +6,6 @@ defmodule DiscordBot.Self do
   use GenServer
 
   alias DiscordBot.Broker.Event
-  alias DiscordBot.Gateway.Api
   alias DiscordBot.Model.User
 
   defmodule State do
@@ -45,34 +44,6 @@ defmodule DiscordBot.Self do
     }
 
     GenServer.start_link(__MODULE__, state, opts)
-  end
-
-  @doc """
-  Update's the bot's status to `status`.
-  Possible options are:
-  - `:online` - online
-  - `:dnd` - do not disturb
-  - `:idle` - AFK
-  - `:invisible` - invisible, shown as offline
-  - `:offline` - offline
-  """
-  @spec update_status(atom) :: :ok
-  def update_status(status) do
-    GenServer.cast(DiscordBot.Self, {:update_status, status})
-  end
-
-  @doc """
-  Updates the bot's status to `status`, also setting the
-  activity type `type` and activity name `name`.
-  See `DiscordBot.Self.update_status/1` for the eligible `status` values.
-  Possible type values are:
-  - `:playing` - Shown as "Playing `name`"
-  - `:streaming` - Shown as "Streaming `name`"
-  - `:listening` - Shown as "Listening to `name`"
-  """
-  @spec update_status(atom, atom, String.t()) :: :ok
-  def update_status(status, type, name) do
-    GenServer.cast(DiscordBot.Self, {:update_status, status, type, name})
   end
 
   @doc """
@@ -153,16 +124,6 @@ defmodule DiscordBot.Self do
 
   def handle_call({:set_user, user}, _from, state) when user != nil do
     {:reply, :ok, %{state | user: user}}
-  end
-
-  def handle_cast({:update_status, status}, state) do
-    Api.update_status(DiscordBot.GatewaySupervisor, status)
-    {:noreply, state}
-  end
-
-  def handle_cast({:update_status, status, type, name}, state) do
-    Api.update_status(DiscordBot.GatewaySupervisor, status, type, name)
-    {:noreply, state}
   end
 
   def handle_info(%Event{topic: :ready, message: message}, state) do
