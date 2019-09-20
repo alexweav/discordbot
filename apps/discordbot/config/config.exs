@@ -4,7 +4,7 @@ config :discordbot,
   token: "TOKEN",
   shards: 2,
   initial_activity_type: :listening,
-  initial_activity_name: "a Websocket"
+  initial_activity_name: "your dulcet tones"
 
 config :logger,
   level: :info,
