@@ -32,6 +32,7 @@ defmodule DiscordBot.Gateway.Authenticator do
   @doc """
   Gets the initial presence for the bot.
   """
+  @spec initial_presence() :: StatusUpdate.t()
   def initial_presence do
     %StatusUpdate{
       status: :online,
