@@ -2,7 +2,8 @@ use Mix.Config
 
 config :discordbot,
   token: "TOKEN",
-  shards: 2
+  shards: 2,
+  initial_activity_type: :playing
 
 config :logger,
   level: :info,

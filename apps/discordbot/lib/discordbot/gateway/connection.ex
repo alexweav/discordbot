@@ -90,11 +90,11 @@ defmodule DiscordBot.Gateway.Connection do
   end
 
   @doc """
-  Sends an identify message over the websocket
+  Sends an identify message over the websocket.
   """
-  @spec identify(atom | pid, String.t(), number, number) :: :ok
-  def identify(connection, token, shard, num_shards) do
-    WebSockex.cast(connection, {:identify, token, shard, num_shards})
+  @spec identify(atom | pid, Identify.t()) :: :ok
+  def identify(connection, identify) do
+    WebSockex.cast(connection, {:identify, identify})
   end
 
   @doc """
@@ -174,15 +174,15 @@ defmodule DiscordBot.Gateway.Connection do
     {:reply, {:text, json}, state}
   end
 
-  def handle_cast({:identify, token, shard, num_shards}, state) do
+  def handle_cast({:identify, identify}, state) do
     Logger.info("Send identify.")
-    message = Identify.identify(token, shard, num_shards)
 
     {:ok, json} =
-      message
+      identify
       |> apply_sequence(state.sequence)
       |> Payload.to_json()
 
+    IO.inspect json
     {:reply, {:text, json}, state}
   end
 
