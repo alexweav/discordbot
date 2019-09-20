@@ -3,7 +3,8 @@ use Mix.Config
 config :discordbot,
   token: "TOKEN",
   shards: 2,
-  initial_activity_type: :playing
+  initial_activity_type: :listening,
+  initial_activity_name: "a Websocket"
 
 config :logger,
   level: :info,

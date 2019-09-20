@@ -42,11 +42,11 @@ defmodule DiscordBot.Gateway.Authenticator do
   end
 
   defp initial_activity do
-    with {:ok, type} <- Application.fetch_env(:discordbot, :initial_activity_type) do
-      IO.inspect "yeet"
+    with {:ok, type} <- Application.fetch_env(:discordbot, :initial_activity_type),
+         {:ok, name} <- Application.fetch_env(:discordbot, :initial_activity_name) do
       %Activity{
         type: type,
-        name: "asdf"
+        name: name
       }
     else
       _ -> nil

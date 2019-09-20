@@ -182,7 +182,6 @@ defmodule DiscordBot.Gateway.Connection do
       |> apply_sequence(state.sequence)
       |> Payload.to_json()
 
-    IO.inspect json
     {:reply, {:text, json}, state}
   end
 
