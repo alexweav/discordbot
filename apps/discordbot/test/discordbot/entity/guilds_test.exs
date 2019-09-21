@@ -5,8 +5,8 @@ defmodule DiscordBot.Entity.GuildsTest do
   use DiscordBot.Fake.Discord
 
   alias DiscordBot.Broker
-  alias DiscordBot.Entity.Guilds
   alias DiscordBot.Entity.GuildRecord
+  alias DiscordBot.Entity.Guilds
   alias DiscordBot.Fake.Discord
   alias DiscordBot.Gateway.Connection
 
