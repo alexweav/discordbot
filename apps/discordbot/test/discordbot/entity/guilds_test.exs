@@ -1,59 +1,59 @@
-defmodule DiscordBot.Entity.GuildTest do
+defmodule DiscordBot.Entity.GuildsTest do
   use ExUnit.Case, async: false
-  doctest DiscordBot.Entity.Guild
+  doctest DiscordBot.Entity.Guilds
 
   use DiscordBot.Fake.Discord
 
   alias DiscordBot.Broker
-  alias DiscordBot.Entity.Guild
   alias DiscordBot.Entity.GuildRecord
+  alias DiscordBot.Entity.Guilds
   alias DiscordBot.Fake.Discord
   alias DiscordBot.Gateway.Connection
 
   setup context do
     {url, discord} = setup_discord()
     broker = start_supervised!(Broker)
-    guild = start_supervised!({Guild, [broker: broker, api: DiscordBot.ApiMock]})
+    guilds = start_supervised!({Guilds, [broker: broker, api: DiscordBot.ApiMock]})
 
     connection =
       start_supervised!({Connection, token: "asdf", url: url, broker: broker},
         id: Module.concat(context.test, :connection)
       )
 
-    %{broker: broker, guild: guild, discord: discord, connection: connection}
+    %{broker: broker, guilds: guilds, discord: discord, connection: connection}
   end
 
   test "lookup non-existant guild ID returns error" do
-    assert Guild.lookup_by_id("doesn't exist") == :error
+    assert Guilds.lookup_by_id("doesn't exist") == :error
   end
 
-  test "create validates inputs", %{guild: guild} do
-    assert Guild.create(guild, %DiscordBot.Model.Guild{}) == :error
-    assert Guild.create(guild, nil) == :error
+  test "create validates inputs", %{guilds: guilds} do
+    assert Guilds.create(guilds, %DiscordBot.Model.Guild{}) == :error
+    assert Guilds.create(guilds, nil) == :error
   end
 
-  test "can create guilds in cache", %{guild: guild} do
+  test "can create guilds in cache", %{guilds: guilds} do
     model = %DiscordBot.Model.Guild{
       id: "test-id"
     }
 
-    assert Guild.lookup_by_id(model.id) == :error
-    assert Guild.create(guild, model) == :ok
-    assert Guild.lookup_by_id(model.id) == {:ok, GuildRecord.new(self(), model)}
+    assert Guilds.lookup_by_id(model.id) == :error
+    assert Guilds.create(guilds, model) == :ok
+    assert Guilds.lookup_by_id(model.id) == {:ok, GuildRecord.new(self(), model)}
   end
 
-  test "can delete guilds in cache", %{guild: guild} do
+  test "can delete guilds in cache", %{guilds: guilds} do
     model = %DiscordBot.Model.Guild{
       id: "some-other-test-id"
     }
 
-    Guild.create(guild, model)
+    Guilds.create(guilds, model)
 
-    assert Guild.delete(guild, model.id) == :ok
-    assert Guild.lookup_by_id(model.id) == :error
+    assert Guilds.delete(guilds, model.id) == :ok
+    assert Guilds.lookup_by_id(model.id) == :error
   end
 
-  test "creates cached guilds on Guild Create event", %{guild: guild, broker: broker} do
+  test "creates cached guilds on Guild Create event", %{guilds: guilds, broker: broker} do
     event = %DiscordBot.Model.Guild{
       id: "another-test-id",
       name: "My Guild"
@@ -65,11 +65,11 @@ defmodule DiscordBot.Entity.GuildTest do
     # it has processed the event before we proceed.
     # This is necessary because lookup_by_id does not communicate
     # with the registry.
-    Guild.create(guild, %DiscordBot.Model.Guild{})
-    assert Guild.lookup_by_id(event.id) == {:ok, GuildRecord.new(self(), event)}
+    Guilds.create(guilds, %DiscordBot.Model.Guild{})
+    assert Guilds.lookup_by_id(event.id) == {:ok, GuildRecord.new(self(), event)}
   end
 
-  test "updates cached guilds on Guild Update event", %{guild: guild, broker: broker} do
+  test "updates cached guilds on Guild Update event", %{guilds: guilds, broker: broker} do
     initial = %DiscordBot.Model.Guild{
       id: "yet-another-test-id",
       name: "An existing guild"
@@ -88,11 +88,11 @@ defmodule DiscordBot.Entity.GuildTest do
     # it has processed the event before we proceed.
     # This is necessary because lookup_by_id does not communicate
     # with the registry.
-    Guild.create(guild, %DiscordBot.Model.Guild{})
-    assert Guild.lookup_by_id(initial.id) == {:ok, GuildRecord.new(self(), event)}
+    Guilds.create(guilds, %DiscordBot.Model.Guild{})
+    assert Guilds.lookup_by_id(initial.id) == {:ok, GuildRecord.new(self(), event)}
   end
 
-  test "deletes cached guilds on Guild Delete event", %{guild: guild, broker: broker} do
+  test "deletes cached guilds on Guild Delete event", %{guilds: guilds, broker: broker} do
     initial = %DiscordBot.Model.Guild{
       id: "one-more-test-id",
       name: "Some guild"
@@ -106,8 +106,8 @@ defmodule DiscordBot.Entity.GuildTest do
     # it has processed the event before we proceed.
     # This is necessary because lookup_by_id does not communicate
     # with the registry.
-    Guild.create(guild, %DiscordBot.Model.Guild{})
-    assert Guild.lookup_by_id(initial.id) == :error
+    Guilds.create(guilds, %DiscordBot.Model.Guild{})
+    assert Guilds.lookup_by_id(initial.id) == :error
   end
 
   test "adds guilds sent through gateway", %{discord: discord, connection: connection} do
@@ -115,9 +115,9 @@ defmodule DiscordBot.Entity.GuildTest do
       id: "test-id"
     }
 
-    assert Guild.lookup_by_id(model.id) == :error
+    assert Guilds.lookup_by_id(model.id) == :error
     Discord.guild_create(discord, model)
     Process.sleep(100)
-    assert Guild.lookup_by_id(model.id) == {:ok, GuildRecord.new(connection, model)}
+    assert Guilds.lookup_by_id(model.id) == {:ok, GuildRecord.new(connection, model)}
   end
 end

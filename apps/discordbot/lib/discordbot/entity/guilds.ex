@@ -1,6 +1,6 @@
-defmodule DiscordBot.Entity.Guild do
+defmodule DiscordBot.Entity.Guilds do
   @moduledoc """
-  Provides a cache of guild information.
+  Provides a cache of guild information, backed by ETS.
   """
 
   use GenServer

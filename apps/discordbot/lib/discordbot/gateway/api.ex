@@ -4,7 +4,7 @@ defmodule DiscordBot.Gateway.Api do
   websocket rather than HTTP requests.
   """
 
-  alias DiscordBot.Entity.Guild
+  alias DiscordBot.Entity.Guilds
   alias DiscordBot.Gateway
   alias DiscordBot.Gateway.Connection
   alias DiscordBot.Model.{Activity, StatusUpdate}
@@ -89,7 +89,7 @@ defmodule DiscordBot.Gateway.Api do
   """
   @spec update_voice_state(String.t(), String.t(), boolean, boolean) :: :ok | :error
   def update_voice_state(guild_id, channel_id, self_mute \\ false, self_deaf \\ false) do
-    with {:ok, record} <- Guild.lookup_by_id(guild_id),
+    with {:ok, record} <- Guilds.lookup_by_id(guild_id),
          connection <- record.shard_connection do
       Connection.update_voice_state(connection, guild_id, channel_id, self_mute, self_deaf)
       :ok
