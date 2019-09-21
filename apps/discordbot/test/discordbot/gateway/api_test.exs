@@ -4,7 +4,7 @@ defmodule DiscordBot.Gateway.ApiTest do
   use DiscordBot.Fake.Discord
 
   alias DiscordBot.Broker
-  alias DiscordBot.Entity.Guild
+  alias DiscordBot.Entity.Guilds
   alias DiscordBot.Fake.Discord
   alias DiscordBot.Gateway
   alias DiscordBot.Gateway.Api
@@ -13,7 +13,7 @@ defmodule DiscordBot.Gateway.ApiTest do
   setup context do
     {url, discord} = setup_discord()
     broker = start_supervised!({Broker, []}, id: Module.concat(context.test, :broker))
-    start_supervised!({Guild, [broker: broker, api: DiscordBot.ApiMock]})
+    start_supervised!({Guilds, [broker: broker, api: DiscordBot.ApiMock]})
 
     gateway =
       start_supervised!(
