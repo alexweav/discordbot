@@ -6,6 +6,7 @@ defmodule DiscordBot.Entity.Channels do
   use GenServer
 
   alias DiscordBot.Broker
+  alias DiscordBot.Broker.Event
   alias DiscordBot.Model.Channel
 
   @doc """
@@ -92,6 +93,11 @@ defmodule DiscordBot.Entity.Channels do
 
   def handle_call({:delete, id}, _from, {table, _} = state) do
     {:reply, delete_internal(table, id), state}
+  end
+
+  def handle_info(%Event{topic: :channel_create, message: model}, {table, _} = state) do
+    create_internal(table, model)
+    {:noreply, state}
   end
 
   defp create_internal(_, nil), do: :error

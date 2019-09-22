@@ -48,4 +48,21 @@ defmodule DiscordBot.Entity.ChannelsTest do
     assert Channels.delete(channels, model.id) == :ok
     assert Channels.from_id?(model.id) == :error
   end
+
+  test "creates channels on Channel Create event", %{channels: channels, broker: broker} do
+    event = %Channel{
+      id: "another-test-id",
+      name: "My Guild"
+    }
+
+    Broker.publish(broker, :channel_create, event)
+
+    # Perform a synchronous call on the registry to ensure that
+    # it has processed the event before we proceed.
+    # This is necessary because lookup_by_id does not communicate
+    # with the registry.
+    Channels.create(channels, nil)
+
+    assert Channels.from_id?(event.id) == {:ok, event}
+  end
 end
