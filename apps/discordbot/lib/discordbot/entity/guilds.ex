@@ -56,8 +56,8 @@ defmodule DiscordBot.Entity.Guilds do
 
   The returned guild will be an instance of `DiscordBot.Model.GuildRecord`.
   """
-  @spec lookup_by_id(String.t()) :: {:ok, GuildRecord.t()} | :error
-  def lookup_by_id(id) do
+  @spec from_id?(String.t()) :: {:ok, GuildRecord.t()} | :error
+  def from_id?(id) do
     case :ets.lookup(__MODULE__, id) do
       [{^id, record}] -> {:ok, record}
       [] -> :error

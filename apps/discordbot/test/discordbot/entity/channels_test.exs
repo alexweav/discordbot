@@ -59,7 +59,7 @@ defmodule DiscordBot.Entity.ChannelsTest do
 
     # Perform a synchronous call on the registry to ensure that
     # it has processed the event before we proceed.
-    # This is necessary because lookup_by_id does not communicate
+    # This is necessary because lfrom_id? does not communicate
     # with the registry.
     Channels.create(channels, nil)
 
@@ -76,7 +76,7 @@ defmodule DiscordBot.Entity.ChannelsTest do
 
     # Perform a synchronous call on the registry to ensure that
     # it has processed the event before we proceed.
-    # This is necessary because lookup_by_id does not communicate
+    # This is necessary because from_id? does not communicate
     # with the registry.
     Channels.create(channels, nil)
 
@@ -106,7 +106,7 @@ defmodule DiscordBot.Entity.ChannelsTest do
 
     # Perform a synchronous call on the registry to ensure that
     # it has processed the event before we proceed.
-    # This is necessary because lookup_by_id does not communicate
+    # This is necessary because from_id? does not communicate
     # with the registry.
     Channels.create(channels, nil)
 
@@ -132,7 +132,7 @@ defmodule DiscordBot.Entity.ChannelsTest do
 
     # Perform a synchronous call on the registry to ensure that
     # it has processed the event before we proceed.
-    # This is necessary because lookup_by_id does not communicate
+    # This is necessary because from_id? does not communicate
     # with the registry.
     Channels.create(channels, nil)
 
@@ -159,7 +159,7 @@ defmodule DiscordBot.Entity.ChannelsTest do
 
     # Perform a synchronous call on the registry to ensure that
     # it has processed the event before we proceed.
-    # This is necessary because lookup_by_id does not communicate
+    # This is necessary because from_id? does not communicate
     # with the registry.
     Channels.create(channels, nil)
 
