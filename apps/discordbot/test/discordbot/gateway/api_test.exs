@@ -76,12 +76,12 @@ defmodule DiscordBot.Gateway.ApiTest do
 
     test "sends if guild exists", %{discord: discord} do
       model = %DiscordBot.Model.Guild{
-        id: "test-id"
+        id: "update-voice-test-id"
       }
 
       Discord.guild_create(discord, model)
       Process.sleep(100)
-      assert Api.update_voice_state("test-id", "test-channel") == :ok
+      assert Api.update_voice_state("update-voice-test-id", "test-channel") == :ok
       Process.sleep(100)
       json = Discord.latest_frame?(discord)
       map = Poison.decode!(json)
@@ -89,7 +89,7 @@ defmodule DiscordBot.Gateway.ApiTest do
       # The existing deserializer for this opcode expects the message from the server,
       # so we must manually check the JSON's validity instead.
       assert map["op"] == 4
-      assert map["d"]["guild_id"] == "test-id"
+      assert map["d"]["guild_id"] == "update-voice-test-id"
       assert map["d"]["channel_id"] == "test-channel"
       assert map["d"]["self_mute"] == false
       assert map["d"]["self_deaf"] == false
