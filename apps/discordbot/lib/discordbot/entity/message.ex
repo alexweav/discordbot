@@ -8,6 +8,16 @@ defmodule DiscordBot.Entity.Message do
   @doc """
   Creates a message containing the given text on a channel.
   """
+  @callback create(channel :: Channel.t(), content :: String.t(), opts :: list) :: any
+
+  @doc """
+  Replies to a message on the same channel with the given text.
+  """
+  @callback reply(message :: Message.t(), content :: String.t(), opts :: list) :: any
+
+  @doc """
+  Creates a message containing the given text on a channel.
+  """
   @spec create(Channel.t(), String.t(), list(any)) :: any
   def create(channel, content, opts \\ []) do
     send(channel.id, content, opts)
@@ -21,7 +31,7 @@ defmodule DiscordBot.Entity.Message do
     send(channel_id, content, opts)
   end
 
-  defp send(channel_id, content, [tts: true]) do
+  defp send(channel_id, content, tts: true) do
     DiscordBot.Api.create_tts_message(channel_id, content)
   end
 
