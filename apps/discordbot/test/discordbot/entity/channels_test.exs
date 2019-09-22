@@ -4,7 +4,7 @@ defmodule DiscordBot.Entity.ChannelsTest do
 
   alias DiscordBot.Broker
   alias DiscordBot.Entity.Channels
-  alias DiscordBot.Model.Channel
+  alias DiscordBot.Model.{Channel, Guild}
 
   setup_all do
     broker = start_supervised!(Broker)
@@ -111,5 +111,59 @@ defmodule DiscordBot.Entity.ChannelsTest do
     Channels.create(channels, nil)
 
     assert Channels.from_id?(initial.id) == :error
+  end
+
+  test "creates channels from Guild Create events", %{channels: channels, broker: broker} do
+    channel = %Channel{
+      id: "channel-asdf",
+      name: "Test Channel",
+      topic: "A test channel",
+      owner_id: "789-012",
+      last_message_id: "345-678"
+    }
+
+    event = %Guild{
+      id: "asdf",
+      name: "My guild",
+      channels: [channel]
+    }
+
+    Broker.publish(broker, :guild_create, event)
+
+    # Perform a synchronous call on the registry to ensure that
+    # it has processed the event before we proceed.
+    # This is necessary because lookup_by_id does not communicate
+    # with the registry.
+    Channels.create(channels, nil)
+
+    assert {:ok, _} = Channels.from_id?(channel.id)
+    assert elem(Channels.from_id?(channel.id), 1).id == "channel-asdf"
+  end
+
+  test "channels created from guilds inherit guild ID", %{channels: channels, broker: broker} do
+    channel = %Channel{
+      id: "channel-abcd",
+      name: "Test Channel",
+      topic: "A test channel",
+      owner_id: "789-012",
+      last_message_id: "345-678"
+    }
+
+    event = %Guild{
+      id: "abcd",
+      name: "My guild",
+      channels: [channel]
+    }
+
+    Broker.publish(broker, :guild_create, event)
+
+    # Perform a synchronous call on the registry to ensure that
+    # it has processed the event before we proceed.
+    # This is necessary because lookup_by_id does not communicate
+    # with the registry.
+    Channels.create(channels, nil)
+
+    {:ok, created} = Channels.from_id?(channel.id)
+    assert created.guild_id == "abcd"
   end
 end

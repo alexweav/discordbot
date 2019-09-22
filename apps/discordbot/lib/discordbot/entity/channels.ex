@@ -8,6 +8,7 @@ defmodule DiscordBot.Entity.Channels do
   alias DiscordBot.Broker
   alias DiscordBot.Broker.Event
   alias DiscordBot.Model.Channel
+  alias DiscordBot.Model.Guild
 
   @doc """
   Starts the channel registry.
@@ -110,6 +111,11 @@ defmodule DiscordBot.Entity.Channels do
     {:noreply, state}
   end
 
+  def handle_info(%Event{topic: :guild_create, message: model}, {table, _} = state) do
+    create_from_guild(table, model)
+    {:noreply, state}
+  end
+
   defp create_internal(_, nil), do: :error
   defp create_internal(_, %Channel{id: nil}), do: :error
 
@@ -121,5 +127,11 @@ defmodule DiscordBot.Entity.Channels do
   defp delete_internal(table, id) do
     :ets.delete(table, id)
     :ok
+  end
+
+  defp create_from_guild(table, %Guild{channels: channels, id: id}) do
+    channels
+    |> Enum.map(fn c -> %{c | guild_id: id} end)
+    |> Enum.map(&create_internal(table, &1))
   end
 end
