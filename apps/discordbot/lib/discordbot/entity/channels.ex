@@ -6,6 +6,7 @@ defmodule DiscordBot.Entity.Channels do
   use GenServer
 
   alias DiscordBot.Broker
+  alias DiscordBot.Model.Channel
 
   @doc """
   Starts the channel registry.
@@ -23,6 +24,17 @@ defmodule DiscordBot.Entity.Channels do
     broker = Keyword.get(opts, :broker, Broker)
     api = Keyword.get(opts, :api, DiscordBot.Api)
     GenServer.start_link(__MODULE__, {broker, api}, opts)
+  end
+
+  @doc """
+  Gets a channel by ID.
+  """
+  @spec from_id?(String.t()) :: {:ok, Channel.t()} | :error
+  def from_id?(id) do
+    case :ets.lookup(__MODULE__, id) do
+      [{^id, record}] -> {:ok, record}
+      [] -> :error
+    end
   end
 
   ## Callbacks

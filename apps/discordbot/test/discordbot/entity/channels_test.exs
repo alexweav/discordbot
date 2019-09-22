@@ -17,4 +17,8 @@ defmodule DiscordBot.Entity.ChannelsTest do
     assert Broker.subscribers?(broker, :channel_delete) == [channels]
     assert Broker.subscribers?(broker, :guild_create) == [channels]
   end
+
+  test "lookup non-existant channel ID returns error" do
+    assert Channels.from_id?("doesn't exist") == :error
+  end
 end
