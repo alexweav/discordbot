@@ -1,5 +1,5 @@
 defmodule DiscordBot.Entity.GuildsTest do
-  use ExUnit.Case, async: false
+  use ExUnit.Case, async: true
   doctest DiscordBot.Entity.Guilds
 
   use DiscordBot.Fake.Discord
@@ -10,15 +10,13 @@ defmodule DiscordBot.Entity.GuildsTest do
   alias DiscordBot.Fake.Discord
   alias DiscordBot.Gateway.Connection
 
-  setup context do
+  setup_all do
     {url, discord} = setup_discord()
     broker = start_supervised!(Broker)
-    guilds = start_supervised!({Guilds, [broker: broker, api: DiscordBot.ApiMock]})
+    guilds = start_supervised!({Guilds, broker: broker})
 
     connection =
-      start_supervised!({Connection, token: "asdf", url: url, broker: broker},
-        id: Module.concat(context.test, :connection)
-      )
+      start_supervised!({Connection, token: "asdf", url: url, broker: broker})
 
     %{broker: broker, guilds: guilds, discord: discord, connection: connection}
   end
@@ -112,7 +110,7 @@ defmodule DiscordBot.Entity.GuildsTest do
 
   test "adds guilds sent through gateway", %{discord: discord, connection: connection} do
     model = %DiscordBot.Model.Guild{
-      id: "test-id"
+      id: "test-id-integration"
     }
 
     assert Guilds.lookup_by_id(model.id) == :error
