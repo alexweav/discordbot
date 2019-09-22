@@ -15,8 +15,7 @@ defmodule DiscordBot.Entity.GuildsTest do
     broker = start_supervised!(Broker)
     guilds = start_supervised!({Guilds, broker: broker})
 
-    connection =
-      start_supervised!({Connection, token: "asdf", url: url, broker: broker})
+    connection = start_supervised!({Connection, token: "asdf", url: url, broker: broker})
 
     %{broker: broker, guilds: guilds, discord: discord, connection: connection}
   end
