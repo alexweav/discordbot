@@ -20,12 +20,10 @@ defmodule DiscordBot.Entity.Channels do
 
   Options (optional):
   - `:broker` - a process (pid or name) acting as a `DiscordBot.Broker` to use for communication.
-  - `:api` - an implementation of `DiscordBot.Api` to use for communication.
   """
   def start_link(opts) do
     broker = Keyword.get(opts, :broker, Broker)
-    api = Keyword.get(opts, :api, DiscordBot.Api)
-    GenServer.start_link(__MODULE__, {broker, api}, opts)
+    GenServer.start_link(__MODULE__, broker, opts)
   end
 
   @doc """
@@ -66,7 +64,7 @@ defmodule DiscordBot.Entity.Channels do
 
   ## Callbacks
 
-  def init({broker, api}) do
+  def init(broker) do
     table =
       if :ets.whereis(__MODULE__) == :undefined do
         :ets.new(__MODULE__, [:named_table, read_concurrency: true])
@@ -85,35 +83,35 @@ defmodule DiscordBot.Entity.Channels do
       Broker.subscribe(broker, topic)
     end
 
-    {:ok, {table, api}}
+    {:ok, table}
   end
 
-  def handle_call({:create, channel}, _from, {table, _} = state) do
-    {:reply, create_internal(table, channel), state}
+  def handle_call({:create, channel}, _from, table) do
+    {:reply, create_internal(table, channel), table}
   end
 
-  def handle_call({:delete, id}, _from, {table, _} = state) do
-    {:reply, delete_internal(table, id), state}
+  def handle_call({:delete, id}, _from, table) do
+    {:reply, delete_internal(table, id), table}
   end
 
-  def handle_info(%Event{topic: :channel_create, message: model}, {table, _} = state) do
+  def handle_info(%Event{topic: :channel_create, message: model}, table) do
     create_internal(table, model)
-    {:noreply, state}
+    {:noreply, table}
   end
 
-  def handle_info(%Event{topic: :channel_update, message: model}, {table, _} = state) do
+  def handle_info(%Event{topic: :channel_update, message: model}, table) do
     create_internal(table, model)
-    {:noreply, state}
+    {:noreply, table}
   end
 
-  def handle_info(%Event{topic: :channel_delete, message: model}, {table, _} = state) do
+  def handle_info(%Event{topic: :channel_delete, message: model}, table) do
     delete_internal(table, model.id)
-    {:noreply, state}
+    {:noreply, table}
   end
 
-  def handle_info(%Event{topic: :guild_create, message: model}, {table, _} = state) do
+  def handle_info(%Event{topic: :guild_create, message: model}, table) do
     create_from_guild(table, model)
-    {:noreply, state}
+    {:noreply, table}
   end
 
   defp create_internal(_, nil), do: :error
