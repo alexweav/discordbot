@@ -23,6 +23,12 @@ defmodule DiscordBot.Entity.GuildsTest do
     %{broker: broker, guilds: guilds, discord: discord, connection: connection}
   end
 
+  test "subscribes to expected topics on launch", %{broker: broker, guilds: guilds} do
+    assert Broker.subscribers?(broker, :guild_create) == [guilds]
+    assert Broker.subscribers?(broker, :guild_update) == [guilds]
+    assert Broker.subscribers?(broker, :guild_delete) == [guilds]
+  end
+
   test "lookup non-existant guild ID returns error" do
     assert Guilds.lookup_by_id("doesn't exist") == :error
   end
