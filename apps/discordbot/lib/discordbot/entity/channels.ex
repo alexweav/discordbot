@@ -105,6 +105,11 @@ defmodule DiscordBot.Entity.Channels do
     {:noreply, state}
   end
 
+  def handle_info(%Event{topic: :channel_delete, message: model}, {table, _} = state) do
+    delete_internal(table, model.id)
+    {:noreply, state}
+  end
+
   defp create_internal(_, nil), do: :error
   defp create_internal(_, %Channel{id: nil}), do: :error
 

@@ -94,4 +94,22 @@ defmodule DiscordBot.Entity.ChannelsTest do
 
     assert elem(Channels.from_id?(initial.id), 1).name == "A different name"
   end
+
+  test "deletes cached channels on Channel Delete event", %{channels: channels, broker: broker} do
+    initial = %Channel{
+      id: "one-more-test-id",
+      name: "Some channel"
+    }
+
+    Broker.publish(broker, :channel_create, initial)
+    Broker.publish(broker, :channel_delete, %Channel{id: initial.id})
+
+    # Perform a synchronous call on the registry to ensure that
+    # it has processed the event before we proceed.
+    # This is necessary because lookup_by_id does not communicate
+    # with the registry.
+    Channels.create(channels, nil)
+
+    assert Channels.from_id?(initial.id) == :error
+  end
 end
