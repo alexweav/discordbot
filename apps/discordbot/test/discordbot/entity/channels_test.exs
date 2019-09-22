@@ -37,4 +37,15 @@ defmodule DiscordBot.Entity.ChannelsTest do
     assert Channels.create(channels, model) == :ok
     assert Channels.from_id?(model.id) == {:ok, model}
   end
+
+  test "can delete channels in cache", %{channels: channels} do
+    model = %Channel{
+      id: "some-other-test-id"
+    }
+
+    Channels.create(channels, model)
+
+    assert Channels.delete(channels, model.id) == :ok
+    assert Channels.from_id?(model.id) == :error
+  end
 end

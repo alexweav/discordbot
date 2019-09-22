@@ -51,6 +51,17 @@ defmodule DiscordBot.Entity.Channels do
     end
   end
 
+  @doc """
+  Deletes a cached channel.
+
+  Always returns `:ok` if the deletion is performed, even if the
+  provided ID is not present in the cache.
+  """
+  @spec delete(pid | atom, String.t()) :: :ok
+  def delete(cache, id) do
+    GenServer.call(cache, {:delete, id})
+  end
+
   ## Callbacks
 
   def init({broker, api}) do
@@ -79,11 +90,20 @@ defmodule DiscordBot.Entity.Channels do
     {:reply, create_internal(table, channel), state}
   end
 
+  def handle_call({:delete, id}, _from, {table, _} = state) do
+    {:reply, delete_internal(table, id), state}
+  end
+
   defp create_internal(_, nil), do: :error
   defp create_internal(_, %Channel{id: nil}), do: :error
 
   defp create_internal(table, model) do
     :ets.insert(table, {model.id, model})
+    :ok
+  end
+
+  defp delete_internal(table, id) do
+    :ets.delete(table, id)
     :ok
   end
 end
