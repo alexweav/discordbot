@@ -32,10 +32,14 @@ defmodule DiscordBot.Entity.Message do
   end
 
   defp send(channel_id, content, tts: true) do
-    DiscordBot.Api.create_tts_message(channel_id, content)
+    api().create_tts_message(channel_id, content)
   end
 
   defp send(channel_id, content, _) do
-    DiscordBot.Api.create_message(channel_id, content)
+    api().create_message(channel_id, content)
+  end
+
+  defp api do
+    Application.get_env(:discordbot, :http_api, DiscordBot.Api)
   end
 end
