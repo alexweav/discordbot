@@ -27,7 +27,7 @@ defmodule DiscordBot.Entity.GuildsTest do
   end
 
   test "lookup non-existant guild ID returns error" do
-    assert Guilds.lookup_by_id("doesn't exist") == :error
+    assert Guilds.from_id?("doesn't exist") == :error
   end
 
   test "create validates inputs", %{guilds: guilds} do
@@ -40,9 +40,9 @@ defmodule DiscordBot.Entity.GuildsTest do
       id: "test-id"
     }
 
-    assert Guilds.lookup_by_id(model.id) == :error
+    assert Guilds.from_id?(model.id) == :error
     assert Guilds.create(guilds, model) == :ok
-    assert Guilds.lookup_by_id(model.id) == {:ok, GuildRecord.new(self(), model)}
+    assert Guilds.from_id?(model.id) == {:ok, GuildRecord.new(self(), model)}
   end
 
   test "can delete guilds in cache", %{guilds: guilds} do
@@ -53,7 +53,7 @@ defmodule DiscordBot.Entity.GuildsTest do
     Guilds.create(guilds, model)
 
     assert Guilds.delete(guilds, model.id) == :ok
-    assert Guilds.lookup_by_id(model.id) == :error
+    assert Guilds.from_id?(model.id) == :error
   end
 
   test "creates cached guilds on Guild Create event", %{guilds: guilds, broker: broker} do
@@ -66,10 +66,10 @@ defmodule DiscordBot.Entity.GuildsTest do
 
     # Perform a synchronous call on the registry to ensure that
     # it has processed the event before we proceed.
-    # This is necessary because lookup_by_id does not communicate
+    # This is necessary because from_id? does not communicate
     # with the registry.
     Guilds.create(guilds, %DiscordBot.Model.Guild{})
-    assert Guilds.lookup_by_id(event.id) == {:ok, GuildRecord.new(self(), event)}
+    assert Guilds.from_id?(event.id) == {:ok, GuildRecord.new(self(), event)}
   end
 
   test "updates cached guilds on Guild Update event", %{guilds: guilds, broker: broker} do
@@ -89,10 +89,10 @@ defmodule DiscordBot.Entity.GuildsTest do
 
     # Perform a synchronous call on the registry to ensure that
     # it has processed the event before we proceed.
-    # This is necessary because lookup_by_id does not communicate
+    # This is necessary because from_id? does not communicate
     # with the registry.
     Guilds.create(guilds, %DiscordBot.Model.Guild{})
-    assert Guilds.lookup_by_id(initial.id) == {:ok, GuildRecord.new(self(), event)}
+    assert Guilds.from_id?(initial.id) == {:ok, GuildRecord.new(self(), event)}
   end
 
   test "deletes cached guilds on Guild Delete event", %{guilds: guilds, broker: broker} do
@@ -107,10 +107,10 @@ defmodule DiscordBot.Entity.GuildsTest do
 
     # Perform a synchronous call on the registry to ensure that
     # it has processed the event before we proceed.
-    # This is necessary because lookup_by_id does not communicate
+    # This is necessary because from_id? does not communicate
     # with the registry.
     Guilds.create(guilds, %DiscordBot.Model.Guild{})
-    assert Guilds.lookup_by_id(initial.id) == :error
+    assert Guilds.from_id?(initial.id) == :error
   end
 
   test "adds guilds sent through gateway", %{discord: discord, connection: connection} do
@@ -118,9 +118,9 @@ defmodule DiscordBot.Entity.GuildsTest do
       id: "test-id-integration"
     }
 
-    assert Guilds.lookup_by_id(model.id) == :error
+    assert Guilds.from_id?(model.id) == :error
     Discord.guild_create(discord, model)
     Process.sleep(100)
-    assert Guilds.lookup_by_id(model.id) == {:ok, GuildRecord.new(connection, model)}
+    assert Guilds.from_id?(model.id) == {:ok, GuildRecord.new(connection, model)}
   end
 end

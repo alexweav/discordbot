@@ -20,12 +20,10 @@ defmodule DiscordBot.Entity.Guilds do
 
   Options (optional):
   - `:broker` - a process (pid or name) acting as a `DiscordBot.Broker` to use for communication.
-  - `:api` - an implementation of `DiscordBot.Api` to use for communication.
   """
   def start_link(opts) do
     broker = Keyword.get(opts, :broker, Broker)
-    api = Keyword.get(opts, :api, DiscordBot.Api)
-    GenServer.start_link(__MODULE__, {broker, api}, opts)
+    GenServer.start_link(__MODULE__, broker, opts)
   end
 
   @doc """
@@ -58,8 +56,8 @@ defmodule DiscordBot.Entity.Guilds do
 
   The returned guild will be an instance of `DiscordBot.Model.GuildRecord`.
   """
-  @spec lookup_by_id(String.t()) :: {:ok, GuildRecord.t()} | :error
-  def lookup_by_id(id) do
+  @spec from_id?(String.t()) :: {:ok, GuildRecord.t()} | :error
+  def from_id?(id) do
     case :ets.lookup(__MODULE__, id) do
       [{^id, record}] -> {:ok, record}
       [] -> :error
@@ -68,10 +66,10 @@ defmodule DiscordBot.Entity.Guilds do
 
   ## Callbacks
 
-  def init({broker, api}) do
-    guilds =
+  def init(broker) do
+    table =
       if :ets.whereis(__MODULE__) == :undefined do
-        :ets.new(__MODULE__, [:named_table, read_concurrency: true])
+        :ets.new(__MODULE__, [:named_table, :public, read_concurrency: true])
       else
         __MODULE__
       end
@@ -86,36 +84,30 @@ defmodule DiscordBot.Entity.Guilds do
       Broker.subscribe(broker, topic)
     end
 
-    {:ok, {guilds, api}}
+    {:ok, table}
   end
 
-  def handle_call({:create, model}, {pid, _ref}, {guilds, _} = state) do
-    {:reply, create_internal(guilds, model, pid), state}
+  def handle_call({:create, model}, {pid, _ref}, table) do
+    {:reply, create_internal(table, model, pid), table}
   end
 
-  def handle_call({:delete, id}, _from, {guilds, _} = state) do
-    {:reply, delete_internal(guilds, id), state}
+  def handle_call({:delete, id}, _from, table) do
+    {:reply, delete_internal(table, id), table}
   end
 
-  def handle_info(
-        %Event{topic: :guild_create, message: model, publisher: pub},
-        {guilds, _} = state
-      ) do
-    create_internal(guilds, model, pub)
-    {:noreply, state}
+  def handle_info(%Event{topic: :guild_create, message: model, publisher: pub}, table) do
+    create_internal(table, model, pub)
+    {:noreply, table}
   end
 
-  def handle_info(
-        %Event{topic: :guild_update, message: model, publisher: pub},
-        {guilds, _} = state
-      ) do
-    create_internal(guilds, model, pub)
-    {:noreply, state}
+  def handle_info(%Event{topic: :guild_update, message: model, publisher: pub}, table) do
+    create_internal(table, model, pub)
+    {:noreply, table}
   end
 
-  def handle_info(%Event{topic: :guild_delete, message: model}, {guilds, _} = state) do
-    delete_internal(guilds, model.id)
-    {:noreply, state}
+  def handle_info(%Event{topic: :guild_delete, message: model}, table) do
+    delete_internal(table, model.id)
+    {:noreply, table}
   end
 
   defp create_internal(_, nil, _), do: :error
