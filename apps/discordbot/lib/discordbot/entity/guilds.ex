@@ -8,7 +8,7 @@ defmodule DiscordBot.Entity.Guilds do
   alias DiscordBot.Broker
   alias DiscordBot.Broker.Event
   alias DiscordBot.Entity.GuildRecord
-  alias DiscordBot.Model.Guild, as: GuildModel
+  alias DiscordBot.Model.Guild
 
   @doc """
   Starts the guild registry.
@@ -37,7 +37,7 @@ defmodule DiscordBot.Entity.Guilds do
 
   Returns `:ok` if the creation is successful, otherwise `:error`.
   """
-  @spec create(pid | atom, GuildModel.t()) :: :ok | :error
+  @spec create(pid | atom, Guild.t()) :: :ok | :error
   def create(cache, model) do
     GenServer.call(cache, {:create, model})
   end
@@ -120,7 +120,7 @@ defmodule DiscordBot.Entity.Guilds do
 
   defp create_internal(_, nil, _), do: :error
 
-  defp create_internal(_, %DiscordBot.Model.Guild{id: nil}, _) do
+  defp create_internal(_, %Guild{id: nil}, _) do
     :error
   end
 
