@@ -1,5 +1,5 @@
 defmodule DiscordBot.Entity.ChannelsTest do
-  use ExUnit.Case, async: false
+  use ExUnit.Case, async: true
   doctest DiscordBot.Entity.Channels
 
   alias DiscordBot.Broker
