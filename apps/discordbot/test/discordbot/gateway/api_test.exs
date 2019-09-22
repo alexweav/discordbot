@@ -1,5 +1,5 @@
 defmodule DiscordBot.Gateway.ApiTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
 
   use DiscordBot.Fake.Discord
 
@@ -13,7 +13,7 @@ defmodule DiscordBot.Gateway.ApiTest do
   setup context do
     {url, discord} = setup_discord()
     broker = start_supervised!({Broker, []}, id: Module.concat(context.test, :broker))
-    start_supervised!({Guilds, [broker: broker, api: DiscordBot.ApiMock]})
+    start_supervised!({Guilds, broker: broker})
 
     gateway =
       start_supervised!(
