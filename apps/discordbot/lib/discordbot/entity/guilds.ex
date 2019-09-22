@@ -69,7 +69,7 @@ defmodule DiscordBot.Entity.Guilds do
   def init(broker) do
     table =
       if :ets.whereis(__MODULE__) == :undefined do
-        :ets.new(__MODULE__, [:named_table, read_concurrency: true])
+        :ets.new(__MODULE__, [:named_table, :public, read_concurrency: true])
       else
         __MODULE__
       end
