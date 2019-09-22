@@ -27,6 +27,20 @@ defmodule DiscordBot.Entity.Channels do
   end
 
   @doc """
+  Creates a new channel in the cache.
+
+  The channel is added to the cache `cache` if a channel does not already
+  exist with the ID provided in `model`. Otherwise, the existing channel
+  will be updated with the new data in `model`.
+
+  Returns `:ok` if the creation is successful, otherwise `:error`.
+  """
+  @spec create(atom | pid, Channel.t()) :: :ok | :error
+  def create(cache, channel) do
+    GenServer.call(cache, {:create, channel})
+  end
+
+  @doc """
   Gets a channel by ID.
   """
   @spec from_id?(String.t()) :: {:ok, Channel.t()} | :error
@@ -40,7 +54,7 @@ defmodule DiscordBot.Entity.Channels do
   ## Callbacks
 
   def init({broker, api}) do
-    channels =
+    table =
       if :ets.whereis(__MODULE__) == :undefined do
         :ets.new(__MODULE__, [:named_table, read_concurrency: true])
       else
@@ -58,6 +72,18 @@ defmodule DiscordBot.Entity.Channels do
       Broker.subscribe(broker, topic)
     end
 
-    {:ok, {channels, api}}
+    {:ok, {table, api}}
+  end
+
+  def handle_call({:create, channel}, _from, {table, _} = state) do
+    {:reply, create_internal(table, channel), state}
+  end
+
+  defp create_internal(_, nil), do: :error
+  defp create_internal(_, %Channel{id: nil}), do: :error
+
+  defp create_internal(table, model) do
+    :ets.insert(table, {model.id, model})
+    :ok
   end
 end

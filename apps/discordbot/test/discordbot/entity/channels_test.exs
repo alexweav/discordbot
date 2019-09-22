@@ -4,6 +4,7 @@ defmodule DiscordBot.Entity.ChannelsTest do
 
   alias DiscordBot.Broker
   alias DiscordBot.Entity.Channels
+  alias DiscordBot.Model.Channel
 
   setup_all do
     broker = start_supervised!(Broker)
@@ -20,5 +21,20 @@ defmodule DiscordBot.Entity.ChannelsTest do
 
   test "lookup non-existant channel ID returns error" do
     assert Channels.from_id?("doesn't exist") == :error
+  end
+
+  test "create validates inputs", %{channels: channels} do
+    assert Channels.create(channels, %Channel{}) == :error
+    assert Channels.create(channels, nil) == :error
+  end
+
+  test "can create channels in cache", %{channels: channels} do
+    model = %Channel{
+      id: "test-id"
+    }
+
+    assert Channels.from_id?(model.id) == :error
+    assert Channels.create(channels, model) == :ok
+    assert Channels.from_id?(model.id) == {:ok, model}
   end
 end
