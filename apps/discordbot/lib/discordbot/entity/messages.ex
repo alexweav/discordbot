@@ -1,4 +1,4 @@
-defmodule DiscordBot.Entity.Message do
+defmodule DiscordBot.Entity.Messages do
   @moduledoc """
   Primitives for handling messages.
   """
