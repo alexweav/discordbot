@@ -51,6 +51,18 @@ defmodule DiscordBot.SelfTest do
     assert Self.id?() == "123456789"
   end
 
+  test "can set user for use in testing", %{broker: broker} do
+    Self.start_link(broker: broker, name: DiscordBot.Self)
+
+    user = %User{
+      id: "test-user"
+    }
+
+    Self.set_user(user)
+
+    assert Self.id?() == "test-user"
+  end
+
   defp test_ready do
     %Ready{
       v: 6,
