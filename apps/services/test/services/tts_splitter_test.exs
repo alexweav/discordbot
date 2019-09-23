@@ -64,13 +64,13 @@ defmodule Services.TtsSplitterTest do
       content: "!tts_split asdf"
     }
 
-    DiscordBot.Entity.ChannelManagerMock
+    DiscordBot.MessagesMock
     |> expect(:reply, fn ^message, "asdf", [tts: true] -> :ok end)
     |> allow(self(), splitter)
 
     Broker.publish(broker, :message_create, message)
     Process.sleep(100)
-    verify!(DiscordBot.Entity.ChannelManagerMock)
+    verify!(DiscordBot.MessagesMock)
   end
 
   test "ignores non matching messages", %{broker: broker} do
@@ -81,6 +81,6 @@ defmodule Services.TtsSplitterTest do
 
     Broker.publish(broker, :message_create, message)
     Process.sleep(100)
-    verify!(DiscordBot.Entity.ChannelManagerMock)
+    verify!(DiscordBot.MessagesMock)
   end
 end
