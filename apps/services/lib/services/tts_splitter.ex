@@ -16,7 +16,7 @@ defmodule Services.TtsSplitter do
 
   use DiscordBot.Handler
 
-  alias DiscordBot.Entity.ChannelManager
+  alias DiscordBot.Entity.Messages
   alias DiscordBot.Model.Message
   alias Services.Help
 
@@ -136,16 +136,12 @@ defmodule Services.TtsSplitter do
 
   defp send_tts_chunks(chunks, message) do
     for chunk <- chunks do
-      channel_manager().reply(message, chunk, tts: true)
+      messages().reply(message, chunk, tts: true)
       Process.sleep(@reply_interval)
     end
   end
 
-  defp channel_manager do
-    Application.get_env(
-      :services,
-      :channel_manager,
-      ChannelManager
-    )
+  defp messages do
+    Application.get_env(:services, :messages, Messages)
   end
 end

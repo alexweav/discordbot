@@ -21,27 +21,27 @@ jobs:
 
     - name: Lint
       env:
-        mix_env: test
+        MIX_ENV: test
       run: mix format --check-formatted
 
     - name: Build
       env:
-        mix_env: test
+        MIX_ENV: test
       run: mix compile
 
     - name: Static Analysis
       env:
-        mix_env: test
+        MIX_ENV: test
       run: mix credo
 
     - name: Run Tests
       env:
-        mix_env: test
+        MIX_ENV: test
       run: mix test --no-start
 
     - name: Calculate Test Coverage
       env:
-        mix_env: test
+        MIX_ENV: test
       run: mix coveralls.json --umbrella --no-start
 
     - name: Upload Coverage to Codecov.io

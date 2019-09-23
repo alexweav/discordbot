@@ -3,7 +3,7 @@ defmodule Services.Search do
   Logic for the search commands
   """
 
-  alias DiscordBot.Entity.ChannelManager
+  alias DiscordBot.Entity.Messages
   alias DiscordBot.Model.Message
   alias Services.Search.Spotify
   alias Services.Search.TokenManager
@@ -23,7 +23,7 @@ defmodule Services.Search do
       |> search_wikipedia()
       |> format_message()
 
-    ChannelManager.reply(message, response)
+    Messages.reply(message, response)
   end
 
   @doc """
@@ -51,7 +51,7 @@ defmodule Services.Search do
       |> search_youtube()
       |> format_message()
 
-    ChannelManager.reply(message, response)
+    Messages.reply(message, response)
   end
 
   @doc """
@@ -79,7 +79,7 @@ defmodule Services.Search do
       |> search_spotify_albums()
       |> format_message()
 
-    ChannelManager.reply(message, response)
+    Messages.reply(message, response)
   end
 
   @doc """
@@ -106,7 +106,7 @@ defmodule Services.Search do
       |> search_spotify_albums()
       |> format_message()
 
-    ChannelManager.reply(message, response)
+    Messages.reply(message, response)
   end
 
   @doc """

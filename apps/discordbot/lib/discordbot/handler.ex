@@ -42,7 +42,7 @@ defmodule DiscordBot.Handler do
 
       alias DiscordBot.Broker
       alias DiscordBot.Broker.Event
-      alias DiscordBot.Entity.ChannelManager
+      alias DiscordBot.Entity.Messages
       alias DiscordBot.Model.Message
 
       @doc false
@@ -79,7 +79,7 @@ defmodule DiscordBot.Handler do
               nil
 
             {:reply, {:text, response}} ->
-              ChannelManager.reply(message, response)
+              Messages.reply(message, response)
           end
 
           handle_event(event, state.client_state)
