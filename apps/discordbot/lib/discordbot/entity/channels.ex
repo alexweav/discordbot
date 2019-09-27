@@ -62,6 +62,38 @@ defmodule DiscordBot.Entity.Channels do
     GenServer.call(cache, {:delete, id})
   end
 
+  @doc """
+  Finds text channels for a guild.
+
+  Accepts either a guild ID, or a `DiscordBot.Model.Guild`.
+  """
+  @spec text_channels?(Guild.t() | String.t()) :: list(Channel.t())
+  def text_channels?(guild) when is_binary(guild) do
+    __MODULE__
+    |> :ets.match_object({:_, %{type: :guild_text, guild_id: guild}})
+    |> Enum.map(&elem(&1, 1))
+  end
+
+  def text_channels?(guild) do
+    text_channels?(guild.id)
+  end
+
+  @doc """
+  Finds voice channels for a guild.
+
+  Accepts either a guild ID, or a `DiscordBot.Model.Guild`.
+  """
+  @spec voice_channels?(Guild.t() | String.t()) :: list(Channel.t())
+  def voice_channels?(guild) when is_binary(guild) do
+    __MODULE__
+    |> :ets.match_object({:_, %{type: :guild_voice, guild_id: guild}})
+    |> Enum.map(&elem(&1, 1))
+  end
+
+  def voice_channels?(guild) do
+    voice_channels?(guild.id)
+  end
+
   ## Callbacks
 
   def init(broker) do
