@@ -37,7 +37,7 @@ defmodule DiscordBot.Model.Channel do
   @typedoc """
   The type of channel
   """
-  @type type :: number
+  @type type :: atom
 
   @typedoc """
   The ID of the guild
@@ -159,6 +159,39 @@ defmodule DiscordBot.Model.Channel do
       nil,
       &Enum.map(&1, fn user -> User.from_map(user) end)
     )
+    |> Map.update("type", nil, &atom_from_type(&1))
     |> Serializable.struct_from_map(as: %__MODULE__{})
+  end
+
+  @doc """
+  Converts a channel type ID to a corresponding atom.
+  """
+  @spec atom_from_type(number) :: atom | nil
+  def atom_from_type(id) do
+    %{
+      0 => :guild_text,
+      1 => :dm,
+      2 => :guild_voice,
+      3 => :group_dm,
+      4 => :guild_category,
+      5 => :guild_news,
+      6 => :guild_store
+    }[id]
+  end
+
+  @doc """
+  Converts a channel type atom into its corresponding ID.
+  """
+  @spec type_from_atom(atom) :: number | nil
+  def type_from_atom(atom) do
+    %{
+      guild_text: 0,
+      dm: 1,
+      guild_voice: 2,
+      group_dm: 3,
+      guild_category: 4,
+      guild_news: 5,
+      guild_store: 6
+    }[atom]
   end
 end
