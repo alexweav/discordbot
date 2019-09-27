@@ -166,4 +166,68 @@ defmodule DiscordBot.Entity.ChannelsTest do
     {:ok, created} = Channels.from_id?(channel.id)
     assert created.guild_id == "abcd"
   end
+
+  test "finds text channels for a guild", %{channels: channels} do
+    text_channel = %Channel{
+      id: "text-1",
+      type: :guild_text,
+      guild_id: "text-search-guild"
+    }
+
+    wrong_guild = %Channel{
+      id: "text-2",
+      type: :guild_text,
+      guild_id: "not-text-search-guild"
+    }
+
+    not_text = %Channel{
+      id: "text-3",
+      type: :guild_voice,
+      guild_id: "text-search-guild"
+    }
+
+    Channels.create(channels, text_channel)
+    Channels.create(channels, wrong_guild)
+    Channels.create(channels, not_text)
+
+    assert Channels.text_channels?("text-search-guild") == [text_channel]
+
+    guild = %Guild{
+      id: "text-search-guild"
+    }
+
+    assert Channels.text_channels?(guild) == [text_channel]
+  end
+
+  test "finds voice channels for a guild", %{channels: channels} do
+    voice_channel = %Channel{
+      id: "voice-1",
+      type: :guild_voice,
+      guild_id: "voice-search-guild"
+    }
+
+    wrong_guild = %Channel{
+      id: "voice-2",
+      type: :guild_voice,
+      guild_id: "not-voice-search-guild"
+    }
+
+    not_voice = %Channel{
+      id: "voice-3",
+      type: :guild_text,
+      guild_id: "voice-search-guild"
+    }
+
+    Channels.create(channels, voice_channel)
+    Channels.create(channels, wrong_guild)
+    Channels.create(channels, not_voice)
+
+    assert Channels.voice_channels?("voice-search-guild") == [voice_channel]
+
+    guild = %Guild{
+      id: "voice-search-guild"
+    }
+
+    assert Channels.voice_channels?(guild) == [voice_channel]
+  end
 end
