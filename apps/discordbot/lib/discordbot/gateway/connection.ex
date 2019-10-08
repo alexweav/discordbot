@@ -135,6 +135,7 @@ defmodule DiscordBot.Gateway.Connection do
 
   def handle_connect(connection, state) do
     Logger.info("Connected!")
+    #Process.flag(:trap_exit, true)
     {:ok, %{state | connection: connection}}
   end
 
