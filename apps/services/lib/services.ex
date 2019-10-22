@@ -18,7 +18,8 @@ defmodule Services do
       {Services.Search.Supervisor, [broker: Broker]},
       {Services.Netstat, []},
       {Services.AutoResponder, []},
-      {Services.Mention, []}
+      {Services.Mention, []},
+      {Services.Voice, [name: Services.Voice]}
     ]
 
     Logger.info("Launching services...")
