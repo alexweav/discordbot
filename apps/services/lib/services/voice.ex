@@ -6,6 +6,9 @@ defmodule Services.Voice do
   use DiscordBot.Handler
   require Logger
 
+  alias DiscordBot.Entity.Channels
+  alias DiscordBot.Voice
+
   @doc """
   Starts this handler inside a new process.
   """
@@ -19,8 +22,15 @@ defmodule Services.Voice do
   end
 
   @doc false
-  def handle_message("!ff_voice", _, _) do
+  def handle_message("!ff_voice", message, _) do
     Logger.info("Join audio message!")
+    channels = Channels.voice_channels?(message.guild_id)
+
+    unless channels == [] do
+      first_channel = Enum.min_by(channels, fn c -> c.position end)
+      Voice.connect(first_channel.id)
+    end
+
     {:noreply}
   end
 
