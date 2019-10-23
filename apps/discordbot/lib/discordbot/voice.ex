@@ -6,7 +6,7 @@ defmodule DiscordBot.Voice do
   alias DiscordBot.Entity.Channels
   alias DiscordBot.Gateway.Api
   alias DiscordBot.Model.{VoiceServerUpdate, VoiceState}
-  alias DiscordBot.Voice.Session
+  alias DiscordBot.Voice.{Launcher, Session}
 
   @doc """
   Connects to a voice channel.
@@ -36,13 +36,14 @@ defmodule DiscordBot.Voice do
   @doc """
   Establishes a voice connection.
   """
-  @spec establish(String.t(), String.t(), String.t(), String.t(), String.t()) :: :ok | :error
+  @spec establish(String.t(), String.t(), String.t(), String.t(), String.t()) ::
+          DynamicSupervisor.on_start_child()
   def establish(url, server_id, user_id, session_id, token) do
     DynamicSupervisor.start_child(
       DiscordBot.Voice.ControlSupervisor,
       Supervisor.child_spec(
         {Session,
-         url: preprocess_url(url),
+         url: Launcher.preprocess_url(url),
          server_id: server_id,
          user_id: user_id,
          session_id: session_id,
@@ -50,24 +51,10 @@ defmodule DiscordBot.Voice do
         []
       )
     )
-
-    :ok
   end
-
-  @doc """
-  Preprocesses a Discord Voice websocket URL.
-  """
-  @spec preprocess_url(String.t()) :: String.t()
-  def preprocess_url(url),
-    do: url |> apply_protocol() |> apply_version |> String.replace(":80", "")
 
   defp connect(guild_id, channel_id, self_mute, self_deaf) do
     DynamicSupervisor.start_child(DiscordBot.Voice.AcceptorSupervisor, DiscordBot.Voice.Acceptor)
     Api.update_voice_state(guild_id, channel_id, self_mute, self_deaf)
   end
-
-  defp apply_protocol("wss://" <> url), do: "wss://" <> url
-  defp apply_protocol(url), do: "wss://" <> url
-
-  defp apply_version(url), do: url <> "/?v=3"
 end
