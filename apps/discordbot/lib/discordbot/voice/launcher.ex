@@ -9,7 +9,7 @@ defmodule DiscordBot.Voice.Launcher do
   @spec preprocess_url(String.t()) :: String.t()
   def preprocess_url(url) do
     url
-    |> apply_protocol()
+    |> apply_protocol
     |> apply_version
     |> String.replace(":80", "")
   end
