@@ -9,6 +9,8 @@ defmodule DiscordBot.VoiceTest do
 
     _ =
       start_supervised!({DiscordBot.Entity.Supervisor, [broker: broker, api: DiscordBot.ApiMock]})
+    _ =
+      start_supervised!({DiscordBot.Voice.Supervisor, []})
 
     %{broker: broker}
   end
