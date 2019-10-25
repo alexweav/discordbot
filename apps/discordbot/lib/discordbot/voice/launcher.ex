@@ -33,8 +33,9 @@ defmodule DiscordBot.Voice.Launcher do
          server_id: server_id,
          user_id: user_id,
          session_id: session_id,
-         token: token},
-        []
+         token: token,
+         name: {:via, Registry, {DiscordBot.Voice.SessionRegistry, server_id}}},
+        restart: :transient
       )
     )
   end

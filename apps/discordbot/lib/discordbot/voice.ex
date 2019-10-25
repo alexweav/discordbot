@@ -5,6 +5,7 @@ defmodule DiscordBot.Voice do
 
   alias DiscordBot.Entity.Channels
   alias DiscordBot.Gateway.Api
+  alias DiscordBot.Voice.Session
 
   @doc """
   Connects to a voice channel.
@@ -14,6 +15,19 @@ defmodule DiscordBot.Voice do
     case Channels.from_id?(channel_id) do
       {:ok, channel} -> connect(channel.guild_id, channel_id, self_mute, self_deaf)
       :error -> :error
+    end
+  end
+
+  @doc """
+  Disconnects from a voice channel.
+  """
+  @spec disconnect(String.t()) :: :ok | :error
+  def disconnect(guild_id) do
+    sessions = Registry.lookup(DiscordBot.Voice.SessionRegistry, guild_id)
+
+    unless sessions == [] do
+      [{session, _}] = sessions
+      Session.disconnect(session)
     end
   end
 

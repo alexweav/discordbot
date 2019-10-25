@@ -46,6 +46,14 @@ defmodule DiscordBot.Voice.Control do
     WebSockex.cast(connection, :identify)
   end
 
+  @doc """
+  Disconnects from the control websocket.
+  """
+  @spec disconnect(pid, WebSockex.close_code()) :: :ok
+  def disconnect(connection, close_code) do
+    WebSockex.cast(connection, {:disconnect, close_code})
+  end
+
   ## Handlers
 
   def handle_connect(_, state) do
@@ -109,6 +117,10 @@ defmodule DiscordBot.Voice.Control do
       |> VoicePayload.to_json()
 
     {:reply, {:text, json}, state}
+  end
+
+  def handle_cast({:disconnect, close_code}, state) do
+    {:close, {close_code, "Disconnecting"}, state}
   end
 
   def handle_info(:heartbeat, state) do
