@@ -6,6 +6,7 @@ defmodule DiscordBot.Voice.Session do
   use Supervisor
 
   alias DiscordBot.Util
+  alias DiscordBot.Voice.Control
 
   @doc """
   Starts a voice session.
@@ -42,6 +43,18 @@ defmodule DiscordBot.Voice.Session do
   @spec control?(pid) :: {:ok, pid} | :error
   def control?(session) do
     Util.child_by_id(session, DiscordBot.Voice.Control)
+  end
+
+  @doc """
+  Ends and disconnects this session.
+  """
+  @spec disconnect(pid) :: true
+  def disconnect(session) do
+    case control?(session) do
+      {:ok, control} -> Control.disconnect(control, 4001)
+    end
+
+    Supervisor.stop(session)
   end
 
   @doc false

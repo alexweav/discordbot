@@ -8,6 +8,7 @@ defmodule DiscordBot.Voice.Acceptor do
 
   alias DiscordBot.Broker
   alias DiscordBot.Broker.Event
+  alias DiscordBot.Voice.Launcher
 
   @default_timeout_milliseconds 10_000
 
@@ -53,7 +54,7 @@ defmodule DiscordBot.Voice.Acceptor do
 
   defp complete_event(state) do
     Logger.info("Preparing new voice connection.")
-    DiscordBot.Voice.establish(state[:voice_state_update], state[:voice_server_update])
+    Launcher.establish(state[:voice_state_update], state[:voice_server_update])
     {:stop, :normal, state}
   end
 end

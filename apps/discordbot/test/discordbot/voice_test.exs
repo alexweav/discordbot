@@ -1,5 +1,6 @@
 defmodule DiscordBot.VoiceTest do
   use ExUnit.Case, async: true
+  doctest DiscordBot.Voice
 
   alias DiscordBot.Broker
 
@@ -9,30 +10,14 @@ defmodule DiscordBot.VoiceTest do
     _ =
       start_supervised!({DiscordBot.Entity.Supervisor, [broker: broker, api: DiscordBot.ApiMock]})
 
+    _ = start_supervised!({DiscordBot.Voice.Supervisor, []})
+
     %{broker: broker}
   end
 
   describe "connect" do
     test "errors if invalid channel ID" do
       assert DiscordBot.Voice.connect("asdf") == :error
-    end
-  end
-
-  describe "preprocess_url" do
-    test "correct if protocol not provided" do
-      assert DiscordBot.Voice.preprocess_url("asdf.gg") == "wss://asdf.gg/?v=3"
-    end
-
-    test "correct is protocol already provided" do
-      assert DiscordBot.Voice.preprocess_url("wss://asdf.gg") == "wss://asdf.gg/?v=3"
-    end
-
-    test "removes port 80" do
-      assert DiscordBot.Voice.preprocess_url("asdf.gg:80") == "wss://asdf.gg/?v=3"
-    end
-
-    test "doesn't remove other ports" do
-      assert DiscordBot.Voice.preprocess_url("asdf.gg:100") == "wss://asdf.gg:100/?v=3"
     end
   end
 end

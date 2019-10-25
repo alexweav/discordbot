@@ -34,5 +34,10 @@ defmodule Services.Voice do
     {:noreply}
   end
 
+  def handle_message("!ff_stop", message, _) do
+    Voice.disconnect(message.guild_id)
+    {:noreply}
+  end
+
   def handle_message(_, _, _), do: {:noreply}
 end
