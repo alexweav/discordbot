@@ -7,7 +7,7 @@ defmodule DiscordBot.Voice.Control do
   require Logger
 
   alias DiscordBot.Gateway.Heartbeat
-  alias DiscordBot.Model.{VoiceHello, VoiceIdentify, VoicePayload}
+  alias DiscordBot.Model.{SelectProtocol, VoiceHello, VoiceIdentify, VoicePayload}
   alias DiscordBot.Util
   alias DiscordBot.Voice.Session
 
@@ -44,6 +44,11 @@ defmodule DiscordBot.Voice.Control do
   @spec identify(atom | pid) :: :ok
   def identify(connection) do
     WebSockex.cast(connection, :identify)
+  end
+
+  @spec select_protocol(atom | pid, String.t(), integer) :: :ok
+  def select_protocol(connection, ip, port) do
+    WebSockex.cast(connection, {:select_protocol, ip, port})
   end
 
   @doc """
@@ -110,6 +115,24 @@ defmodule DiscordBot.Voice.Control do
         state[:user_id],
         state[:session_id],
         state[:token]
+      )
+
+    {:ok, json} =
+      message
+      |> VoicePayload.to_json()
+
+    {:reply, {:text, json}, state}
+  end
+
+  def handle_cast({:select_protocol, ip, port}, state) do
+    Logger.info("Selecting protocol.")
+
+    message =
+      SelectProtocol.select_protocol(
+        "udp",
+        ip,
+        port,
+        "xsalsa20_poly1305"
       )
 
     {:ok, json} =

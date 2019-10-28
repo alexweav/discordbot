@@ -6,7 +6,7 @@ defmodule DiscordBot.Model.SelectProtocol do
 
   use DiscordBot.Model.Serializable
 
-  alias DiscordBot.Model.{Serializable, UDP}
+  alias DiscordBot.Model.{Serializable, UDP, VoicePayload}
 
   defstruct [
     :protocol,
@@ -36,5 +36,20 @@ defmodule DiscordBot.Model.SelectProtocol do
     map
     |> Map.update("data", nil, &UDP.from_map(&1))
     |> Serializable.struct_from_map(as: %__MODULE__{})
+  end
+
+  @doc """
+  Builds the Select Protocol struct.
+  """
+  @spec select_protocol(String.t(), String.t(), integer, String.t()) :: VoicePayload.t()
+  def select_protocol(protocol, address, port, mode) do
+    VoicePayload.payload(:select_protocol, %__MODULE__{
+      protocol: protocol,
+      data: %UDP{
+        address: address,
+        port: port,
+        mode: mode
+      }
+    })
   end
 end

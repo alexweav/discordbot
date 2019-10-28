@@ -5,7 +5,7 @@ defmodule DiscordBot.Model.VoicePayload do
 
   use DiscordBot.Model.Serializable
 
-  alias DiscordBot.Model.{VoiceHello, VoiceIdentify, VoicePayload, VoiceReady}
+  alias DiscordBot.Model.{SelectProtocol, VoiceHello, VoiceIdentify, VoicePayload, VoiceReady}
 
   defstruct [
     :opcode,
@@ -97,6 +97,7 @@ defmodule DiscordBot.Model.VoicePayload do
       :identify -> data |> VoiceIdentify.from_map()
       :hello -> data |> VoiceHello.from_map()
       :ready -> data |> VoiceReady.from_map()
+      :select_protocol -> data |> SelectProtocol.from_map()
       _ -> data
     end
   end
