@@ -7,7 +7,7 @@ defmodule DiscordBot.Voice.Control do
   require Logger
 
   alias DiscordBot.Gateway.Heartbeat
-  alias DiscordBot.Model.{VoiceHello, VoiceIdentify, VoicePayload}
+  alias DiscordBot.Model.{SelectProtocol, Speaking, VoiceHello, VoiceIdentify, VoicePayload}
   alias DiscordBot.Util
   alias DiscordBot.Voice.Session
 
@@ -44,6 +44,22 @@ defmodule DiscordBot.Voice.Control do
   @spec identify(atom | pid) :: :ok
   def identify(connection) do
     WebSockex.cast(connection, :identify)
+  end
+
+  @doc """
+  Specifies the IP and port for the incoming voice UDP data.
+  """
+  @spec select_protocol(atom | pid, String.t(), integer) :: :ok
+  def select_protocol(connection, ip, port) do
+    WebSockex.cast(connection, {:select_protocol, ip, port})
+  end
+
+  @doc """
+  Indicates whether the bot has started or finished speaking.
+  """
+  @spec speaking(atom | pid, boolean, integer) :: :ok
+  def speaking(connection, speaking, ssrc) do
+    WebSockex.cast(connection, {:speaking, speaking, ssrc})
   end
 
   @doc """
@@ -111,6 +127,36 @@ defmodule DiscordBot.Voice.Control do
         state[:session_id],
         state[:token]
       )
+
+    {:ok, json} =
+      message
+      |> VoicePayload.to_json()
+
+    {:reply, {:text, json}, state}
+  end
+
+  def handle_cast({:select_protocol, ip, port}, state) do
+    Logger.info("Selecting protocol.")
+
+    message =
+      SelectProtocol.select_protocol(
+        "udp",
+        ip,
+        port,
+        "xsalsa20_poly1305"
+      )
+
+    {:ok, json} =
+      message
+      |> VoicePayload.to_json()
+
+    {:reply, {:text, json}, state}
+  end
+
+  def handle_cast({:speaking, speaking, ssrc}, state) do
+    Logger.info("Speaking.")
+
+    message = Speaking.speaking(speaking, 0, ssrc)
 
     {:ok, json} =
       message
