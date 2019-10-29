@@ -79,6 +79,7 @@ defmodule DiscordBot.Voice.Control do
 
   def handle_frame({:text, json}, state) do
     Logger.info("Received voice control frame: #{Kernel.inspect(json)}")
+
     json
     |> VoicePayload.from_json()
     |> handle_payload(state)
@@ -101,6 +102,8 @@ defmodule DiscordBot.Voice.Control do
     Heartbeat.acknowledge(state[:heartbeat])
     {:ok, state}
   end
+
+  def handle_payload(_, state), do: {:ok, state}
 
   def handle_disconnect(reason, state) do
     Logger.error("Disconnected from voice control. Reason: #{reason}")
