@@ -7,20 +7,20 @@ defmodule DiscordBot.Voice.Udp do
     @moduledoc false
 
     defstruct [
-      :listener,
+      :socket,
       :discord_ip,
       :discord_port,
       :my_ip,
       :my_port
     ]
 
-    @type listener :: :gen_udp.socket()
+    @type socket :: :gen_udp.socket()
     @type discord_ip :: :inet.ip_address()
     @type discord_port :: integer
     @type my_ip :: :inet.ip_address()
     @type my_port :: integer
     @type t :: %__MODULE__{
-            listener: listener,
+            socket: socket,
             discord_ip: discord_ip,
             discord_port: discord_port,
             my_ip: my_ip,
@@ -28,19 +28,20 @@ defmodule DiscordBot.Voice.Udp do
           }
   end
 
-  def open(discord_ip, discord_port) do
+  @spec open(String.t(), integer, integer) :: Connection.t()
+  def open(discord_ip, discord_port, ssrc) do
     {:ok, discord_ip} =
       discord_ip
       |> to_charlist
       |> :inet.parse_address()
 
-    {:ok, listener} = start_listening()
+    {:ok, socket} = start_listening()
 
     # TODO: get our external IP and port
-    {my_ip, my_port} = {nil, nil}
+    {my_ip, my_port} = ip_discovery(socket, discord_ip, discord_port, ssrc)
 
     %Connection{
-      listener: listener,
+      socket: socket,
       discord_ip: discord_ip,
       discord_port: discord_port,
       my_ip: my_ip,
@@ -48,7 +49,8 @@ defmodule DiscordBot.Voice.Udp do
     }
   end
 
-  def start_listening do
+  @spec start_listening :: {:ok, :gen_udp.socket()}
+  defp start_listening do
     opts = [
       :binary,
       {:active, false},
@@ -57,5 +59,12 @@ defmodule DiscordBot.Voice.Udp do
 
     # 0 auto-determines port
     :gen_udp.open(0, opts)
+  end
+
+  defp ip_discovery(_socket, _discord_ip, _discord_port, ssrc) do
+    # 70 bytes
+    size = 70 * 8
+    _packet = <<ssrc::size(size)>>
+    {nil, nil}
   end
 end

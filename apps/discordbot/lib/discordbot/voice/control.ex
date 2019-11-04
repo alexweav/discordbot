@@ -9,7 +9,7 @@ defmodule DiscordBot.Voice.Control do
   alias DiscordBot.Gateway.Heartbeat
   alias DiscordBot.Model.{SelectProtocol, Speaking, VoiceIdentify, VoicePayload}
   alias DiscordBot.Util
-  alias DiscordBot.Voice.Session
+  alias DiscordBot.Voice.{Session, Udp}
 
   def start_link(opts) do
     url = Util.require_opt!(opts, :url)
@@ -100,6 +100,12 @@ defmodule DiscordBot.Voice.Control do
 
   def handle_payload(%VoicePayload{opcode: :heartbeat_ack}, state) do
     Heartbeat.acknowledge(state[:heartbeat])
+    {:ok, state}
+  end
+
+  def handle_payload(%VoicePayload{opcode: :ready} = payload, state) do
+    connection = Udp.open(payload.data.ip, payload.data.port, payload.data.ssrc)
+    Logger.info("UDP connection: #{connection}")
     {:ok, state}
   end
 

@@ -18,7 +18,7 @@ defmodule DiscordBot.Model.VoiceReady do
   @typedoc """
   Synchronization source value for the voice connection.
   """
-  @type ssrc :: number
+  @type ssrc :: integer
 
   @typedoc """
   The IP address to use for the voice UDP connection.
