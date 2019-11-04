@@ -7,7 +7,7 @@ defmodule DiscordBot.Voice.Control do
   require Logger
 
   alias DiscordBot.Gateway.Heartbeat
-  alias DiscordBot.Model.{SelectProtocol, Speaking, VoiceHello, VoiceIdentify, VoicePayload}
+  alias DiscordBot.Model.{SelectProtocol, Speaking, VoiceIdentify, VoicePayload}
   alias DiscordBot.Util
   alias DiscordBot.Voice.Session
 
@@ -70,7 +70,7 @@ defmodule DiscordBot.Voice.Control do
     WebSockex.cast(connection, {:disconnect, close_code})
   end
 
-  ## Handlers
+  ## WebSocket message handlers
 
   def handle_connect(_, state) do
     Logger.info("Connected to voice control!")
@@ -78,21 +78,36 @@ defmodule DiscordBot.Voice.Control do
   end
 
   def handle_frame({:text, json}, state) do
-    payload = VoicePayload.from_json(json)
-    Logger.info("Received voice control frame: #{Kernel.inspect(payload)}")
-    attempt_authenticate(payload)
-    handle_acknowledge(payload, state)
+    Logger.info("Received voice control frame: #{Kernel.inspect(json)}")
 
-    case setup_heartbeat(payload, state) do
-      nil -> {:ok, state}
-      new_state -> {:ok, new_state}
-    end
+    json
+    |> VoicePayload.from_json()
+    |> handle_payload(state)
   end
 
   def handle_frame(frame, state) do
     Logger.error("Got non-text frame: #{frame}")
     {:ok, state}
   end
+
+  @doc false
+  def handle_payload(%VoicePayload{opcode: :hello} = payload, state) do
+    identify(self())
+    interval = payload.data.heartbeat_interval
+    new_state = setup_heartbeat(interval, state)
+    {:ok, new_state}
+  end
+
+  def handle_payload(%VoicePayload{opcode: :heartbeat_ack}, state) do
+    Heartbeat.acknowledge(state[:heartbeat])
+    {:ok, state}
+  end
+
+  def handle_payload(%VoicePayload{opcode: :ready} = payload, state) do
+    {:ok, state}
+  end
+
+  def handle_payload(_, state), do: {:ok, state}
 
   def handle_disconnect(reason, state) do
     Logger.error("Disconnected from voice control. Reason: #{reason}")
@@ -103,6 +118,8 @@ defmodule DiscordBot.Voice.Control do
     Logger.error("Voice control connection closed with event #{code}: #{msg}")
     exit(:normal)
   end
+
+  ## Process message handlers
 
   def handle_cast({:heartbeat, nonce}, state) do
     Logger.info("Sending voice control heartbeat.")
@@ -174,19 +191,9 @@ defmodule DiscordBot.Voice.Control do
     {:ok, state}
   end
 
-  defp attempt_authenticate(%VoicePayload{opcode: :hello}) do
-    identify(self())
-  end
+  ## Private functions
 
-  defp attempt_authenticate(_), do: nil
-
-  defp setup_heartbeat(
-         %VoicePayload{
-           opcode: :hello,
-           data: %VoiceHello{heartbeat_interval: interval}
-         },
-         state
-       ) do
+  defp setup_heartbeat(interval, state) do
     # According to discord docs, the correct heartbeat interval
     # is provided in the Hello event, and is an erroneous value.
     # Clients should take this heartbeat to be 75% of its
@@ -197,17 +204,9 @@ defmodule DiscordBot.Voice.Control do
     %{state | heartbeat: heartbeat}
   end
 
-  defp setup_heartbeat(_, _), do: nil
-
   defp get_heartbeat(state) do
     state
     |> Map.get(:parent)
     |> Session.heartbeat?()
   end
-
-  defp handle_acknowledge(%VoicePayload{opcode: :heartbeat_ack}, state) do
-    Heartbeat.acknowledge(state[:heartbeat])
-  end
-
-  defp handle_acknowledge(_, _), do: nil
 end
