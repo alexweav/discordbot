@@ -103,7 +103,7 @@ defmodule DiscordBot.Voice.Control do
     {:ok, state}
   end
 
-  def handle_payload(%VoicePayload{opcode: :ready} = payload, state) do
+  def handle_payload(%VoicePayload{opcode: :ready} = _payload, state) do
     {:ok, state}
   end
 
