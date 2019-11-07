@@ -89,12 +89,14 @@ defmodule DiscordBot.Gateway.GunConnection do
     :gun.ws_upgrade(connection, "/?v=6&encoding=json")
 
     receive do
-      {:gun_upgrade, _, _, _, _} -> :ok
+      {:gun_upgrade, _, _, ["websocket"], _} -> :ok
       {:gun_error, _, _, reason} ->
         Logger.error("WS upgrade failed: #{reason}")
-        exit(:upgrade_failed)
+        exit({:upgrade_failed, reason})
     after
       10_000 ->
+        Logger.error("WS upgrade timed out.")
+        exit({:upgrade_failed, :timeout})
     end
 
     Logger.info("Websocket connection established.")
