@@ -12,7 +12,6 @@ defmodule DiscordBot.Gateway.GunConnection do
     broker = Keyword.get(opts, :broker, Broker)
 
     state = %DiscordBot.Gateway.Connection.State{
-      # <> "/?v=6&encoding=json",
       url: url,
       token: token,
       sequence: nil,
@@ -81,12 +80,24 @@ defmodule DiscordBot.Gateway.GunConnection do
 
     {:ok, connection} =
       url.host
-      |> :binary.bin_to_list()
-      |> IO.inspect()
+      |> to_charlist()
       |> :gun.open(443, connection_opts)
 
-    {:ok, :http} = :gun.await_up(connection, 0_000)
-    Logger.info("Gun connection established!")
+    {:ok, :http} = :gun.await_up(connection, 10_000)
+    Logger.info("HTTP connection established!")
+
+    :gun.ws_upgrade(connection, "/?v=6&encoding=json")
+
+    receive do
+      {:gun_upgrade, _, _, _, _} -> :ok
+      {:gun_error, _, _, reason} ->
+        Logger.error("WS upgrade failed: #{reason}")
+        exit(:upgrade_failed)
+    after
+      10_000 ->
+    end
+
+    Logger.info("Websocket connection established.")
 
     {:ok, state}
   end
