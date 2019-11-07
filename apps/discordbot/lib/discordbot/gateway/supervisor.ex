@@ -5,7 +5,7 @@ defmodule DiscordBot.Gateway.Supervisor do
   require Logger
 
   alias DiscordBot.Broker.Shovel
-  alias DiscordBot.Gateway.{Authenticator, Connection, Heartbeat}
+  alias DiscordBot.Gateway.{Authenticator, Connection, GunConnection, Heartbeat}
 
   def start_link(opts) do
     token = Keyword.fetch!(opts, :token)
@@ -66,7 +66,8 @@ defmodule DiscordBot.Gateway.Supervisor do
         id: :authenticator,
         restart: :transient
       ),
-      {Connection, url: url, token: token, broker: instance_broker}
+      {Connection, url: url, token: token, broker: instance_broker},
+      {GunConnection, url: url, token: token, broker: instance_broker}
     ]
 
     Supervisor.init(children, strategy: :one_for_all)

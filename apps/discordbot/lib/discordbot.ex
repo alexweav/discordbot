@@ -12,6 +12,7 @@ defmodule DiscordBot do
 
   def init(:ok) do
     DiscordBot.Api.start()
+    Application.ensure_all_started(:gun)
 
     url =
       case DiscordBot.Api.request_gateway() do
