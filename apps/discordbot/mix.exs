@@ -36,12 +36,14 @@ defmodule DiscordBot.MixProject do
   defp deps do
     [
       {:cowboy, "~> 2.6", only: [:dev, :test], runtime: false},
+      {:cowlib, "~> 2.7", override: true},
       {:credo, "~> 1.0.0", only: [:dev, :test], runtime: false},
       {:credo_naming, "~> 0.4", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.0.0-rc.4", only: [:dev, :test], runtime: false},
       {:distillery, "~> 2.0"},
       {:excoveralls, "~> 0.10", only: :test},
       {:ex_doc, "~> 0.19", only: :dev, runtime: false},
+      {:gun, "~> 1.3"},
       {:httpoison, "~> 1.4"},
       {:logger_file_backend, "~> 0.0.10"},
       {:mox, "~> 0.5", only: :test},
