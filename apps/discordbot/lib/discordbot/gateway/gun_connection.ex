@@ -103,4 +103,13 @@ defmodule DiscordBot.Gateway.GunConnection do
 
     {:ok, state}
   end
+
+  def handle_info({:gun_ws, _, _, {:text, text}}, state) do
+    handle_frame({:text, text}, state)
+  end
+
+  def handle_frame({:text, json}, state) do
+    Logger.info("Got frame: #{json}")
+    {:noreply, state}
+  end
 end
