@@ -13,12 +13,44 @@ defmodule DiscordBot.Gateway.GunConnection do
     StatusUpdate
   }
 
+  @callback heartbeat(atom | pid) :: :ok
+  @callback identify(atom | pid, String.t(), number, number) :: :ok
+  @callback update_status(atom | pid, atom) :: :ok
+  @callback update_status(atom | pid, atom, atom, String.t()) :: :ok
+  @callback disconnect(pid, WebSockex.close_code()) :: :ok
+
+  defmodule State do
+    @moduledoc false
+    @enforce_keys [:url, :token]
+
+    defstruct [
+      :url,
+      :token,
+      :connection,
+      :sequence,
+      :broker
+    ]
+
+    @type url :: String.t()
+    @type token :: String.t()
+    @type connection :: map | nil
+    @type sequence :: number
+    @type broker :: pid | atom
+    @type t :: %__MODULE__{
+            url: url,
+            token: token,
+            connection: connection,
+            sequence: sequence,
+            broker: broker
+          }
+  end
+
   def start_link(opts) do
     url = Keyword.fetch!(opts, :url)
     token = Keyword.fetch!(opts, :token)
     broker = Keyword.get(opts, :broker, Broker)
 
-    state = %DiscordBot.Gateway.Connection.State{
+    state = %State{
       url: url,
       token: token,
       sequence: nil,
