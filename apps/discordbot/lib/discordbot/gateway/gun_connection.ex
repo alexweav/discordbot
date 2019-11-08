@@ -85,19 +85,7 @@ defmodule DiscordBot.Gateway.GunConnection do
 
     {:ok, :http} = :gun.await_up(connection, 10_000)
     Logger.info("HTTP connection established!")
-
-    :gun.ws_upgrade(connection, "/?v=6&encoding=json")
-
-    receive do
-      {:gun_upgrade, _, _, ["websocket"], _} -> :ok
-      {:gun_error, _, _, reason} ->
-        Logger.error("WS upgrade failed: #{reason}")
-        exit({:upgrade_failed, reason})
-    after
-      10_000 ->
-        Logger.error("WS upgrade timed out.")
-        exit({:upgrade_failed, :timeout})
-    end
+    ws_upgrade(connection)
 
     Logger.info("Websocket connection established.")
 
@@ -108,8 +96,46 @@ defmodule DiscordBot.Gateway.GunConnection do
     handle_frame({:text, text}, state)
   end
 
+  def handle_info({:gun_ws, _, _, {:binary, binary}}, state) do
+    Logger.info("Binary frame received: #{binary}")
+    {:noreply, state}
+  end
+
+  def handle_info({:gun_ws, _, _, {:close, code, reason}}, state) do
+    Logger.error("Websocket disconnected with code #{code}: #{reason}")
+    {:noreply, state}
+  end
+
+  def handle_info({:gun_down, _, _, reason, _, _}, state) do
+    Logger.warn("Websocket connection interrupted: #{reason}")
+    {:noreply, state}
+  end
+
+  def handle_info({:gun_up, connection, _}, state) do
+    ws_upgrade(connection)
+    Logger.warn("Websocket connection restored.")
+    {:noreply, state}
+  end
+
   def handle_frame({:text, json}, state) do
     Logger.info("Got frame: #{json}")
     {:noreply, state}
+  end
+
+  defp ws_upgrade(connection) do
+    :gun.ws_upgrade(connection, "/?v=6&encoding=json")
+
+    receive do
+      {:gun_upgrade, _, _, ["websocket"], _} ->
+        :ok
+
+      {:gun_error, _, _, reason} ->
+        Logger.error("WS upgrade failed: #{reason}")
+        exit({:upgrade_failed, reason})
+    after
+      10_000 ->
+        Logger.error("WS upgrade timed out.")
+        exit({:upgrade_failed, :timeout})
+    end
   end
 end
