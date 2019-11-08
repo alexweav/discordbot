@@ -6,6 +6,13 @@ defmodule DiscordBot.Gateway.GunConnection do
   use GenServer
   require Logger
 
+  alias DiscordBot.Model.{
+    Activity,
+    GatewayVoiceStateUpdate,
+    Payload,
+    StatusUpdate
+  }
+
   def start_link(opts) do
     url = Keyword.fetch!(opts, :url)
     token = Keyword.fetch!(opts, :token)
@@ -89,7 +96,7 @@ defmodule DiscordBot.Gateway.GunConnection do
 
     Logger.info("Websocket connection established.")
 
-    {:ok, state}
+    {:ok, %{state | connection: connection}}
   end
 
   ## Gun-related messages
@@ -124,6 +131,82 @@ defmodule DiscordBot.Gateway.GunConnection do
     {:noreply, state}
   end
 
+  ## GenServer messages
+
+  def handle_cast({:heartbeat}, state) do
+    message = Payload.heartbeat(nil)
+
+    {:ok, json} =
+      message
+      |> apply_sequence(state.sequence)
+      |> Payload.to_json()
+
+    :ok = :gun.ws_send(state.connection, {:text, json})
+    {:noreply, state}
+  end
+
+  def handle_cast({:identify, identify}, state) do
+    Logger.info("Identifying over gateway websocket.")
+
+    {:ok, json} =
+      identify
+      |> apply_sequence(state.sequence)
+      |> Payload.to_json()
+
+    :ok = :gun.ws_send(state.connection, {:text, json})
+    {:noreply, state}
+  end
+
+  def handle_cast({:update_status, status}, state) do
+    message = StatusUpdate.status_update(nil, nil, status)
+
+    {:ok, json} =
+      message
+      |> apply_sequence(state.sequence)
+      |> Payload.to_json()
+
+    :ok = :gun.ws_send(state.connection, {:text, json})
+    {:noreply, state}
+  end
+
+  def handle_cast({:update_status, status, type, name}, state) do
+    activity = Activity.activity(type, name)
+    message = StatusUpdate.status_update(nil, activity, status)
+
+    {:ok, json} =
+      message
+      |> apply_sequence(state.sequence)
+      |> Payload.to_json()
+
+    :ok = :gun.ws_send(state.connection, {:text, json})
+    {:noreply, state}
+  end
+
+  def handle_cast({:voice_state_update, guild_id, channel_id, self_mute, self_deaf}, state) do
+    message =
+      GatewayVoiceStateUpdate.voice_state_update(
+        guild_id,
+        channel_id,
+        self_mute,
+        self_deaf
+      )
+
+    {:ok, json} =
+      message
+      |> apply_sequence(state.sequence)
+      |> Payload.to_json()
+
+    :ok = :gun.ws_send(state.connection, {:text, json})
+    {:noreply, state}
+  end
+
+  def handle_cast({:disconnect, _close_code}, state) do
+    :gun.ws_send(state.connection, :close)
+    {:noreply, state}
+  end
+
+  ## Private functions
+
   defp ws_upgrade(connection) do
     :gun.ws_upgrade(connection, "/?v=6&encoding=json")
 
@@ -139,5 +222,9 @@ defmodule DiscordBot.Gateway.GunConnection do
         Logger.error("WS upgrade timed out.")
         exit({:upgrade_failed, :timeout})
     end
+  end
+
+  defp apply_sequence(payload, sequence) do
+    %Payload{payload | sequence: sequence}
   end
 end
