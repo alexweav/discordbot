@@ -126,6 +126,20 @@ defmodule DiscordBot.Gateway.GunConnection do
     {:noreply, state}
   end
 
+  ## Other messages
+
+  def handle_info(:heartbeat, state) do
+    heartbeat(self())
+    {:ok, state}
+  end
+
+  def handle_info({:disconnect, close_code}, state) do
+    disconnect(self(), close_code)
+    {:ok, state}
+  end
+
+  ## WebSocket frames
+
   def handle_frame({:text, json}, state) do
     Logger.info("Got frame: #{json}")
     {:noreply, state}
