@@ -92,6 +92,8 @@ defmodule DiscordBot.Gateway.GunConnection do
     {:ok, state}
   end
 
+  ## Gun-related messages
+
   def handle_info({:gun_ws, _, _, {:text, text}}, state) do
     handle_frame({:text, text}, state)
   end
