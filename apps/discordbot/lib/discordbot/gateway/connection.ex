@@ -123,7 +123,7 @@ defmodule DiscordBot.Gateway.Connection do
     {:ok, connection} =
       url.host
       |> to_charlist()
-      |> :gun.open(443, connection_opts)
+      |> :gun.open(url.port, connection_opts)
 
     {:ok, :http} = :gun.await_up(connection, 10_000)
     Logger.info("HTTP connection established!")
