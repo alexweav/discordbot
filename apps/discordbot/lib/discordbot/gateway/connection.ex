@@ -16,6 +16,8 @@ defmodule DiscordBot.Gateway.Connection do
     StatusUpdate
   }
 
+  @gateway_path Application.get_env(:gateway_url, "/?v=6&encoding=json")
+
   @callback heartbeat(atom | pid) :: :ok
   @callback identify(atom | pid, String.t(), number, number) :: :ok
   @callback update_status(atom | pid, atom) :: :ok
@@ -265,14 +267,14 @@ defmodule DiscordBot.Gateway.Connection do
   ## Private functions
 
   defp ws_upgrade(connection) do
-    :gun.ws_upgrade(connection, "/?v=6&encoding=json")
+    :gun.ws_upgrade(connection, @gateway_path)
 
     receive do
       {:gun_upgrade, _, _, ["websocket"], _} ->
         :ok
 
       {:gun_error, _, _, reason} ->
-        Logger.error("WS upgrade failed: #{reason}")
+        Logger.error("WS upgrade failed: #{Kernel.inspect(reason)}")
         exit({:upgrade_failed, reason})
     after
       10_000 ->
