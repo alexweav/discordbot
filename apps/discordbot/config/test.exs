@@ -3,7 +3,8 @@ use Mix.Config
 config :discordbot,
   spotify_client_id: "spotify-test-id",
   spotify_client_secret: "spotify-client-secret",
-  youtube_data_api_key: "youtube-api-key"
+  youtube_data_api_key: "youtube-api-key",
+  gateway_url: "/gateway/?v=6&encoding=json"
 
 config :services,
   tts_response_interval: 10,

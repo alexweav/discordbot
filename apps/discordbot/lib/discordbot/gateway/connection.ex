@@ -3,7 +3,7 @@ defmodule DiscordBot.Gateway.Connection do
   Represents a single websocket connection to Discord.
   """
 
-  use WebSockex
+  use GenServer
   require Logger
 
   alias DiscordBot.Broker
@@ -12,10 +12,11 @@ defmodule DiscordBot.Gateway.Connection do
     Activity,
     Dispatch,
     GatewayVoiceStateUpdate,
-    Identify,
     Payload,
     StatusUpdate
   }
+
+  @gateway_path Application.get_env(:discordbot, :gateway_url, "/?v=6&encoding=json")
 
   @callback heartbeat(atom | pid) :: :ok
   @callback identify(atom | pid, String.t(), number, number) :: :ok
@@ -49,36 +50,19 @@ defmodule DiscordBot.Gateway.Connection do
           }
   end
 
-  @doc """
-  Starts a gateway connection with Discord, connecting
-  via `url` and authenticating with `token`
-  """
   def start_link(opts) do
-    url =
-      case Keyword.fetch(opts, :url) do
-        {:ok, url} -> url
-        :error -> raise ArgumentError, message: "#{__MODULE__} is missing required parameter :url"
-      end
-
-    token =
-      case Keyword.fetch(opts, :token) do
-        {:ok, token} ->
-          token
-
-        :error ->
-          raise ArgumentError, message: "#{__MODULE__} is missing required parameter :token"
-      end
-
+    url = Keyword.fetch!(opts, :url)
+    token = Keyword.fetch!(opts, :token)
     broker = Keyword.get(opts, :broker, Broker)
 
     state = %State{
-      url: url <> "/?v=6&encoding=json",
+      url: url,
       token: token,
       sequence: nil,
       broker: broker
     }
 
-    WebSockex.start_link(state.url, __MODULE__, state, opts)
+    GenServer.start_link(__MODULE__, state, opts)
   end
 
   @doc """
@@ -86,7 +70,7 @@ defmodule DiscordBot.Gateway.Connection do
   """
   @spec heartbeat(atom | pid) :: :ok
   def heartbeat(connection) do
-    WebSockex.cast(connection, {:heartbeat})
+    GenServer.cast(connection, {:heartbeat})
   end
 
   @doc """
@@ -94,7 +78,7 @@ defmodule DiscordBot.Gateway.Connection do
   """
   @spec identify(atom | pid, Identify.t()) :: :ok
   def identify(connection, identify) do
-    WebSockex.cast(connection, {:identify, identify})
+    GenServer.cast(connection, {:identify, identify})
   end
 
   @doc """
@@ -102,7 +86,7 @@ defmodule DiscordBot.Gateway.Connection do
   """
   @spec update_status(atom | pid, atom) :: :ok
   def update_status(connection, status) do
-    WebSockex.cast(connection, {:update_status, status})
+    GenServer.cast(connection, {:update_status, status})
   end
 
   @doc """
@@ -112,7 +96,7 @@ defmodule DiscordBot.Gateway.Connection do
   """
   @spec update_status(atom | pid, atom, atom, String.t()) :: :ok
   def update_status(connection, status, type, name) do
-    WebSockex.cast(connection, {:update_status, status, type, name})
+    GenServer.cast(connection, {:update_status, status, type, name})
   end
 
   @doc """
@@ -120,7 +104,7 @@ defmodule DiscordBot.Gateway.Connection do
   """
   @spec update_voice_state(atom | pid, String.t(), String.t(), boolean, boolean) :: :ok
   def update_voice_state(connection, guild_id, channel_id, self_mute \\ false, self_deaf \\ false) do
-    WebSockex.cast(connection, {:voice_state_update, guild_id, channel_id, self_mute, self_deaf})
+    GenServer.cast(connection, {:voice_state_update, guild_id, channel_id, self_mute, self_deaf})
   end
 
   @doc """
@@ -128,17 +112,73 @@ defmodule DiscordBot.Gateway.Connection do
   """
   @spec disconnect(pid, WebSockex.close_code()) :: :ok
   def disconnect(connection, close_code) do
-    WebSockex.cast(connection, {:disconnect, close_code})
+    GenServer.cast(connection, {:disconnect, close_code})
   end
 
   ## Handlers
 
-  def handle_connect(connection, state) do
-    Logger.info("Connected!")
+  def init(state) do
+    url = URI.parse(state.url)
+
+    connection_opts = %{protocols: [:http]}
+
+    {:ok, connection} =
+      url.host
+      |> to_charlist()
+      |> :gun.open(url.port, connection_opts)
+
+    {:ok, :http} = :gun.await_up(connection, 10_000)
+    Logger.info("HTTP connection established!")
+    ws_upgrade(connection)
+
+    Logger.info("Websocket connection established.")
+
     {:ok, %{state | connection: connection}}
   end
 
+  ## Gun-related messages
+
+  def handle_info({:gun_ws, _, _, {:text, text}}, state) do
+    handle_frame({:text, text}, state)
+  end
+
+  def handle_info({:gun_ws, _, _, {:binary, binary}}, state) do
+    Logger.info("Binary frame received: #{binary}")
+    {:noreply, state}
+  end
+
+  def handle_info({:gun_ws, _, _, {:close, code, reason}}, state) do
+    Logger.error("Websocket disconnected with code #{code}: #{reason}")
+    {:noreply, state}
+  end
+
+  def handle_info({:gun_down, _, _, reason, _, _}, state) do
+    Logger.warn("Websocket connection interrupted: #{reason}")
+    {:noreply, state}
+  end
+
+  def handle_info({:gun_up, connection, _}, state) do
+    ws_upgrade(connection)
+    Logger.warn("Websocket connection restored.")
+    {:noreply, state}
+  end
+
+  ## Other messages
+
+  def handle_info(:heartbeat, state) do
+    heartbeat(self())
+    {:noreply, state}
+  end
+
+  def handle_info({:disconnect, close_code}, state) do
+    disconnect(self(), close_code)
+    {:noreply, state}
+  end
+
+  ## WebSocket frames
+
   def handle_frame({:text, json}, state) do
+    Logger.info("Got frame: #{json}")
     message = Payload.from_json(json)
     Broker.publish(state.broker, event_name(message), message.data)
 
@@ -146,22 +186,11 @@ defmodule DiscordBot.Gateway.Connection do
       nil -> {:ok, state}
       _ -> {:ok, %State{state | sequence: message.sequence}}
     end
+
+    {:noreply, state}
   end
 
-  def handle_frame(frame, state) do
-    Logger.error("Got other frame: #{frame}")
-    {:ok, state}
-  end
-
-  def handle_disconnect(reason, state) do
-    Logger.error("Disconnected. Reason: #{reason}")
-    {:ok, state}
-  end
-
-  def terminate(reason, _state) do
-    log_gateway_close(reason)
-    exit(:normal)
-  end
+  ## GenServer messages
 
   def handle_cast({:heartbeat}, state) do
     message = Payload.heartbeat(nil)
@@ -171,18 +200,20 @@ defmodule DiscordBot.Gateway.Connection do
       |> apply_sequence(state.sequence)
       |> Payload.to_json()
 
-    {:reply, {:text, json}, state}
+    :ok = :gun.ws_send(state.connection, {:text, json})
+    {:noreply, state}
   end
 
   def handle_cast({:identify, identify}, state) do
-    Logger.info("Send identify.")
+    Logger.info("Identifying over gateway websocket.")
 
     {:ok, json} =
       identify
       |> apply_sequence(state.sequence)
       |> Payload.to_json()
 
-    {:reply, {:text, json}, state}
+    :ok = :gun.ws_send(state.connection, {:text, json})
+    {:noreply, state}
   end
 
   def handle_cast({:update_status, status}, state) do
@@ -193,7 +224,8 @@ defmodule DiscordBot.Gateway.Connection do
       |> apply_sequence(state.sequence)
       |> Payload.to_json()
 
-    {:reply, {:text, json}, state}
+    :ok = :gun.ws_send(state.connection, {:text, json})
+    {:noreply, state}
   end
 
   def handle_cast({:update_status, status, type, name}, state) do
@@ -205,7 +237,8 @@ defmodule DiscordBot.Gateway.Connection do
       |> apply_sequence(state.sequence)
       |> Payload.to_json()
 
-    {:reply, {:text, json}, state}
+    :ok = :gun.ws_send(state.connection, {:text, json})
+    {:noreply, state}
   end
 
   def handle_cast({:voice_state_update, guild_id, channel_id, self_mute, self_deaf}, state) do
@@ -222,25 +255,32 @@ defmodule DiscordBot.Gateway.Connection do
       |> apply_sequence(state.sequence)
       |> Payload.to_json()
 
-    {:reply, {:text, json}, state}
+    :ok = :gun.ws_send(state.connection, {:text, json})
+    {:noreply, state}
   end
 
-  def handle_cast({:disconnect, close_code}, state) do
-    {:close, {close_code, "Disconnecting"}, state}
+  def handle_cast({:disconnect, _close_code}, state) do
+    :gun.ws_send(state.connection, :close)
+    {:noreply, state}
   end
 
-  def handle_info(:heartbeat, state) do
-    heartbeat(self())
-    {:ok, state}
-  end
+  ## Private functions
 
-  def handle_info({:disconnect, close_code}, state) do
-    disconnect(self(), close_code)
-    {:ok, state}
-  end
+  defp ws_upgrade(connection) do
+    :gun.ws_upgrade(connection, @gateway_path)
 
-  defp log_gateway_close({_, code, msg}) do
-    Logger.error("Connection was closed with event #{code}: #{msg}")
+    receive do
+      {:gun_upgrade, _, _, ["websocket"], _} ->
+        :ok
+
+      {:gun_error, _, _, reason} ->
+        Logger.error("WS upgrade failed: #{Kernel.inspect(reason)}")
+        exit({:upgrade_failed, reason})
+    after
+      10_000 ->
+        Logger.error("WS upgrade timed out.")
+        exit({:upgrade_failed, :timeout})
+    end
   end
 
   defp apply_sequence(payload, sequence) do

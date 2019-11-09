@@ -36,6 +36,7 @@ defmodule Services.MixProject do
   defp deps do
     [
       {:cowboy, "~> 2.6", only: [:dev, :test], runtime: false},
+      {:cowlib, "~> 2.7", override: true},
       {:credo, "~> 1.0.0", only: [:dev, :test], runtime: false},
       {:discordbot, in_umbrella: true},
       {:excoveralls, "~> 0.10", only: :test},

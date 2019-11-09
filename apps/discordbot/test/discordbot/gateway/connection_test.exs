@@ -30,15 +30,15 @@ defmodule DiscordBot.Gateway.ConnectionTest do
   end
 
   test "validates input" do
-    assert_raise ArgumentError, fn ->
+    assert_raise KeyError, fn ->
       Connection.start_link([])
     end
 
-    assert_raise ArgumentError, fn ->
+    assert_raise KeyError, fn ->
       Connection.start_link(token: "asdf")
     end
 
-    assert_raise ArgumentError, fn ->
+    assert_raise KeyError, fn ->
       Connection.start_link(url: "asdf")
     end
   end
