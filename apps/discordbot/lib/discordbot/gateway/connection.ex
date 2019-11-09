@@ -16,7 +16,7 @@ defmodule DiscordBot.Gateway.Connection do
     StatusUpdate
   }
 
-  @gateway_path Application.get_env(:gateway_url, "/?v=6&encoding=json")
+  @gateway_path Application.get_env(:discordbot, :gateway_url, "/?v=6&encoding=json")
 
   @callback heartbeat(atom | pid) :: :ok
   @callback identify(atom | pid, String.t(), number, number) :: :ok
@@ -167,12 +167,12 @@ defmodule DiscordBot.Gateway.Connection do
 
   def handle_info(:heartbeat, state) do
     heartbeat(self())
-    {:ok, state}
+    {:noreply, state}
   end
 
   def handle_info({:disconnect, close_code}, state) do
     disconnect(self(), close_code)
-    {:ok, state}
+    {:noreply, state}
   end
 
   ## WebSocket frames
