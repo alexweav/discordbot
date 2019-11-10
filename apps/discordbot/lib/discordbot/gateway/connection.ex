@@ -118,20 +118,8 @@ defmodule DiscordBot.Gateway.Connection do
   ## Handlers
 
   def init(state) do
-    url = URI.parse(state.url)
-
-    connection_opts = %{protocols: [:http]}
-
-    {:ok, connection} =
-      url.host
-      |> to_charlist()
-      |> :gun.open(url.port, connection_opts)
-
-    {:ok, :http} = :gun.await_up(connection, 10_000)
-    Logger.info("HTTP connection established!")
-    ws_upgrade(connection)
-
-    Logger.info("Websocket connection established.")
+    url = state.url <> @gateway_path
+    connection = DiscordBot.GunServer.connect(url, 10_000)
 
     {:ok, %{state | connection: connection}}
   end
