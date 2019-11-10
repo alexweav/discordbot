@@ -34,7 +34,6 @@ defmodule DiscordBot.GunServer do
       @behaviour DiscordBot.GunServer
 
       use GenServer
-      require Logger
 
       @doc false
       def before_connect(state), do: {:ok, state}
@@ -53,8 +52,7 @@ defmodule DiscordBot.GunServer do
       end
 
       def handle_info({:gun_ws, _, _, {:binary, binary}}, state) do
-        Logger.info("Binary frame received: #{binary}")
-        {:noreply, state}
+        handle_frame({:binary, binary}, state)
       end
 
       defoverridable before_connect: 1,

@@ -169,6 +169,11 @@ defmodule DiscordBot.Gateway.Connection do
     {:noreply, state}
   end
 
+  def handle_frame({:binary, binary}, state) do
+    Logger.warn("Binary frame received: #{inspect(binary)}")
+    {:noreply, state}
+  end
+
   ## GenServer messages
 
   def handle_cast({:heartbeat}, state) do
