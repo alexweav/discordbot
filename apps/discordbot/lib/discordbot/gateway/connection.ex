@@ -3,7 +3,7 @@ defmodule DiscordBot.Gateway.Connection do
   Represents a single websocket connection to Discord.
   """
 
-  use GenServer
+  use DiscordBot.GunServer
   require Logger
 
   alias DiscordBot.Broker
