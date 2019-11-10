@@ -124,11 +124,6 @@ defmodule DiscordBot.Gateway.Connection do
 
   ## Gun-related messages
 
-  def handle_info({:gun_down, _, _, reason, _, _}, state) do
-    Logger.warn("Websocket connection interrupted: #{reason}")
-    {:noreply, state}
-  end
-
   def handle_info({:gun_up, connection, _}, state) do
     path = DiscordBot.GunServer.full_path(state.url)
     DiscordBot.GunServer.ws_upgrade(connection, path, 10_000)
@@ -165,6 +160,11 @@ defmodule DiscordBot.Gateway.Connection do
 
   def handle_frame({:binary, binary}, state) do
     Logger.warn("Binary frame received: #{inspect(binary)}")
+    {:noreply, state}
+  end
+
+  def handle_interrupt(reason, state) do
+    Logger.warn("Websocket connection interrupted: #{inspect(reason)}")
     {:noreply, state}
   end
 

@@ -30,6 +30,11 @@ defmodule DiscordBot.GunServer do
   @callback handle_frame(frame :: frame, state :: term) :: {:noreply, new_state :: term}
 
   @doc """
+  Called when the connection is interrupted.
+  """
+  @callback handle_interrupt(reason :: term, state :: term) :: {:noreply, new_state :: term}
+
+  @doc """
   Called when this session is closed by the server.
   """
   @callback handle_close(code :: integer, reason :: term, state :: term) :: {:noreply, new_state :: term}
@@ -52,6 +57,9 @@ defmodule DiscordBot.GunServer do
       end
 
       @doc false
+      def handle_interrupt(_, state), do: {:noreply, state}
+
+      @doc false
       def handle_close(_, _, state) do
         exit(:closed)
         {:noreply, state}
@@ -70,9 +78,14 @@ defmodule DiscordBot.GunServer do
         handle_close(code, reason, state)
       end
 
+      def handle_info({:gun_down, _, _, reason, _, _}, state) do
+        handle_interrupt(reason, state)
+      end
+
       defoverridable before_connect: 1,
                      after_connect: 1,
                      handle_frame: 2,
+                     handle_interrupt: 2,
                      handle_close: 3
     end
   end
