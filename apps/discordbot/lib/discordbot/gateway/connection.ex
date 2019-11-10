@@ -122,15 +122,6 @@ defmodule DiscordBot.Gateway.Connection do
     {:ok, %{state | connection: connection}}
   end
 
-  ## Gun-related messages
-
-  def handle_info({:gun_up, connection, _}, state) do
-    path = DiscordBot.GunServer.full_path(state.url)
-    DiscordBot.GunServer.ws_upgrade(connection, path, 10_000)
-    Logger.warn("Websocket connection restored.")
-    {:noreply, state}
-  end
-
   ## Other messages
 
   def handle_info(:heartbeat, state) do
@@ -165,6 +156,11 @@ defmodule DiscordBot.Gateway.Connection do
 
   def handle_interrupt(reason, state) do
     Logger.warn("Websocket connection interrupted: #{inspect(reason)}")
+    {:noreply, state}
+  end
+
+  def handle_restore(state) do
+    Logger.warn("Websocket connection restored.")
     {:noreply, state}
   end
 
