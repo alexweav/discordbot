@@ -3,6 +3,8 @@ defmodule DiscordBot.GunServer do
   A supervisable GenServer-like wrapper for Gun.
   """
 
+  require Logger
+
   @typedoc """
   A single WebSocket frame.
   """
@@ -27,7 +29,10 @@ defmodule DiscordBot.GunServer do
   """
   @callback handle_frame(frame :: frame, state :: term) :: {:noreply, new_state :: term}
 
-  require Logger
+  @doc """
+  Called when this session is closed by the server.
+  """
+  @callback handle_close(code :: integer, reason :: term, state :: term) :: {:noreply, new_state :: term}
 
   defmacro __using__(_opts) do
     quote location: :keep do
@@ -47,6 +52,12 @@ defmodule DiscordBot.GunServer do
       end
 
       @doc false
+      def handle_close(_, _, state) do
+        exit(:closed)
+        {:noreply, state}
+      end
+
+      @doc false
       def handle_info({:gun_ws, _, _, {:text, text}}, state) do
         handle_frame({:text, text}, state)
       end
@@ -55,9 +66,14 @@ defmodule DiscordBot.GunServer do
         handle_frame({:binary, binary}, state)
       end
 
+      def handle_info({:gun_ws, _, _, {:close, code, reason}}, state) do
+        handle_close(code, reason, state)
+      end
+
       defoverridable before_connect: 1,
                      after_connect: 1,
-                     handle_frame: 2
+                     handle_frame: 2,
+                     handle_close: 3
     end
   end
 

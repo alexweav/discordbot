@@ -124,11 +124,6 @@ defmodule DiscordBot.Gateway.Connection do
 
   ## Gun-related messages
 
-  def handle_info({:gun_ws, _, _, {:close, code, reason}}, state) do
-    Logger.error("Websocket disconnected with code #{code}: #{reason}")
-    {:noreply, state}
-  end
-
   def handle_info({:gun_down, _, _, reason, _, _}, state) do
     Logger.warn("Websocket connection interrupted: #{reason}")
     {:noreply, state}
@@ -170,6 +165,12 @@ defmodule DiscordBot.Gateway.Connection do
 
   def handle_frame({:binary, binary}, state) do
     Logger.warn("Binary frame received: #{inspect(binary)}")
+    {:noreply, state}
+  end
+
+  def handle_close(code, reason, state) do
+    Logger.error("Websocket disconnected with code #{inspect(code)}: #{inspect(reason)}")
+    exit(:closed)
     {:noreply, state}
   end
 
