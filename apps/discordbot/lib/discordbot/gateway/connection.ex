@@ -56,7 +56,7 @@ defmodule DiscordBot.Gateway.Connection do
     broker = Keyword.get(opts, :broker, Broker)
 
     state = %State{
-      url: url,
+      url: url <> @gateway_path,
       token: token,
       sequence: nil,
       broker: broker
@@ -118,9 +118,7 @@ defmodule DiscordBot.Gateway.Connection do
   ## Handlers
 
   def init(state) do
-    url = state.url <> @gateway_path
-    connection = DiscordBot.GunServer.connect(url, 10_000)
-
+    connection = DiscordBot.GunServer.connect(state.url, 10_000)
     {:ok, %{state | connection: connection}}
   end
 
@@ -137,7 +135,8 @@ defmodule DiscordBot.Gateway.Connection do
   end
 
   def handle_info({:gun_up, connection, _}, state) do
-    ws_upgrade(connection)
+    path = DiscordBot.GunServer.full_path(state.url)
+    DiscordBot.GunServer.ws_upgrade(connection, path, 10_000)
     Logger.warn("Websocket connection restored.")
     {:noreply, state}
   end
@@ -249,23 +248,6 @@ defmodule DiscordBot.Gateway.Connection do
   end
 
   ## Private functions
-
-  defp ws_upgrade(connection) do
-    :gun.ws_upgrade(connection, @gateway_path)
-
-    receive do
-      {:gun_upgrade, _, _, ["websocket"], _} ->
-        :ok
-
-      {:gun_error, _, _, reason} ->
-        Logger.error("WS upgrade failed: #{Kernel.inspect(reason)}")
-        exit({:upgrade_failed, reason})
-    after
-      10_000 ->
-        Logger.error("WS upgrade timed out.")
-        exit({:upgrade_failed, :timeout})
-    end
-  end
 
   defp apply_sequence(payload, sequence) do
     %Payload{payload | sequence: sequence}

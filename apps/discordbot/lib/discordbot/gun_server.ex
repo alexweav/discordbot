@@ -72,9 +72,7 @@ defmodule DiscordBot.GunServer do
 
     {:ok, :http} = :gun.await_up(connection, connect_timeout)
     Logger.info("HTTP connection established.")
-    path = if url.path, do: url.path, else: "/"
-    full_path = if url.query, do: path <> "?" <> url.query, else: path
-    ws_upgrade(connection, full_path, connect_timeout)
+    ws_upgrade(connection, full_path(url), connect_timeout)
 
     Logger.info("WebSocket upgrade succeeded.")
 
@@ -96,5 +94,16 @@ defmodule DiscordBot.GunServer do
         Logger.error("WS upgrade timed out.")
         exit({:upgrade_failed, :timeout})
     end
+  end
+
+  def full_path(url) when is_binary(url) do
+    url
+    |> URI.parse()
+    |> full_path()
+  end
+
+  def full_path(url) do
+    base_path = if url.path, do: url.path, else: "/"
+    if url.query, do: base_path <> "?" <> url.query, else: base_path
   end
 end
