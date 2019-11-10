@@ -126,15 +126,6 @@ defmodule DiscordBot.Gateway.Connection do
 
   ## Gun-related messages
 
-  def handle_info({:gun_ws, _, _, {:text, text}}, state) do
-    handle_frame({:text, text}, state)
-  end
-
-  def handle_info({:gun_ws, _, _, {:binary, binary}}, state) do
-    Logger.info("Binary frame received: #{binary}")
-    {:noreply, state}
-  end
-
   def handle_info({:gun_ws, _, _, {:close, code, reason}}, state) do
     Logger.error("Websocket disconnected with code #{code}: #{reason}")
     {:noreply, state}

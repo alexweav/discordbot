@@ -3,6 +3,15 @@ defmodule DiscordBot.GunServer do
   A supervisable GenServer-like wrapper for Gun.
   """
 
+  @typedoc """
+  A single WebSocket frame.
+  """
+  @type frame ::
+          :ping
+          | :pong
+          | {:ping | :pong, nil | binary}
+          | {:text | :binary, binary}
+
   @doc """
   Called before trying to connect.
   """
@@ -13,6 +22,11 @@ defmodule DiscordBot.GunServer do
   """
   @callback after_connect(state :: term) :: {:ok, new_state :: term}
 
+  @doc """
+  Called when a frame is received.
+  """
+  @callback handle_frame(frame :: frame, state :: term) :: {:noreply, new_state :: term}
+
   require Logger
 
   defmacro __using__(_opts) do
@@ -20,6 +34,7 @@ defmodule DiscordBot.GunServer do
       @behaviour DiscordBot.GunServer
 
       use GenServer
+      require Logger
 
       @doc false
       def before_connect(state), do: {:ok, state}
@@ -27,8 +42,24 @@ defmodule DiscordBot.GunServer do
       @doc false
       def after_connect(state), do: {:ok, state}
 
+      @doc false
+      def handle_frame(frame, _state) do
+        raise "No handle_frame/2 defined for #{inspect(frame)}"
+      end
+
+      @doc false
+      def handle_info({:gun_ws, _, _, {:text, text}}, state) do
+        handle_frame({:text, text}, state)
+      end
+
+      def handle_info({:gun_ws, _, _, {:binary, binary}}, state) do
+        Logger.info("Binary frame received: #{binary}")
+        {:noreply, state}
+      end
+
       defoverridable before_connect: 1,
-                     after_connect: 1
+                     after_connect: 1,
+                     handle_frame: 2
     end
   end
 
