@@ -46,6 +46,11 @@ defmodule DiscordBot.GunServer do
               {:noreply, new_state :: term}
 
   @doc """
+  Handles cast messages to this process.
+  """
+  @callback websocket_cast(message :: term, state :: term) :: {:noreply, new_state :: term}
+
+  @doc """
   Called when the process receives a generic message.
   """
   @callback websocket_info(message :: term, state :: term) :: {:noreply, new_state :: term}
@@ -104,6 +109,11 @@ defmodule DiscordBot.GunServer do
 
       def handle_info(msg, state) do
         websocket_info(msg, state)
+      end
+
+      @doc false
+      def handle_cast(msg, state) do
+        websocket_cast(msg, state)
       end
 
       defoverridable before_connect: 1,

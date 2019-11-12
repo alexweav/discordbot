@@ -176,7 +176,7 @@ defmodule DiscordBot.Gateway.Connection do
 
   ## GenServer messages
 
-  def handle_cast({:heartbeat}, state) do
+  def websocket_cast({:heartbeat}, state) do
     message = Payload.heartbeat(nil)
 
     {:ok, json} =
@@ -188,7 +188,7 @@ defmodule DiscordBot.Gateway.Connection do
     {:noreply, state}
   end
 
-  def handle_cast({:identify, identify}, state) do
+  def websocket_cast({:identify, identify}, state) do
     Logger.info("Identifying over gateway websocket.")
 
     {:ok, json} =
@@ -200,7 +200,7 @@ defmodule DiscordBot.Gateway.Connection do
     {:noreply, state}
   end
 
-  def handle_cast({:update_status, status}, state) do
+  def websocket_cast({:update_status, status}, state) do
     message = StatusUpdate.status_update(nil, nil, status)
 
     {:ok, json} =
@@ -212,7 +212,7 @@ defmodule DiscordBot.Gateway.Connection do
     {:noreply, state}
   end
 
-  def handle_cast({:update_status, status, type, name}, state) do
+  def websocket_cast({:update_status, status, type, name}, state) do
     activity = Activity.activity(type, name)
     message = StatusUpdate.status_update(nil, activity, status)
 
@@ -225,7 +225,7 @@ defmodule DiscordBot.Gateway.Connection do
     {:noreply, state}
   end
 
-  def handle_cast({:voice_state_update, guild_id, channel_id, self_mute, self_deaf}, state) do
+  def websocket_cast({:voice_state_update, guild_id, channel_id, self_mute, self_deaf}, state) do
     message =
       GatewayVoiceStateUpdate.voice_state_update(
         guild_id,
@@ -243,7 +243,7 @@ defmodule DiscordBot.Gateway.Connection do
     {:noreply, state}
   end
 
-  def handle_cast({:disconnect, _close_code}, state) do
+  def websocket_cast({:disconnect, _close_code}, state) do
     :gun.ws_send(state.connection, :close)
     {:noreply, state}
   end
