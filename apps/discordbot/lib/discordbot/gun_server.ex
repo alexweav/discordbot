@@ -45,6 +45,11 @@ defmodule DiscordBot.GunServer do
   @callback handle_close(code :: integer, reason :: term, state :: term) ::
               {:noreply, new_state :: term}
 
+  @doc """
+  Called when the process receives a generic message.
+  """
+  @callback websocket_info(message :: term, state :: term) :: {:noreply, new_state :: term}
+
   defmacro __using__(_opts) do
     quote location: :keep do
       @behaviour DiscordBot.GunServer
@@ -95,6 +100,10 @@ defmodule DiscordBot.GunServer do
         path = DiscordBot.GunServer.full_path(state.url)
         DiscordBot.GunServer.ws_upgrade(connection, path, 10_000)
         handle_restore(state)
+      end
+
+      def handle_info(msg, state) do
+        websocket_info(msg, state)
       end
 
       defoverridable before_connect: 1,

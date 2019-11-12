@@ -124,12 +124,12 @@ defmodule DiscordBot.Gateway.Connection do
 
   ## Other messages
 
-  def handle_info(:heartbeat, state) do
+  def websocket_info(:heartbeat, state) do
     heartbeat(self())
     {:noreply, state}
   end
 
-  def handle_info({:disconnect, close_code}, state) do
+  def websocket_info({:disconnect, close_code}, state) do
     disconnect(self(), close_code)
     {:noreply, state}
   end
