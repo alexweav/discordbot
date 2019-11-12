@@ -42,7 +42,8 @@ defmodule DiscordBot.GunServer do
   @doc """
   Called when this session is closed by the server.
   """
-  @callback handle_close(code :: integer, reason :: term, state :: term) :: {:noreply, new_state :: term}
+  @callback handle_close(code :: integer, reason :: term, state :: term) ::
+              {:noreply, new_state :: term}
 
   defmacro __using__(_opts) do
     quote location: :keep do
