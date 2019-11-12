@@ -26,19 +26,15 @@ defmodule DiscordBot.Gateway.Connection do
 
   defmodule State do
     @moduledoc false
-    @enforce_keys [:url, :token]
+    @enforce_keys [:token]
 
     defstruct [
-      :url,
       :token,
-      :connection,
       :sequence,
       :broker
     ]
 
-    @type url :: String.t()
     @type token :: String.t()
-    @type connection :: map | nil
     @type sequence :: number
     @type broker :: pid | atom
     @type t :: %__MODULE__{
@@ -56,13 +52,11 @@ defmodule DiscordBot.Gateway.Connection do
     broker = Keyword.get(opts, :broker, Broker)
 
     state = %State{
-      url: url <> @gateway_path,
       token: token,
       sequence: nil,
       broker: broker
     }
 
-    # GenServer.start_link(__MODULE__, state, opts)
     DiscordBot.GunServer.start_link(__MODULE__, url <> @gateway_path, state, opts)
   end
 
