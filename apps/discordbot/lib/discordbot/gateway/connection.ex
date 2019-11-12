@@ -62,7 +62,8 @@ defmodule DiscordBot.Gateway.Connection do
       broker: broker
     }
 
-    GenServer.start_link(__MODULE__, state, opts)
+    # GenServer.start_link(__MODULE__, state, opts)
+    DiscordBot.GunServer.start_link(__MODULE__, url <> @gateway_path, state, opts)
   end
 
   @doc """
@@ -113,13 +114,6 @@ defmodule DiscordBot.Gateway.Connection do
   @spec disconnect(pid, WebSockex.close_code()) :: :ok
   def disconnect(connection, close_code) do
     GenServer.cast(connection, {:disconnect, close_code})
-  end
-
-  ## Handlers
-
-  def init(state) do
-    connection = DiscordBot.GunServer.connect(state.url, 10_000)
-    {:ok, %{state | connection: connection}}
   end
 
   ## Other messages
@@ -176,7 +170,7 @@ defmodule DiscordBot.Gateway.Connection do
 
   ## GenServer messages
 
-  def websocket_cast({:heartbeat}, state) do
+  def websocket_cast({:heartbeat}, conn, state) do
     message = Payload.heartbeat(nil)
 
     {:ok, json} =
@@ -184,11 +178,11 @@ defmodule DiscordBot.Gateway.Connection do
       |> apply_sequence(state.sequence)
       |> Payload.to_json()
 
-    :ok = :gun.ws_send(state.connection, {:text, json})
+    :ok = :gun.ws_send(conn, {:text, json})
     {:noreply, state}
   end
 
-  def websocket_cast({:identify, identify}, state) do
+  def websocket_cast({:identify, identify}, conn, state) do
     Logger.info("Identifying over gateway websocket.")
 
     {:ok, json} =
@@ -196,11 +190,11 @@ defmodule DiscordBot.Gateway.Connection do
       |> apply_sequence(state.sequence)
       |> Payload.to_json()
 
-    :ok = :gun.ws_send(state.connection, {:text, json})
+    :ok = :gun.ws_send(conn, {:text, json})
     {:noreply, state}
   end
 
-  def websocket_cast({:update_status, status}, state) do
+  def websocket_cast({:update_status, status}, conn, state) do
     message = StatusUpdate.status_update(nil, nil, status)
 
     {:ok, json} =
@@ -208,11 +202,11 @@ defmodule DiscordBot.Gateway.Connection do
       |> apply_sequence(state.sequence)
       |> Payload.to_json()
 
-    :ok = :gun.ws_send(state.connection, {:text, json})
+    :ok = :gun.ws_send(conn, {:text, json})
     {:noreply, state}
   end
 
-  def websocket_cast({:update_status, status, type, name}, state) do
+  def websocket_cast({:update_status, status, type, name}, conn, state) do
     activity = Activity.activity(type, name)
     message = StatusUpdate.status_update(nil, activity, status)
 
@@ -221,11 +215,15 @@ defmodule DiscordBot.Gateway.Connection do
       |> apply_sequence(state.sequence)
       |> Payload.to_json()
 
-    :ok = :gun.ws_send(state.connection, {:text, json})
+    :ok = :gun.ws_send(conn, {:text, json})
     {:noreply, state}
   end
 
-  def websocket_cast({:voice_state_update, guild_id, channel_id, self_mute, self_deaf}, state) do
+  def websocket_cast(
+        {:voice_state_update, guild_id, channel_id, self_mute, self_deaf},
+        conn,
+        state
+      ) do
     message =
       GatewayVoiceStateUpdate.voice_state_update(
         guild_id,
@@ -239,12 +237,12 @@ defmodule DiscordBot.Gateway.Connection do
       |> apply_sequence(state.sequence)
       |> Payload.to_json()
 
-    :ok = :gun.ws_send(state.connection, {:text, json})
+    :ok = :gun.ws_send(conn, {:text, json})
     {:noreply, state}
   end
 
-  def websocket_cast({:disconnect, _close_code}, state) do
-    :gun.ws_send(state.connection, :close)
+  def websocket_cast({:disconnect, _close_code}, conn, state) do
+    :gun.ws_send(conn, :close)
     {:noreply, state}
   end
 

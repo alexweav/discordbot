@@ -48,7 +48,8 @@ defmodule DiscordBot.GunServer do
   @doc """
   Handles cast messages to this process.
   """
-  @callback websocket_cast(message :: term, state :: term) :: {:noreply, new_state :: term}
+  @callback websocket_cast(message :: term, connection :: term, state :: term) ::
+              {:noreply, new_state :: term}
 
   @doc """
   Called when the process receives a generic message.
@@ -85,35 +86,68 @@ defmodule DiscordBot.GunServer do
       end
 
       @doc false
-      def handle_info({:gun_ws, _, _, {:text, text}}, state) do
-        handle_frame({:text, text}, state)
-      end
-
-      def handle_info({:gun_ws, _, _, {:binary, binary}}, state) do
-        handle_frame({:binary, binary}, state)
-      end
-
-      def handle_info({:gun_ws, _, _, {:close, code, reason}}, state) do
-        handle_close(code, reason, state)
-      end
-
-      def handle_info({:gun_down, _, _, reason, _, _}, state) do
-        handle_interrupt(reason, state)
-      end
-
-      def handle_info({:gun_up, connection, _}, state) do
-        path = DiscordBot.GunServer.full_path(state.url)
-        DiscordBot.GunServer.ws_upgrade(connection, path, 10_000)
-        handle_restore(state)
-      end
-
-      def handle_info(msg, state) do
-        websocket_info(msg, state)
+      def websocket_cast(msg, _, _) do
+        raise "No websocket_cast/3 defined for #{inspect(msg)}"
       end
 
       @doc false
-      def handle_cast(msg, state) do
-        websocket_cast(msg, state)
+      def websocket_info(msg, _) do
+        raise "No websocket_info/2 defined for #{inspect(msg)}"
+      end
+
+      @doc false
+      def init({url, state}) do
+        {:ok, before_state} = before_connect(state)
+        connection = DiscordBot.GunServer.connect(url, 10_000)
+        {:ok, after_state} = after_connect(before_state)
+        {:ok, {url, connection, after_state}}
+      end
+
+      @doc false
+      def handle_info({:gun_ws, _, _, {:text, text}}, {url, conn, state}) do
+        {:text, text}
+        |> handle_frame(state)
+        |> DiscordBot.GunServer.finalize(url, conn)
+      end
+
+      def handle_info({:gun_ws, _, _, {:binary, binary}}, {url, conn, state}) do
+        {:binary, binary}
+        |> handle_frame(state)
+        |> DiscordBot.GunServer.finalize(url, conn)
+      end
+
+      def handle_info({:gun_ws, _, _, {:close, code, reason}}, {url, conn, state}) do
+        code
+        |> handle_close(reason, state)
+        |> DiscordBot.GunServer.finalize(url, conn)
+      end
+
+      def handle_info({:gun_down, _, _, reason, _, _}, {url, conn, state}) do
+        reason
+        |> handle_interrupt(state)
+        |> DiscordBot.GunServer.finalize(url, conn)
+      end
+
+      def handle_info({:gun_up, connection, _}, {url, conn, state}) do
+        path = DiscordBot.GunServer.full_path(url)
+        DiscordBot.GunServer.ws_upgrade(connection, path, 10_000)
+
+        state
+        |> handle_restore()
+        |> DiscordBot.GunServer.finalize(url, conn)
+      end
+
+      def handle_info(msg, {url, conn, state}) do
+        msg
+        |> websocket_info(state)
+        |> DiscordBot.GunServer.finalize(url, conn)
+      end
+
+      @doc false
+      def handle_cast(msg, {url, conn, state}) do
+        msg
+        |> websocket_cast(conn, state)
+        |> DiscordBot.GunServer.finalize(url, conn)
       end
 
       defoverridable before_connect: 1,
@@ -121,7 +155,9 @@ defmodule DiscordBot.GunServer do
                      handle_frame: 2,
                      handle_interrupt: 2,
                      handle_restore: 1,
-                     handle_close: 3
+                     handle_close: 3,
+                     websocket_cast: 3,
+                     websocket_info: 2
     end
   end
 
@@ -130,7 +166,6 @@ defmodule DiscordBot.GunServer do
   end
 
   def connect(url, connect_timeout) do
-    url = URI.parse(url)
     connection_opts = %{protocols: [:http]}
 
     {:ok, connection} =
@@ -164,14 +199,12 @@ defmodule DiscordBot.GunServer do
     end
   end
 
-  def full_path(url) when is_binary(url) do
-    url
-    |> URI.parse()
-    |> full_path()
-  end
-
   def full_path(url) do
     base_path = if url.path, do: url.path, else: "/"
     if url.query, do: base_path <> "?" <> url.query, else: base_path
+  end
+
+  def finalize({:noreply, new_state}, url, conn) do
+    {:noreply, {url, conn, new_state}}
   end
 end
