@@ -161,10 +161,14 @@ defmodule DiscordBot.GunServer do
     end
   end
 
+  @doc """
+  Starts the GunServer.
+  """
   def start_link(module, url, state, opts) do
     GenServer.start_link(module, {URI.parse(url), state}, opts)
   end
 
+  @doc false
   def connect(url, connect_timeout) do
     connection_opts = %{protocols: [:http]}
 
@@ -182,6 +186,7 @@ defmodule DiscordBot.GunServer do
     connection
   end
 
+  @doc false
   def ws_upgrade(connection, path, timeout) do
     :gun.ws_upgrade(connection, path)
 
@@ -199,11 +204,13 @@ defmodule DiscordBot.GunServer do
     end
   end
 
+  @doc false
   def full_path(url) do
     base_path = if url.path, do: url.path, else: "/"
     if url.query, do: base_path <> "?" <> url.query, else: base_path
   end
 
+  @doc false
   def finalize({:noreply, new_state}, url, conn) do
     {:noreply, {url, conn, new_state}}
   end
