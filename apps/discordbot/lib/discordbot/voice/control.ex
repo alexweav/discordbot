@@ -3,7 +3,7 @@ defmodule DiscordBot.Voice.Control do
   Represents a connection to Discord's voice control websocket API.
   """
 
-  use WebSockex
+  use DiscordBot.GunServer
   require Logger
 
   alias DiscordBot.Gateway.Heartbeat
@@ -27,7 +27,7 @@ defmodule DiscordBot.Voice.Control do
       heartbeat: nil
     }
 
-    WebSockex.start_link(url, __MODULE__, state, opts)
+    DiscordBot.GunServer.start_link(__MODULE__, url, state, opts)
   end
 
   @doc """
@@ -35,7 +35,7 @@ defmodule DiscordBot.Voice.Control do
   """
   @spec heartbeat(atom | pid, integer) :: :ok
   def heartbeat(connection, nonce) do
-    WebSockex.cast(connection, {:heartbeat, nonce})
+    GenServer.cast(connection, {:heartbeat, nonce})
   end
 
   @doc """
@@ -43,7 +43,7 @@ defmodule DiscordBot.Voice.Control do
   """
   @spec identify(atom | pid) :: :ok
   def identify(connection) do
-    WebSockex.cast(connection, :identify)
+    GenServer.cast(connection, :identify)
   end
 
   @doc """
@@ -51,7 +51,7 @@ defmodule DiscordBot.Voice.Control do
   """
   @spec select_protocol(atom | pid, String.t(), integer) :: :ok
   def select_protocol(connection, ip, port) do
-    WebSockex.cast(connection, {:select_protocol, ip, port})
+    GenServer.cast(connection, {:select_protocol, ip, port})
   end
 
   @doc """
@@ -59,20 +59,20 @@ defmodule DiscordBot.Voice.Control do
   """
   @spec speaking(atom | pid, boolean, integer) :: :ok
   def speaking(connection, speaking, ssrc) do
-    WebSockex.cast(connection, {:speaking, speaking, ssrc})
+    GenServer.cast(connection, {:speaking, speaking, ssrc})
   end
 
   @doc """
   Disconnects from the control websocket.
   """
-  @spec disconnect(pid, WebSockex.close_code()) :: :ok
+  @spec disconnect(pid, integer) :: :ok
   def disconnect(connection, close_code) do
-    WebSockex.cast(connection, {:disconnect, close_code})
+    GenServer.cast(connection, {:disconnect, close_code})
   end
 
   ## WebSocket message handlers
 
-  def handle_connect(_, state) do
+  def after_connect(state) do
     Logger.info("Connected to voice control!")
     {:ok, state}
   end
@@ -85,8 +85,8 @@ defmodule DiscordBot.Voice.Control do
     |> handle_payload(state)
   end
 
-  def handle_frame(frame, state) do
-    Logger.error("Got non-text frame: #{frame}")
+  def handle_frame({:binary, frame}, state) do
+    Logger.error("Got non-text frame: #{inspect(frame)}")
     {:ok, state}
   end
 
@@ -95,33 +95,39 @@ defmodule DiscordBot.Voice.Control do
     identify(self())
     interval = payload.data.heartbeat_interval
     new_state = setup_heartbeat(interval, state)
-    {:ok, new_state}
+    {:noreply, new_state}
   end
 
   def handle_payload(%VoicePayload{opcode: :heartbeat_ack}, state) do
     Heartbeat.acknowledge(state[:heartbeat])
-    {:ok, state}
+    {:noreply, state}
   end
 
   def handle_payload(%VoicePayload{opcode: :ready} = _payload, state) do
-    {:ok, state}
+    {:noreply, state}
   end
 
-  def handle_payload(_, state), do: {:ok, state}
+  def handle_payload(_, state), do: {:noreply, state}
 
-  def handle_disconnect(reason, state) do
-    Logger.error("Disconnected from voice control. Reason: #{reason}")
-    {:ok, state}
+  def handle_interrupt(reason, state) do
+    Logger.warn("Voice connection interrupted: #{inspect(reason)}")
+    {:noreply, state}
   end
 
-  def terminate({_, code, msg}, _) do
-    Logger.error("Voice control connection closed with event #{code}: #{msg}")
-    exit(:normal)
+  def handle_restore(state) do
+    Logger.warn("Voice connection restored.")
+    {:noreply, state}
+  end
+
+  def handle_close(code, reason, state) do
+    Logger.error("Voice disconnected with code #{inspect(code)}: #{inspect(reason)}")
+    exit(:closed)
+    {:noreply, state}
   end
 
   ## Process message handlers
 
-  def handle_cast({:heartbeat, nonce}, state) do
+  def websocket_cast({:heartbeat, nonce}, conn, state) do
     Logger.info("Sending voice control heartbeat.")
 
     {:ok, json} =
@@ -129,10 +135,11 @@ defmodule DiscordBot.Voice.Control do
       |> VoicePayload.heartbeat()
       |> VoicePayload.to_json()
 
-    {:reply, {:text, json}, state}
+    :ok = :gun.ws_send(conn, {:text, json})
+    {:noreply, state}
   end
 
-  def handle_cast(:identify, state) do
+  def websocket_cast(:identify, conn, state) do
     Logger.info(
       "Sending voice identification for control connection #{Kernel.inspect(self())}..."
     )
@@ -149,10 +156,11 @@ defmodule DiscordBot.Voice.Control do
       message
       |> VoicePayload.to_json()
 
-    {:reply, {:text, json}, state}
+    :ok = :gun.ws_send(conn, {:text, json})
+    {:noreply, state}
   end
 
-  def handle_cast({:select_protocol, ip, port}, state) do
+  def websocket_cast({:select_protocol, ip, port}, conn, state) do
     Logger.info("Selecting protocol.")
 
     message =
@@ -167,10 +175,11 @@ defmodule DiscordBot.Voice.Control do
       message
       |> VoicePayload.to_json()
 
-    {:reply, {:text, json}, state}
+    :ok = :gun.ws_send(conn, {:text, json})
+    {:noreply, state}
   end
 
-  def handle_cast({:speaking, speaking, ssrc}, state) do
+  def websocket_cast({:speaking, speaking, ssrc}, conn, state) do
     Logger.info("Speaking.")
 
     message = Speaking.speaking(speaking, 0, ssrc)
@@ -179,16 +188,18 @@ defmodule DiscordBot.Voice.Control do
       message
       |> VoicePayload.to_json()
 
-    {:reply, {:text, json}, state}
+    :ok = :gun.ws_send(conn, {:text, json})
+    {:noreply, state}
   end
 
-  def handle_cast({:disconnect, close_code}, state) do
-    {:close, {close_code, "Disconnecting"}, state}
+  def websocket_cast({:disconnect, _close_code}, conn, state) do
+    :gun.ws_send(conn, :close)
+    {:noreply, state}
   end
 
-  def handle_info(:heartbeat, state) do
+  def websocket_info(:heartbeat, state) do
     heartbeat(self(), :rand.uniform(999_999_999))
-    {:ok, state}
+    {:noreply, state}
   end
 
   ## Private functions
