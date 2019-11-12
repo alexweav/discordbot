@@ -38,9 +38,7 @@ defmodule DiscordBot.Gateway.Connection do
     @type sequence :: number
     @type broker :: pid | atom
     @type t :: %__MODULE__{
-            url: url,
             token: token,
-            connection: connection,
             sequence: sequence,
             broker: broker
           }
