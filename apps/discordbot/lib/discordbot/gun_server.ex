@@ -106,6 +106,10 @@ defmodule DiscordBot.GunServer do
     end
   end
 
+  def start_link(module, url, state, opts) do
+    GenServer.start_link(module, {URI.parse(url), state}, opts)
+  end
+
   def connect(url, connect_timeout) do
     url = URI.parse(url)
     connection_opts = %{protocols: [:http]}
