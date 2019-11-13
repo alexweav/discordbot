@@ -61,10 +61,13 @@ defmodule DiscordBot.Voice.Udp do
     :gen_udp.open(0, opts)
   end
 
-  defp ip_discovery(_socket, _discord_ip, _discord_port, ssrc) do
+  defp ip_discovery(socket, discord_ip, discord_port, ssrc) do
     # 70 bytes
     size = 70 * 8
-    _packet = <<ssrc::size(size)>>
+    packet = <<ssrc::size(size)>>
+    :gen_udp.send(socket, discord_ip, discord_port, packet)
+    {:ok, response} = :gen_udp.recv(socket, 70)
+    IO.inspect(response)
     {nil, nil}
   end
 end
