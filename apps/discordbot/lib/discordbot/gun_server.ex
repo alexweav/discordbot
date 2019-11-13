@@ -175,7 +175,7 @@ defmodule DiscordBot.GunServer do
     {:ok, connection} =
       url.host
       |> to_charlist()
-      |> :gun.open(url.port, connection_opts)
+      |> :gun.open(url.port || 443, connection_opts)
 
     {:ok, :http} = :gun.await_up(connection, connect_timeout)
     Logger.info("HTTP connection established.")
