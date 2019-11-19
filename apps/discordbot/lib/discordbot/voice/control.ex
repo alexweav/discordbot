@@ -24,7 +24,8 @@ defmodule DiscordBot.Voice.Control do
       session_id: session_id,
       token: token,
       parent: self(),
-      heartbeat: nil
+      heartbeat: nil,
+      connection: nil
     }
 
     DiscordBot.GunServer.start_link(__MODULE__, url, state, opts)
@@ -108,7 +109,13 @@ defmodule DiscordBot.Voice.Control do
     connection = Udp.open(data.ip, data.port, data.ssrc)
     Logger.info("Connected to UDP: #{inspect(connection)}")
     select_protocol(self(), connection.my_ip, connection.my_port)
-    {:noreply, state}
+    {:noreply, %{state | connection: connection}}
+  end
+
+  def handle_payload(%VoicePayload{opcode: :session_description} = payload, state) do
+    Logger.info("Secret key acquired: #{inspect(payload.data.secret_key)}")
+    new_conn = %{state[:connection] | secret_key: payload.data.secret_key}
+    {:noreply, new_conn}
   end
 
   def handle_payload(_, state), do: {:noreply, state}
