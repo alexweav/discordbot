@@ -107,6 +107,7 @@ defmodule DiscordBot.Voice.Control do
     data = payload.data
     connection = Udp.open(data.ip, data.port, data.ssrc)
     Logger.info("Connected to UDP: #{inspect(connection)}")
+    select_protocol(self(), connection.my_ip, connection.my_port)
     {:noreply, state}
   end
 
