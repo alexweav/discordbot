@@ -38,6 +38,7 @@ defmodule DiscordBot.Voice.Connection do
   @type my_port :: integer
 
   @typedoc """
+  Secret key to use when encrypting voice data.
   """
   @type secret_key :: list(integer)
 
