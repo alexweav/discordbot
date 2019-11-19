@@ -3,30 +3,7 @@ defmodule DiscordBot.Voice.Udp do
   UDP interactions for the voice API.
   """
 
-  defmodule Connection do
-    @moduledoc false
-
-    defstruct [
-      :socket,
-      :discord_ip,
-      :discord_port,
-      :my_ip,
-      :my_port
-    ]
-
-    @type socket :: :gen_udp.socket()
-    @type discord_ip :: :inet.ip_address()
-    @type discord_port :: integer
-    @type my_ip :: :inet.ip_address()
-    @type my_port :: integer
-    @type t :: %__MODULE__{
-            socket: socket,
-            discord_ip: discord_ip,
-            discord_port: discord_port,
-            my_ip: my_ip,
-            my_port: my_port
-          }
-  end
+  alias DiscordBot.Voice.Connection
 
   @spec open(String.t(), integer, integer) :: Connection.t()
   def open(discord_ip, discord_port, ssrc) do

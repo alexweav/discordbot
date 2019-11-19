@@ -7,6 +7,7 @@ defmodule DiscordBot.Model.VoicePayload do
 
   alias DiscordBot.Model.{
     SelectProtocol,
+    SessionDescription,
     Speaking,
     VoiceHello,
     VoiceIdentify,
@@ -106,6 +107,7 @@ defmodule DiscordBot.Model.VoicePayload do
       :ready -> data |> VoiceReady.from_map()
       :select_protocol -> data |> SelectProtocol.from_map()
       :speaking -> data |> Speaking.from_map()
+      :session_description -> data |> SessionDescription.from_map()
       _ -> data
     end
   end
