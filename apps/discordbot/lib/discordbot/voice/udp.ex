@@ -68,6 +68,6 @@ defmodule DiscordBot.Voice.Udp do
     :gen_udp.send(socket, discord_ip, discord_port, packet)
     {:ok, {_src_ip, _src_port, response}} = :gen_udp.recv(socket, 70)
     <<_pad::32, ip::bitstring-size(120), _empty::392, port::16>> = response
-    {nil, port}
+    {String.replace(ip, "\0", ""), port}
   end
 end
