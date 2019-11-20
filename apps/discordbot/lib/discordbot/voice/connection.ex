@@ -10,6 +10,7 @@ defmodule DiscordBot.Voice.Connection do
     :my_ip,
     :my_port,
     :secret_key
+    :ssrc
   ]
 
   @typedoc """
@@ -42,12 +43,18 @@ defmodule DiscordBot.Voice.Connection do
   """
   @type secret_key :: list(integer)
 
+  @typedoc """
+  RTP synchronization source.
+  """
+  @type ssrc :: integer
+
   @type t :: %__MODULE__{
           socket: socket,
           discord_ip: discord_ip,
           discord_port: discord_port,
           my_ip: my_ip,
           my_port: my_port,
-          secret_key: secret_key
+          secret_key: secret_key,
+          ssrc: ssrc
         }
 end

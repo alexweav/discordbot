@@ -22,7 +22,8 @@ defmodule DiscordBot.Voice.Udp do
       discord_ip: discord_ip,
       discord_port: discord_port,
       my_ip: my_ip,
-      my_port: my_port
+      my_port: my_port,
+      ssrc: ssrc
     }
   end
 
