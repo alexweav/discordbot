@@ -8,6 +8,7 @@ defmodule Services.Voice do
 
   alias DiscordBot.Entity.Channels
   alias DiscordBot.Voice
+  alias DiscordBot.Voice.{Control, Session}
 
   @doc """
   Starts this handler inside a new process.
@@ -23,12 +24,23 @@ defmodule Services.Voice do
 
   @doc false
   def handle_message("!ff_voice", message, _) do
-    Logger.info("Join audio message!")
     channels = Channels.voice_channels?(message.guild_id)
 
     unless channels == [] do
       first_channel = Enum.min_by(channels, fn c -> c.position end)
       Voice.connect(first_channel.id)
+    end
+
+    Process.sleep(1500)
+
+    sessions = Registry.lookup(DiscordBot.Voice.SessionRegistry, message.guild_id)
+
+    unless sessions == [] do
+      [{session, _}] = sessions
+      {:ok, control} = Session.control?(session)
+      Control.speaking(control, true)
+      Process.sleep(1000)
+      Control.speaking(control, false)
     end
 
     {:noreply}

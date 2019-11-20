@@ -115,7 +115,7 @@ defmodule DiscordBot.Voice.Control do
   def handle_payload(%VoicePayload{opcode: :session_description} = payload, state) do
     Logger.info("Secret key acquired: #{inspect(payload.data.secret_key)}")
     new_conn = %{state[:connection] | secret_key: payload.data.secret_key}
-    {:noreply, new_conn}
+    {:noreply, %{state | connection: new_conn}}
   end
 
   def handle_payload(_, state), do: {:noreply, state}
@@ -193,7 +193,7 @@ defmodule DiscordBot.Voice.Control do
   def websocket_cast({:speaking, speaking}, conn, state) do
     Logger.info("Speaking.")
 
-    message = Speaking.speaking(speaking, 0, state.connection.ssrc)
+    message = Speaking.speaking(speaking, 0, state[:connection].ssrc)
 
     {:ok, json} =
       message
