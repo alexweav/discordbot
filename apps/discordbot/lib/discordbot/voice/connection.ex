@@ -9,7 +9,7 @@ defmodule DiscordBot.Voice.Connection do
     :discord_port,
     :my_ip,
     :my_port,
-    :secret_key
+    :secret_key,
     :ssrc
   ]
 
