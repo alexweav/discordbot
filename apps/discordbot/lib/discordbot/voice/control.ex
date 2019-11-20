@@ -58,9 +58,9 @@ defmodule DiscordBot.Voice.Control do
   @doc """
   Indicates whether the bot has started or finished speaking.
   """
-  @spec speaking(atom | pid, boolean, integer) :: :ok
-  def speaking(connection, speaking, ssrc) do
-    GenServer.cast(connection, {:speaking, speaking, ssrc})
+  @spec speaking(atom | pid, boolean) :: :ok
+  def speaking(connection, speaking) do
+    GenServer.cast(connection, {:speaking, speaking})
   end
 
   @doc """
@@ -190,10 +190,10 @@ defmodule DiscordBot.Voice.Control do
     {:noreply, state}
   end
 
-  def websocket_cast({:speaking, speaking, ssrc}, conn, state) do
+  def websocket_cast({:speaking, speaking}, conn, state) do
     Logger.info("Speaking.")
 
-    message = Speaking.speaking(speaking, 0, ssrc)
+    message = Speaking.speaking(speaking, 0, state.connection.ssrc)
 
     {:ok, json} =
       message
