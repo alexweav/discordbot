@@ -3,7 +3,27 @@ defmodule DiscordBot.Voice.Launcher do
   Initiates and establishes voice connections.
   """
 
+  require Logger
+
+  alias DiscordBot.Broker
+  alias DiscordBot.Broker.Event
+  alias DiscordBot.Gateway.Api
   alias DiscordBot.Voice.Session
+
+  @default_timeout_milliseconds 10_000
+
+  @doc """
+  Initiates a connection.
+  """
+  @spec initiate(String.t(), String.t(), boolean, boolean) :: DynamicSupervisor.on_start_child()
+  def initiate(guild_id, channel_id, self_mute, self_deaf) do
+    broker = Elixir.Broker
+    Broker.subscribe(broker, :voice_state_update)
+    Broker.subscribe(broker, :voice_server_update)
+    Api.update_voice_state(guild_id, channel_id, self_mute, self_deaf)
+
+    recv_loop(nil, nil)
+  end
 
   @doc """
   Establishes a voice connection given a state and server update message.
@@ -49,6 +69,23 @@ defmodule DiscordBot.Voice.Launcher do
     |> apply_protocol
     |> apply_version
     |> String.replace(":80", "")
+  end
+
+  defp recv_loop(state, server) when state != nil and server != nil do
+    Logger.info("Preparing new voice connection.")
+    establish(state, server)
+  end
+
+  defp recv_loop(state, server) do
+    receive do
+      %Event{topic: :voice_state_update, message: message} ->
+        recv_loop(message, server)
+
+      %Event{topic: :voice_server_update, message: message} ->
+        recv_loop(state, message)
+    after
+      @default_timeout_milliseconds -> :error
+    end
   end
 
   defp apply_protocol("wss://" <> url), do: "wss://" <> url

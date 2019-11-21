@@ -4,7 +4,7 @@ defmodule DiscordBot.Voice do
   """
 
   alias DiscordBot.Entity.Channels
-  alias DiscordBot.Voice.{Acceptor, Session}
+  alias DiscordBot.Voice.{Launcher, Session}
 
   @doc """
   Connects to a voice channel.
@@ -16,7 +16,7 @@ defmodule DiscordBot.Voice do
         # Run this in another process because it affects subscriptions
         task =
           Task.async(fn ->
-            Acceptor.initiate(channel.guild_id, channel_id, self_mute, self_deaf)
+            Launcher.initiate(channel.guild_id, channel_id, self_mute, self_deaf)
           end)
 
         Task.await(task, :infinity)
