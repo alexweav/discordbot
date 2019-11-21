@@ -9,7 +9,7 @@ defmodule DiscordBot.Voice do
   @doc """
   Connects to a voice channel.
   """
-  @spec connect(String.t(), boolean, boolean) :: :ok | :error
+  @spec connect(String.t(), boolean, boolean) :: {:ok, pid} | :error
   def connect(channel_id, self_mute \\ false, self_deaf \\ false) do
     case Channels.from_id?(channel_id) do
       {:ok, channel} ->

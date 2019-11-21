@@ -28,15 +28,8 @@ defmodule Services.Voice do
 
     unless channels == [] do
       first_channel = Enum.min_by(channels, fn c -> c.position end)
-      Voice.connect(first_channel.id)
-    end
-
-    Process.sleep(1500)
-
-    sessions = Registry.lookup(DiscordBot.Voice.SessionRegistry, message.guild_id)
-
-    unless sessions == [] do
-      [{session, _}] = sessions
+      {:ok, session} = Voice.connect(first_channel.id)
+      Process.sleep(1500)
       {:ok, control} = Session.control?(session)
       Control.speaking(control, true)
       Process.sleep(1000)
