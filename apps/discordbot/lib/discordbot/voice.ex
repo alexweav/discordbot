@@ -4,17 +4,25 @@ defmodule DiscordBot.Voice do
   """
 
   alias DiscordBot.Entity.Channels
-  alias DiscordBot.Gateway.Api
-  alias DiscordBot.Voice.Session
+  alias DiscordBot.Voice.{Launcher, Session}
 
   @doc """
   Connects to a voice channel.
   """
-  @spec connect(String.t(), boolean, boolean) :: :ok | :error
+  @spec connect(String.t(), boolean, boolean) :: {:ok, pid} | :error
   def connect(channel_id, self_mute \\ false, self_deaf \\ false) do
     case Channels.from_id?(channel_id) do
-      {:ok, channel} -> connect(channel.guild_id, channel_id, self_mute, self_deaf)
-      :error -> :error
+      {:ok, channel} ->
+        # Run this in another process because it affects subscriptions
+        task =
+          Task.async(fn ->
+            Launcher.initiate(channel.guild_id, channel_id, self_mute, self_deaf)
+          end)
+
+        Task.await(task, :infinity)
+
+      :error ->
+        :error
     end
   end
 
@@ -29,10 +37,5 @@ defmodule DiscordBot.Voice do
       [{session, _}] = sessions
       Session.disconnect(session)
     end
-  end
-
-  defp connect(guild_id, channel_id, self_mute, self_deaf) do
-    DynamicSupervisor.start_child(DiscordBot.Voice.AcceptorSupervisor, DiscordBot.Voice.Acceptor)
-    Api.update_voice_state(guild_id, channel_id, self_mute, self_deaf)
   end
 end
