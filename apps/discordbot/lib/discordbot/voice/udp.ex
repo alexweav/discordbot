@@ -1,10 +1,13 @@
-defmodule DiscordBot.Voice.Udp do
+defmodule DiscordBot.Voice.UDP do
   @moduledoc """
   UDP interactions for the voice API.
   """
 
   alias DiscordBot.Voice.Connection
 
+  @doc """
+  Opens and prepares a UDP socket and connection with Discord.
+  """
   @spec open(String.t(), integer, integer) :: Connection.t()
   def open(discord_ip, discord_port, ssrc) do
     {:ok, discord_ip} =
@@ -14,7 +17,6 @@ defmodule DiscordBot.Voice.Udp do
 
     {:ok, socket} = start_listening()
 
-    # TODO: get our external IP and port
     {my_ip, my_port} = ip_discovery(socket, discord_ip, discord_port, ssrc)
 
     %Connection{
@@ -25,6 +27,18 @@ defmodule DiscordBot.Voice.Udp do
       my_port: my_port,
       ssrc: ssrc
     }
+  end
+
+  @doc """
+  Closes a UDP socket.
+  """
+  @spec close(Connection.t()) :: :ok
+  def close(connection) do
+    if connection.socket do
+      :gen_udp.close(connection.socket)
+    end
+
+    :ok
   end
 
   @spec start_listening :: {:ok, :gen_udp.socket()}

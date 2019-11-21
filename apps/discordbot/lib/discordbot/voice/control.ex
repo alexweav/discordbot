@@ -9,7 +9,7 @@ defmodule DiscordBot.Voice.Control do
   alias DiscordBot.Gateway.Heartbeat
   alias DiscordBot.Model.{SelectProtocol, Speaking, VoiceIdentify, VoicePayload}
   alias DiscordBot.Util
-  alias DiscordBot.Voice.{Session, Udp}
+  alias DiscordBot.Voice.{Session, UDP}
 
   def start_link(opts) do
     url = Util.require_opt!(opts, :url)
@@ -106,7 +106,7 @@ defmodule DiscordBot.Voice.Control do
 
   def handle_payload(%VoicePayload{opcode: :ready} = payload, state) do
     data = payload.data
-    connection = Udp.open(data.ip, data.port, data.ssrc)
+    connection = UDP.open(data.ip, data.port, data.ssrc)
     Logger.info("Connected to UDP: #{inspect(connection)}")
     select_protocol(self(), connection.my_ip, connection.my_port)
     {:noreply, %{state | connection: connection}}
@@ -204,6 +204,7 @@ defmodule DiscordBot.Voice.Control do
   end
 
   def websocket_cast({:disconnect, _close_code}, conn, state) do
+    UDP.close(state.connection)
     :gun.ws_send(conn, :close)
     {:noreply, state}
   end
