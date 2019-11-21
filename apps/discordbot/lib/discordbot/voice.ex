@@ -12,8 +12,17 @@ defmodule DiscordBot.Voice do
   @spec connect(String.t(), boolean, boolean) :: :ok | :error
   def connect(channel_id, self_mute \\ false, self_deaf \\ false) do
     case Channels.from_id?(channel_id) do
-      {:ok, channel} -> Acceptor.accept(channel.guild_id, channel_id, self_mute, self_deaf)
-      :error -> :error
+      {:ok, channel} ->
+        # Run this in another process because it affects subscriptions
+        task =
+          Task.async(fn ->
+            Acceptor.initiate(channel.guild_id, channel_id, self_mute, self_deaf)
+          end)
+
+        Task.await(task, :infinity)
+
+      :error ->
+        :error
     end
   end
 

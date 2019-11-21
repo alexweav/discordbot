@@ -12,7 +12,7 @@ defmodule DiscordBot.Voice.Acceptor do
 
   @default_timeout_milliseconds 10_000
 
-  def accept(guild_id, channel_id, self_mute, self_deaf) do
+  def initiate(guild_id, channel_id, self_mute, self_deaf) do
     broker = Elixir.Broker
     Broker.subscribe(broker, :voice_state_update)
     Broker.subscribe(broker, :voice_server_update)
