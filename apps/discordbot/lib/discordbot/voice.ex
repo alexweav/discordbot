@@ -4,8 +4,7 @@ defmodule DiscordBot.Voice do
   """
 
   alias DiscordBot.Entity.Channels
-  alias DiscordBot.Gateway.Api
-  alias DiscordBot.Voice.Session
+  alias DiscordBot.Voice.{Acceptor, Session}
 
   @doc """
   Connects to a voice channel.
@@ -13,7 +12,7 @@ defmodule DiscordBot.Voice do
   @spec connect(String.t(), boolean, boolean) :: :ok | :error
   def connect(channel_id, self_mute \\ false, self_deaf \\ false) do
     case Channels.from_id?(channel_id) do
-      {:ok, channel} -> begin_accepting(channel.guild_id, channel_id, self_mute, self_deaf)
+      {:ok, channel} -> Acceptor.accept(channel.guild_id, channel_id, self_mute, self_deaf)
       :error -> :error
     end
   end
@@ -29,16 +28,5 @@ defmodule DiscordBot.Voice do
       [{session, _}] = sessions
       Session.disconnect(session)
     end
-  end
-
-  defp begin_accepting(guild_id, channel_id, self_mute, self_deaf) do
-    {:ok, acceptor} =
-      DynamicSupervisor.start_child(
-        DiscordBot.Voice.AcceptorSupervisor,
-        DiscordBot.Voice.Acceptor
-      )
-
-    Api.update_voice_state(guild_id, channel_id, self_mute, self_deaf)
-    acceptor
   end
 end
