@@ -1,4 +1,4 @@
-defmodule DiscordBot.Voice.Udp do
+defmodule DiscordBot.Voice.UDP do
   @moduledoc """
   UDP interactions for the voice API.
   """
@@ -37,6 +37,7 @@ defmodule DiscordBot.Voice.Udp do
     if connection.socket do
       :gen_udp.close(connection.socket)
     end
+
     :ok
   end
 
