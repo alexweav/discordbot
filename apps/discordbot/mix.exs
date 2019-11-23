@@ -40,6 +40,7 @@ defmodule DiscordBot.MixProject do
       {:distillery, "~> 2.0"},
       {:gun, "~> 1.3"},
       {:httpoison, "~> 1.4"},
+      {:kcl, "~> 1.2"},
       {:logger_file_backend, "~> 0.0.10"},
       {:poison, "~>3.1"},
 
