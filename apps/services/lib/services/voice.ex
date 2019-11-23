@@ -34,6 +34,7 @@ defmodule Services.Voice do
       Control.speaking(control, true)
       Process.sleep(1000)
       Control.speaking(control, false)
+      Voice.disconnect(message.guild_id)
     end
 
     {:noreply}
