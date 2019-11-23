@@ -124,11 +124,6 @@ defmodule DiscordBot.Gateway.Connection do
 
   def handle_frame({:text, json}, state) do
     message = Payload.from_json(json)
-
-    unless message.opcode == :heartbeat do
-      Logger.info("Got frame: #{json}")
-    end
-
     Broker.publish(state.broker, event_name(message), message.data)
 
     case message.sequence do

@@ -4,6 +4,7 @@ defmodule DiscordBot.Voice do
   """
 
   alias DiscordBot.Entity.Channels
+  alias DiscordBot.Gateway.Api
   alias DiscordBot.Voice.{Launcher, Session}
 
   @doc """
@@ -32,6 +33,8 @@ defmodule DiscordBot.Voice do
   @spec disconnect(String.t()) :: :ok | :error
   def disconnect(guild_id) do
     sessions = Registry.lookup(DiscordBot.Voice.SessionRegistry, guild_id)
+
+    Api.update_voice_state(guild_id, nil, false, false)
 
     unless sessions == [] do
       [{session, _}] = sessions
