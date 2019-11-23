@@ -10,7 +10,9 @@ defmodule DiscordBot.Voice.Connection do
     :my_ip,
     :my_port,
     :secret_key,
-    :ssrc
+    :ssrc,
+    :timestamp,
+    :sequence
   ]
 
   @typedoc """
@@ -48,6 +50,16 @@ defmodule DiscordBot.Voice.Connection do
   """
   @type ssrc :: integer
 
+  @typedoc """
+  Packet timestamp, in relative units. The relative units are assumed to be monotonically and linearly increasing.
+  """
+  @type timestamp :: integer
+
+  @typedoc """
+  UDP packet index. Increments with each packet sent.
+  """
+  @type sequence :: integer
+
   @type t :: %__MODULE__{
           socket: socket,
           discord_ip: discord_ip,
@@ -55,6 +67,8 @@ defmodule DiscordBot.Voice.Connection do
           my_ip: my_ip,
           my_port: my_port,
           secret_key: secret_key,
-          ssrc: ssrc
+          ssrc: ssrc,
+          timestamp: timestamp,
+          sequence: sequence
         }
 end

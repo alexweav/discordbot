@@ -3,6 +3,10 @@ defmodule DiscordBot.Voice.Rtp do
   RTP protocol logic.
   """
 
+  def header(connection) do
+    header(connection.sequence, connection.timestamp, connection.ssrc)
+  end
+
   def header(sequence, timestamp, ssrc) do
     # Version 2
     version = 2
