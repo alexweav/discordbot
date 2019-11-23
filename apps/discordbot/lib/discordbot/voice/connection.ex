@@ -43,7 +43,7 @@ defmodule DiscordBot.Voice.Connection do
   @typedoc """
   Secret key to use when encrypting voice data.
   """
-  @type secret_key :: list(integer)
+  @type secret_key :: binary
 
   @typedoc """
   RTP synchronization source.

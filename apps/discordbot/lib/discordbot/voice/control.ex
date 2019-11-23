@@ -113,8 +113,9 @@ defmodule DiscordBot.Voice.Control do
   end
 
   def handle_payload(%VoicePayload{opcode: :session_description} = payload, state) do
-    Logger.info("Secret key acquired: #{inspect(payload.data.secret_key)}")
-    new_conn = %{state[:connection] | secret_key: payload.data.secret_key}
+    secret = payload.data.secret_key |> :erlang.list_to_binary()
+    Logger.info("Secret key acquired: #{inspect(secret)}")
+    new_conn = %{state[:connection] | secret_key: secret}
     {:noreply, %{state | connection: new_conn}}
   end
 
