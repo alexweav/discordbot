@@ -6,6 +6,15 @@ defmodule DiscordBot.Voice.RTP do
   alias DiscordBot.Voice.Connection
 
   @doc """
+  Gets the silence packet.
+  """
+  @spec silence_packet(Connection.t()) :: binary
+  def silence_packet(connection) do
+    <<0xF8, 0xFF, 0xFE>>
+    |> build_packet(connection)
+  end
+
+  @doc """
   Wraps a binary with an encrypted RTP packet.
   """
   @spec build_packet(binary, Connection.t()) :: binary
