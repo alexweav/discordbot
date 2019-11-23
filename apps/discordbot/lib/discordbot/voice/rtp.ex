@@ -1,12 +1,33 @@
-defmodule DiscordBot.Voice.Rtp do
+defmodule DiscordBot.Voice.RTP do
   @moduledoc """
-  RTP protocol logic.
+  RTP protocol logic, packet building, and encryption.
   """
 
+  alias DiscordBot.Voice.Connection
+
+  @doc """
+  Wraps a binary with an encrypted RTP packet.
+  """
+  @spec build_packet(binary, Connection.t()) :: binary
+  def build_packet(body_bytes, connection) do
+    header = header(connection)
+    nonce = <<header::size(96), 0::size(96)>>
+    body = Kcl.secretbox(body_bytes, body_bytes, nonce, connection.secret_key)
+    header <> body
+  end
+
+  @doc """
+  Builds an RTP header from a connection state.
+  """
+  @spec header(Connection.t()) :: binary
   def header(connection) do
     header(connection.sequence, connection.timestamp, connection.ssrc)
   end
 
+  @doc """
+  Builds an RTP header.
+  """
+  @spec header(integer, integer, integer) :: binary
   def header(sequence, timestamp, ssrc) do
     # Version 2
     version = 2
