@@ -3,15 +3,30 @@ defmodule DiscordBot.Voice.RTP do
   RTP protocol logic, packet building, and encryption.
   """
 
+  require Logger
+
   alias DiscordBot.Voice.Connection
 
   @doc """
-  Gets the silence packet.
+  Sends a frame and returns an updated connection.
   """
-  @spec silence_packet(Connection.t()) :: binary
-  def silence_packet(connection) do
+  @spec send(Connection.t(), binary) :: Connection.t()
+  def send(connection, body_bytes) do
+    packet = body_bytes |> build_packet(connection)
+    Logger.info("Sending UDP packet [#{inspect(connection)}]: #{inspect(packet)}")
+    :gen_udp.send(connection.socket, connection.discord_ip, connection.discord_port, packet)
+
+    connection
+    |> Map.update!(:sequence, &(&1 + 1))
+    |> Map.update!(:timestamp, &(&1 + 1000))
+  end
+
+  @doc """
+  Gets the body bytes of the silence packet.
+  """
+  @spec silence_packet() :: binary
+  def silence_packet do
     <<0xF8, 0xFF, 0xFE>>
-    |> build_packet(connection)
   end
 
   @doc """
@@ -20,7 +35,7 @@ defmodule DiscordBot.Voice.RTP do
   @spec build_packet(binary, Connection.t()) :: binary
   def build_packet(body_bytes, connection) do
     header = header(connection)
-    nonce = <<header::size(96), 0::size(96)>>
+    nonce = header <> <<0::size(96)>>
     body = Kcl.secretbox(body_bytes, nonce, connection.secret_key)
     header <> body
   end
