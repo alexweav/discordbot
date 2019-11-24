@@ -8,7 +8,7 @@ defmodule Services.Voice do
 
   alias DiscordBot.Entity.Channels
   alias DiscordBot.Voice
-  alias DiscordBot.Voice.{Control, Session}
+  alias DiscordBot.Voice.{Control, RTP, Session}
 
   @doc """
   Starts this handler inside a new process.
@@ -29,9 +29,19 @@ defmodule Services.Voice do
     unless channels == [] do
       first_channel = Enum.min_by(channels, fn c -> c.position end)
       {:ok, session} = Voice.connect(first_channel.id)
-      Process.sleep(1500)
+      Process.sleep(5000)
       {:ok, control} = Session.control?(session)
       Control.speaking(control, true)
+      connection = Control.connection?(control)
+
+      _ =
+        Enum.reduce(1..5, connection, fn _, c ->
+          Process.sleep(20)
+
+          c
+          |> RTP.send(RTP.silence_packet())
+        end)
+
       Process.sleep(1000)
       Control.speaking(control, false)
       Voice.disconnect(message.guild_id)

@@ -9,7 +9,7 @@ defmodule DiscordBot.Voice.Control do
   alias DiscordBot.Gateway.Heartbeat
   alias DiscordBot.Model.{SelectProtocol, Speaking, VoiceIdentify, VoicePayload}
   alias DiscordBot.Util
-  alias DiscordBot.Voice.{Session, UDP}
+  alias DiscordBot.Voice.{Connection, Session, UDP}
 
   def start_link(opts) do
     url = Util.require_opt!(opts, :url)
@@ -71,6 +71,14 @@ defmodule DiscordBot.Voice.Control do
     GenServer.cast(connection, {:disconnect, close_code})
   end
 
+  @doc """
+  Gets the connection struct.
+  """
+  @spec connection?(atom | pid) :: Connection.t()
+  def connection?(connection) do
+    GenServer.call(connection, :connection)
+  end
+
   ## WebSocket message handlers
 
   def after_connect(state) do
@@ -113,8 +121,9 @@ defmodule DiscordBot.Voice.Control do
   end
 
   def handle_payload(%VoicePayload{opcode: :session_description} = payload, state) do
-    Logger.info("Secret key acquired: #{inspect(payload.data.secret_key)}")
-    new_conn = %{state[:connection] | secret_key: payload.data.secret_key}
+    secret = payload.data.secret_key |> :erlang.list_to_binary()
+    Logger.info("Secret key acquired: #{inspect(secret)}")
+    new_conn = %{state[:connection] | secret_key: secret}
     {:noreply, %{state | connection: new_conn}}
   end
 
@@ -212,6 +221,10 @@ defmodule DiscordBot.Voice.Control do
   def websocket_info(:heartbeat, state) do
     heartbeat(self(), :rand.uniform(999_999_999))
     {:noreply, state}
+  end
+
+  def handle_call(:connection, _from, {_url, _conn, state}) do
+    {:reply, state.connection, state}
   end
 
   ## Private functions
