@@ -8,7 +8,7 @@ defmodule Services.Voice do
 
   alias DiscordBot.Entity.Channels
   alias DiscordBot.Voice
-  alias DiscordBot.Voice.{Control, Session, RTP}
+  alias DiscordBot.Voice.{Control, RTP, Session}
 
   @doc """
   Starts this handler inside a new process.
@@ -34,12 +34,13 @@ defmodule Services.Voice do
       Control.speaking(control, true)
       connection = Control.connection?(control)
 
-      Enum.reduce(1..5, connection, fn _, c ->
-        Process.sleep(10)
+      _ =
+        Enum.reduce(1..5, connection, fn _, c ->
+          Process.sleep(20)
 
-        c
-        |> RTP.send(RTP.silence_packet())
-      end)
+          c
+          |> RTP.send(RTP.silence_packet())
+        end)
 
       Process.sleep(1000)
       Control.speaking(control, false)
