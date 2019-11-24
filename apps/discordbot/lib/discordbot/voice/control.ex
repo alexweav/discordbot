@@ -9,7 +9,7 @@ defmodule DiscordBot.Voice.Control do
   alias DiscordBot.Gateway.Heartbeat
   alias DiscordBot.Model.{SelectProtocol, Speaking, VoiceIdentify, VoicePayload}
   alias DiscordBot.Util
-  alias DiscordBot.Voice.{Session, UDP}
+  alias DiscordBot.Voice.{Connection, Session, UDP}
 
   def start_link(opts) do
     url = Util.require_opt!(opts, :url)
@@ -69,6 +69,14 @@ defmodule DiscordBot.Voice.Control do
   @spec disconnect(pid, integer) :: :ok
   def disconnect(connection, close_code) do
     GenServer.cast(connection, {:disconnect, close_code})
+  end
+
+  @doc """
+  Gets the connection struct.
+  """
+  @spec connection?(atom | pid) :: Connection.t()
+  def connection?(connection) do
+    GenServer.call(connection, :connection)
   end
 
   ## WebSocket message handlers
@@ -213,6 +221,10 @@ defmodule DiscordBot.Voice.Control do
   def websocket_info(:heartbeat, state) do
     heartbeat(self(), :rand.uniform(999_999_999))
     {:noreply, state}
+  end
+
+  def handle_call(:connection, _from, state) do
+    {:reply, state.connection, state}
   end
 
   ## Private functions

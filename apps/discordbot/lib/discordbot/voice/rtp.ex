@@ -21,7 +21,7 @@ defmodule DiscordBot.Voice.RTP do
   def build_packet(body_bytes, connection) do
     header = header(connection)
     nonce = <<header::size(96), 0::size(96)>>
-    body = Kcl.secretbox(body_bytes, body_bytes, nonce, connection.secret_key)
+    body = Kcl.secretbox(body_bytes, nonce, connection.secret_key)
     header <> body
   end
 
