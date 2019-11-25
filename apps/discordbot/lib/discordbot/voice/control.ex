@@ -223,8 +223,8 @@ defmodule DiscordBot.Voice.Control do
     {:noreply, state}
   end
 
-  def handle_call(:connection, _from, {_url, _conn, state}) do
-    {:reply, state.connection, state}
+  def handle_call(:connection, _from, {url, conn, state}) do
+    {:reply, state.connection, {url, conn, state}}
   end
 
   ## Private functions

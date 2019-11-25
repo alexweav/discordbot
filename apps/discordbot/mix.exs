@@ -43,6 +43,7 @@ defmodule DiscordBot.MixProject do
       {:kcl, "~> 1.2"},
       {:logger_file_backend, "~> 0.0.10"},
       {:poison, "~>3.1"},
+      {:porcelain, "~> 2.0"},
 
       # Dev/Test deps
       {:cowboy, "~> 2.6", only: [:dev, :test], runtime: false},
