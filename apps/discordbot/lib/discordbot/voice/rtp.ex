@@ -14,8 +14,9 @@ defmodule DiscordBot.Voice.RTP do
   def send(connection, body_bytes) do
     # 20ms frame time -> 50 frames / second
     # 48kHz sample rate -> 48k/50 = 960 samples per second
-    connection = connection
-    |> Map.update!(:timestamp, &(&1 + 960))
+    connection =
+      connection
+      |> Map.update!(:timestamp, &(&1 + 960))
 
     packet = body_bytes |> build_packet(connection)
     :gen_udp.send(connection.socket, connection.discord_ip, connection.discord_port, packet)

@@ -44,8 +44,9 @@ defmodule Services.Voice do
         diff = max(this_time - now, 0)
         Process.sleep(diff)
 
-        conn = conn
-        |> RTP.send(packet)
+        conn =
+          conn
+          |> RTP.send(packet)
 
         {this_time, conn}
       end)
