@@ -34,9 +34,12 @@ defmodule Services.Voice do
       Control.speaking(control, true)
       connection = Control.connection?(control)
 
-      encoded_stream = FFMPEG.transcode("test.opus")
+      encoded_stream = FFMPEG.transcode("test.wav")
       IO.inspect(encoded_stream)
-      _ = Enum.reduce(encoded_stream, nil, fn frame, _ -> IO.inspect("a") end)
+
+      for frame <- encoded_stream do
+        IO.inspect(byte_size(frame))
+      end
 
       _ =
         Enum.reduce(1..5, connection, fn _, c ->
