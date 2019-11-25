@@ -8,7 +8,7 @@ defmodule Services.Voice do
 
   alias DiscordBot.Entity.Channels
   alias DiscordBot.Voice
-  alias DiscordBot.Voice.{Control, RTP, Session}
+  alias DiscordBot.Voice.{Control, FFMPEG, RTP, Session}
 
   @doc """
   Starts this handler inside a new process.
@@ -33,6 +33,10 @@ defmodule Services.Voice do
       {:ok, control} = Session.control?(session)
       Control.speaking(control, true)
       connection = Control.connection?(control)
+
+      encoded_stream = FFMPEG.transcode("test.opus")
+      IO.inspect(encoded_stream)
+      _ = Enum.reduce(encoded_stream, nil, fn frame, _ -> IO.inspect("a") end)
 
       _ =
         Enum.reduce(1..5, connection, fn _, c ->
