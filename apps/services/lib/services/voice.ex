@@ -35,11 +35,20 @@ defmodule Services.Voice do
       connection = Control.connection?(control)
 
       encoded_stream = FFMPEG.transcode("test.wav")
-      IO.inspect(encoded_stream)
 
-      for frame <- encoded_stream do
-        IO.inspect(byte_size(frame))
-      end
+      Enum.reduce(encoded_stream, {nil, connection}, fn packet, {last_time, conn} ->
+        delay = 20
+        now = :os.system_time(:milli_seconds)
+        last_time = last_time || now
+        this_time = last_time + delay
+        diff = max(this_time - now, 0)
+        Process.sleep(diff)
+
+        conn = conn
+        |> RTP.send(packet)
+
+        {this_time, conn}
+      end)
 
       _ =
         Enum.reduce(1..5, connection, fn _, c ->
