@@ -1,0 +1,31 @@
+version: '3'
+
+services:
+  
+  discordbot:
+    build:
+      context: .
+      args:
+        MIX_ENV: dev
+        CLEAN: "false"
+    hostname: discordbot
+    depends_on:
+      - kafka
+
+  kafka:
+    image: wurstmeister/kafka
+    command: [start-kafka.sh]
+    ports:
+      - "9092:9092"
+    hostname: zookeeper
+    environment:
+      KAFKA_ADVERTISED_PORT: 9092
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    depends_on:
+      - zookeeper
+
+  zookeeper:
+    image: wurstmeister/zookeeper
+    ports:
+      - "2181:2181"
+    hostname: zookeeper

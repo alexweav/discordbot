@@ -2,15 +2,24 @@
 
 FROM bitwalker/alpine-elixir:1.9.1 as build
 
-# Set mix env
-ENV MIX_ENV=prod
+# Mix build environment
+ARG MIX_ENV=prod
+
+# Whether or not to clean build files from local machine
+ARG CLEAN
+
+# Set env vars
+ENV MIX_ENV=${MIX_ENV} \
+    CLEAN=${CLEAN}
 
 # Copy source to image
 COPY . .
 
+# Clean, unless arg is passed
+RUN if [ "X$CLEAN" = "x" ] ; then rm -rf _build; echo deleted ; else echo not deleted ; fi
+
 # Use distillery to build a release
-RUN rm -rf _build && \
-    mix deps.get && \
+RUN mix deps.get && \
     mix distillery.release
 
 # Extract distillery tarball
