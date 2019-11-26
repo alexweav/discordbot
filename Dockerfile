@@ -8,9 +8,6 @@ ENV MIX_ENV=prod
 # Copy source to image
 COPY . .
 
-# Instal ffmpeg
-RUN apk add --no-cache ffmpeg
-
 # Use distillery to build a release
 RUN rm -rf _build && \
     mix deps.get && \
@@ -28,6 +25,9 @@ FROM bitwalker/alpine-elixir:1.9.1
 
 # Copy release from previous stage
 COPY --from=build /export/ .
+
+# Install ffmpeg
+RUN apk add --no-cache ffmpeg
 
 USER default
 
