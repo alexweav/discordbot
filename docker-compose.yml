@@ -3,7 +3,10 @@ version: '3'
 services:
   
   discordbot:
-    build: .
+    build:
+      context: .
+      args:
+        MIX_ENV: dev
     hostname: discordbot
     depends_on:
       - kafka

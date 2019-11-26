@@ -2,8 +2,11 @@
 
 FROM bitwalker/alpine-elixir:1.9.1 as build
 
-# Set mix env
-ENV MIX_ENV=prod
+# Mix build environment
+ARG MIX_ENV=prod
+
+# Set env vars
+ENV MIX_ENV=${MIX_ENV}
 
 # Copy source to image
 COPY . .
