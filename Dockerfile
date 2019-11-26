@@ -19,6 +19,9 @@ RUN APP_NAME="discordbot_umbrella" && \
     mkdir /export && \
     tar -xf "$RELEASE_DIR/$APP_NAME.tar.gz" -C /export
 
+# Pull in application datafiles
+COPY test.wav /export
+
 #Deploy
 
 FROM bitwalker/alpine-elixir:1.9.1
