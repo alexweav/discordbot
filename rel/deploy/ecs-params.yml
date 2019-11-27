@@ -3,6 +3,6 @@ version: 1
 task_definition:
   services:
     discordbot:
-      mem_limit: 500M
+      mem_limit: 200M
     zookeeper:
-      mem_limit: 250M
+      mem_limit: 200M
