@@ -84,5 +84,4 @@ jobs:
         CLUSTER_NAME: discordbot-prod
         SERVICE_NAME: DiscordBot
         AWS_REGION: us-east-2
-      run: ecs-cli compose --project-name discordbot --file rel/deploy/docker-compose.yml --ecs-params rel/deploy/ecs-params.yml --region ${AWS_REGION} --cluster ${CLUSTER_NAME} service up
-      #run: aws ecs update-service --cluster ${CLUSTER_NAME} --service ${SERVICE_NAME} --region ${AWS_REGION} --force-new-deployment
+      run: ecs-cli compose --project-name discordbot --file rel/deploy/docker-compose.yml --ecs-params rel/deploy/ecs-params.yml --region ${AWS_REGION} --cluster ${CLUSTER_NAME} service up --force-deployment
