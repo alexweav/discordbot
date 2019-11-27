@@ -1,0 +1,6 @@
+version: 1
+
+task_definition:
+  services:
+    discordbot:
+      mem_limit: 500M

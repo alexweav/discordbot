@@ -1,0 +1,11 @@
+version: "3"
+
+services:
+  discordbot:
+    image: 902538745451.dkr.ecr.us-east-2.amazonaws.com/discordbot:latest
+    logging:
+      driver: awslogs
+      options:
+        awslogs-group: /ecs/discordbot-app
+        awslogs-region: us-east-2
+        awslogs-stream-prefix: ecs
