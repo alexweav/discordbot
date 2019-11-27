@@ -9,3 +9,12 @@ services:
         awslogs-group: /ecs/discordbot-app
         awslogs-region: us-east-2
         awslogs-stream-prefix: ecs
+    hostname: discordbot
+    depends_on:
+      - zookeeper
+
+  zookeeper:
+    image: wurstmeister/zookeeper
+    ports:
+      - "2181:2181"
+    hostname: zookeeper
