@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - docker-compose-deploy
 
 jobs:
   build-and-test:
@@ -40,7 +41,7 @@ jobs:
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
-    needs: build-and-test
+    #needs: build-and-test
 
     steps:
     - uses: actions/checkout@v1
@@ -81,4 +82,5 @@ jobs:
         SERVICE_NAME: DiscordBot
         AWS_REGION: us-east-2
       with:
-        args: ecs update-service --cluster ${CLUSTER_NAME} --service ${SERVICE_NAME} --region ${AWS_REGION} --force-new-deployment
+        args: ecs compose up --file rel/deploy/docker-compose.yml --cluster ${CLUSTER_NAME} --region ${AWS_REGION} --force-update
+        #args: ecs update-service --cluster ${CLUSTER_NAME} --service ${SERVICE_NAME} --region ${AWS_REGION} --force-new-deployment
