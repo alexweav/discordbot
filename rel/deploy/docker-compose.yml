@@ -1,6 +1,7 @@
 version: "3"
 
 services:
+
   discordbot:
     image: 902538745451.dkr.ecr.us-east-2.amazonaws.com/discordbot:latest
     logging:
@@ -10,8 +11,16 @@ services:
         awslogs-region: us-east-2
         awslogs-stream-prefix: ecs
     hostname: discordbot
-    depends_on:
-      - zookeeper
+
+  kafka:
+    image: wurstmeister/kafka
+    command: [start-kafka.sh]
+    ports:
+      - "9092:9092"
+    hostname: kafka
+    environment:
+      KAFKA_ADVERTISED_PORT: 9092
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
 
   zookeeper:
     image: wurstmeister/zookeeper
