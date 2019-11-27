@@ -8,7 +8,7 @@ use Distillery.Releases.Config,
     default_environment: Mix.env()
 
 environment :dev do
-  set dev_mode: true
+  set dev_mode: false  # This skips building the tarball. This isn't desirable because we might be running a dev release in a local container.
   set include_erts: false
   # We don't use erlang distribution protocol, so this doesn't matter
   # Ideally, this would be provided through a config provider
