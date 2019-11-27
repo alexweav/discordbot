@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - ecs-cli
 
 jobs:
   build-and-test:
@@ -40,7 +41,7 @@ jobs:
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
-    needs: build-and-test
+    #needs: build-and-test
 
     steps:
     - uses: actions/checkout@v1
@@ -55,6 +56,12 @@ jobs:
         SPOTIFY_CLIENT_SECRET: ${{secrets.SPOTIFY_CLIENT_SECRET}}
         YOUTUBE_DATA_API_KEY: ${{secrets.YOUTUBE_DATA_API_KEY}}
       run: ./rel/config/generate.sh
+
+    - name: Get ecs-cli tool
+      run: |
+        sudo curl -o /usr/local/bin/ecs-cli https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-amd64-latest
+        sudo chmod +x /usr/local/bin/ecs-cli
+        ecs-cli --version
 
     - name: Build Container
       run: docker build . -t discordbot
