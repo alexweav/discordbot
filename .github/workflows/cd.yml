@@ -74,13 +74,11 @@ jobs:
           && docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/discordbot:latest
 
     - name: Deploy
-      uses: actions/aws/cli@master
       env:
         AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
         AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
         CLUSTER_NAME: discordbot-prod
         SERVICE_NAME: DiscordBot
         AWS_REGION: us-east-2
-      with:
-        args: ecs compose up --file rel/deploy/docker-compose.yml --cluster ${CLUSTER_NAME} --region ${AWS_REGION} --force-update
-        #args: ecs update-service --cluster ${CLUSTER_NAME} --service ${SERVICE_NAME} --region ${AWS_REGION} --force-new-deployment
+      run: aws ecs update-service --cluster ${CLUSTER_NAME} --service ${SERVICE_NAME} --region ${AWS_REGION} --force-new-deployment
+        #args: ecs compose up --file rel/deploy/docker-compose.yml --cluster ${CLUSTER_NAME} --region ${AWS_REGION} --force-update
