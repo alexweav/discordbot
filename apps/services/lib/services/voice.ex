@@ -34,7 +34,11 @@ defmodule Services.Voice do
       Control.speaking(control, true)
       connection = Control.connection?(control)
 
-      encoded_stream = FFMPEG.transcode("test.wav")
+      encoded_stream =
+        :services
+        |> :code.priv_dir()
+        |> Path.join("test.wav")
+        |> FFMPEG.transcode()
 
       _ =
         Enum.reduce(encoded_stream, {nil, connection}, fn packet, {last_time, conn} ->

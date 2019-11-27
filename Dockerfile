@@ -24,12 +24,9 @@ RUN mix deps.get && \
 
 # Extract distillery tarball
 RUN APP_NAME="discordbot_umbrella" && \
-    RELEASE_DIR=`ls -d _build/prod/rel/$APP_NAME/releases/*/` && \
+    RELEASE_DIR=`ls -d _build/$MIX_ENV/rel/$APP_NAME/releases/*/` && \
     mkdir /export && \
     tar -xf "$RELEASE_DIR/$APP_NAME.tar.gz" -C /export
-
-# Pull in application datafiles
-COPY test.wav /export
 
 #Deploy
 
