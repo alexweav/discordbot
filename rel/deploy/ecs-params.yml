@@ -4,7 +4,5 @@ task_definition:
   services:
     discordbot:
       mem_limit: 200M
-    kafka:
-      mem_limit: 200M
     zookeeper:
       mem_limit: 200M
