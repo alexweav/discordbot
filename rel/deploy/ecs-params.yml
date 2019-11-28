@@ -13,4 +13,4 @@ run_params:
   network_configuration:
     awsvpc_configuration:
       subnets:
-        - subnet-05d96317bbc594f62
+        - subnet-0eb851a664b9cf374
