@@ -63,8 +63,8 @@ jobs:
         sudo chmod +x /usr/local/bin/ecs-cli
         ecs-cli --version
 
-    - name: Build Container
-      run: docker build . -t discordbot
+    #- name: Build Container
+    #  run: docker build . -t discordbot
 
     - name: ECR Login
       env:
