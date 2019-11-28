@@ -1,6 +1,9 @@
 name: DiscordBot-PR
 
-on: push
+on:
+  push:
+    branches:
+      - '!master'
 
 jobs:
   build:
