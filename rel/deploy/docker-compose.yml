@@ -17,4 +17,10 @@ services:
     image: wurstmeister/zookeeper
     ports:
       - "2181:2181"
+    logging:
+      driver: awslogs
+      options:
+        awslogs-group: /ecs/discordbot-zookeeper
+        awslogs-region: us-east-2
+        awslogs-stream-prefix: ecs
     hostname: zookeeper
