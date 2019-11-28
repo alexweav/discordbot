@@ -1,7 +1,7 @@
 version: 1
 
 task_definition:
-  ecs_network_mode: host
+  ecs_network_mode: bridge
   services:
     discordbot:
       mem_limit: 200M
