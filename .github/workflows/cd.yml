@@ -24,12 +24,12 @@ jobs:
     
     - name: Build
       env:
-        mix_env: test
+        MIX_ENV: test
       run: mix compile
 
     - name: Calculate Test Coverage
       env:
-        mix_env: test
+        MIX_ENV: test
       run: mix coveralls.json --umbrella --no-start
 
     - name: Upload Coverage to Codecov.io
