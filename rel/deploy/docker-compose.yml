@@ -3,6 +3,7 @@ version: "3"
 services:
   discordbot:
     image: 902538745451.dkr.ecr.us-east-2.amazonaws.com/discordbot:latest
+    hostname: discordbot
     logging:
       driver: awslogs
       options:
@@ -17,6 +18,7 @@ services:
     command: [start-kafka.sh]
     ports:
       - "9092:9092"
+    hostname: kafka
     environment:
       KAFKA_ADVERTISED_PORT: 9092
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
@@ -33,6 +35,7 @@ services:
     image: wurstmeister/zookeeper
     ports:
       - "2181:2181"
+    hostname: zookeeper
     logging:
       driver: awslogs
       options:

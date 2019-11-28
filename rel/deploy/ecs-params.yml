@@ -1,7 +1,7 @@
 version: 1
 
 task_definition:
-  ecs_network_mode: awsvpc
+  ecs_network_mode: host
   services:
     discordbot:
       mem_limit: 200M
