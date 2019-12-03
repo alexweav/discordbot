@@ -9,25 +9,3 @@ services:
         MIX_ENV: dev
         CLEAN: "false"
     hostname: discordbot
-    depends_on:
-      - kafka
-
-  kafka:
-    image: wurstmeister/kafka
-    command: [start-kafka.sh]
-    ports:
-      - "9092:9092"
-    hostname: kafka
-    environment:
-      KAFKA_ADVERTISED_PORT: 9092
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_LISTENERS: PLAINTEXT://:9092
-      KAFKA_HEAP_OPTS: "-Xmx256M -Xms128M"
-    depends_on:
-      - zookeeper
-
-  zookeeper:
-    image: wurstmeister/zookeeper
-    ports:
-      - "2181:2181"
-    hostname: zookeeper
