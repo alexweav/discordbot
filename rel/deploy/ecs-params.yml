@@ -4,13 +4,4 @@ task_definition:
   ecs_network_mode: host
   services:
     discordbot:
-      mem_limit: 200M
-    kafka:
-      mem_limit: 400M
-    zookeeper:
-      mem_limit: 200M
-#run_params:
-#  network_configuration:
-#    awsvpc_configuration:
-#      subnets:
-#        - subnet-0eb851a664b9cf374
+      mem_limit: 512M
