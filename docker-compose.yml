@@ -9,3 +9,12 @@ services:
         MIX_ENV: dev
         CLEAN: "false"
     hostname: discordbot
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    hostname: rabbitmq
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    labels:
+      NAME: rabbitmq

@@ -9,3 +9,18 @@ services:
         awslogs-group: /ecs/discordbot-app
         awslogs-region: us-east-2
         awslogs-stream-prefix: ecs
+
+  rabbitmq:
+    image: rabbitme:3-management
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    environment:
+      RABBITMQ_DEFAULT_USER: discordbot
+      RABBITMQ_DEFAULT_PASS: discordbot
+    logging:
+      driver: awslogs
+      options:
+        awslogs-group: /ecs/discordbot-rmq
+        awslogs-region: us-east-2
+        awslogs-stream-prefix: ecs
