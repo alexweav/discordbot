@@ -5,3 +5,5 @@ task_definition:
   services:
     discordbot:
       mem_limit: 512M
+    rabbitmq:
+      mem_limit: 256M
