@@ -42,7 +42,7 @@ defmodule DiscordBot.MixProject do
       {:httpoison, "~> 1.4"},
       {:kcl, "~> 1.2"},
       {:logger_file_backend, "~> 0.0.10"},
-      {:poison, "~>3.1"},
+      {:poison, "~> 4.0"},
       {:porcelain, "~> 2.0"},
 
       # Dev/Test deps
