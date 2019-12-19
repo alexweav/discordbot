@@ -3,7 +3,7 @@ name: DiscordBot-PR
 on:
   push:
     branches:
-      - '*'
+      - '**'
       - '!master'
 
 jobs:
