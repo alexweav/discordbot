@@ -214,4 +214,9 @@ defmodule DiscordBot.GunServer do
   def finalize({:noreply, new_state}, url, conn) do
     {:noreply, {url, conn, new_state}}
   end
+
+  def finalize({:stop, reason, new_state}, url, conn) do
+    :gun.close(conn)
+    {:stop, reason, {url, conn, new_state}}
+  end
 end

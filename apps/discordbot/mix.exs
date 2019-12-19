@@ -42,16 +42,15 @@ defmodule DiscordBot.MixProject do
       {:httpoison, "~> 1.4"},
       {:kcl, "~> 1.2"},
       {:logger_file_backend, "~> 0.0.10"},
-      {:poison, "~>3.1"},
+      {:poison, "~> 4.0"},
       {:porcelain, "~> 2.0"},
 
       # Dev/Test deps
       {:cowboy, "~> 2.6", only: [:dev, :test], runtime: false},
-      {:credo, "~> 1.0.0", only: [:dev, :test], runtime: false},
+      {:credo, "~> 1.1.5", only: [:dev, :test], runtime: false},
       {:credo_naming, "~> 0.4", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.0.0-rc.4", only: [:dev, :test], runtime: false},
       {:excoveralls, "~> 0.10", only: :test},
-      {:ex_doc, "~> 0.19", only: :dev, runtime: false},
       {:mox, "~> 0.5", only: :test},
       {:plug_cowboy, "~> 2.0", only: [:dev, :test], runtime: false}
     ]

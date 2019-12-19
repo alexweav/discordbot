@@ -11,17 +11,19 @@ defmodule DiscordBot.ConfigProvider do
     started? = ensure_started()
 
     try do
-      with {:ok, path} <- Provider.expand_path(path) do
-        if File.exists?(path) do
-          path
-          |> eval!()
-          |> merge_config()
-          |> Mix.Config.persist()
-        else
+      case Provider.expand_path(path) do
+        {:ok, path} ->
+          if File.exists?(path) do
+            path
+            |> eval!()
+            |> merge_config()
+            |> Mix.Config.persist()
+          else
+            :ok
+          end
+
+        {:error, _} ->
           :ok
-        end
-      else
-        {:error, _} -> :ok
       end
     else
       _ -> :ok

@@ -131,12 +131,12 @@ defmodule DiscordBot.Voice.Control do
 
   def handle_interrupt(reason, state) do
     Logger.warn("Voice connection interrupted: #{inspect(reason)}")
-    {:noreply, state}
+    {:stop, :normal, state}
   end
 
   def handle_restore(state) do
     Logger.warn("Voice connection restored.")
-    {:noreply, state}
+    {:stop, :normal, state}
   end
 
   def handle_close(code, reason, state) do
