@@ -40,7 +40,6 @@ defmodule Services.MixProject do
       {:credo, "~> 1.1.5", only: [:dev, :test], runtime: false},
       {:discordbot, in_umbrella: true},
       {:excoveralls, "~> 0.10", only: :test},
-      {:ex_doc, "~> 0.19", only: :dev, runtime: false},
       {:plug_cowboy, "~> 2.0", only: [:dev, :test], runtime: false}
     ]
   end
