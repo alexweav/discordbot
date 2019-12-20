@@ -9,6 +9,7 @@ defmodule Services.Voice do
   alias DiscordBot.Entity.Channels
   alias DiscordBot.Voice
   alias DiscordBot.Voice.{Control, FFMPEG, RTP, Session}
+  alias Services.Audio.Transcoder
 
   @doc """
   Starts this handler inside a new process.
@@ -33,7 +34,7 @@ defmodule Services.Voice do
       {:ok, control} = Session.control?(session)
 
       Task.Supervisor.start_child(Services.Audio.TaskSupervisor, fn ->
-        Services.Audio.Transcoder.transcode("test.wav", "audio.data." <> message.guild_id)
+        Transcoder.transcode("test.wav", "audio.data." <> message.guild_id)
       end)
 
       Control.speaking(control, true)

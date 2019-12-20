@@ -5,9 +5,10 @@ defmodule Services.Audio.Transcoder do
   """
 
   alias DiscordBot.Voice.FFMPEG
+  alias Services.Audio.ConnectionManager
 
   def transcode(file_name, topic) do
-    channel = Services.Audio.ConnectionManager.get_channel!(Services.Audio.ConnectionManager)
+    channel = ConnectionManager.get_channel!(Services.Audio.ConnectionManager)
     AMQP.Queue.declare(channel, topic)
 
     encoded_stream =
