@@ -9,6 +9,7 @@ defmodule Services.Voice do
   alias DiscordBot.Entity.Channels
   alias DiscordBot.Voice
   alias DiscordBot.Voice.{Control, FFMPEG, RTP, Session}
+  alias Services.Audio.Transcoder
 
   @doc """
   Starts this handler inside a new process.
@@ -29,8 +30,13 @@ defmodule Services.Voice do
     unless channels == [] do
       first_channel = Enum.min_by(channels, fn c -> c.position end)
       {:ok, session} = Voice.connect(first_channel.id)
-      Process.sleep(5000)
+      Process.sleep(3000)
       {:ok, control} = Session.control?(session)
+
+      Task.Supervisor.start_child(Services.Audio.TaskSupervisor, fn ->
+        Transcoder.transcode("test.wav", "audio.data." <> message.guild_id)
+      end)
+
       Control.speaking(control, true)
       connection = Control.connection?(control)
 
