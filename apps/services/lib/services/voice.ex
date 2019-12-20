@@ -22,6 +22,11 @@ defmodule Services.Voice do
     {:ok, :ok}
   end
 
+  def handle_message("!ff_rmqconnect " <> string, _, _) do
+    Services.Audio.ConnectionManager.open(Services.Audio.ConnectionManager, string)
+    {:noreply}
+  end
+
   @doc false
   def handle_message("!ff_voice", message, _) do
     channels = Channels.voice_channels?(message.guild_id)

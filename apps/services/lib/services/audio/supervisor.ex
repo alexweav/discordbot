@@ -10,7 +10,7 @@ defmodule Services.Audio.Supervisor do
   def init(:ok) do
     children = [
       {Task.Supervisor, name: Services.Audio.TaskSupervisor},
-      {Services.Audio.ConnectionManager, []}
+      {Services.Audio.ConnectionManager, name: Services.Audio.ConnectionManager}
     ]
 
     Supervisor.init(children, strategy: :one_for_one)

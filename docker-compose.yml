@@ -8,13 +8,19 @@ services:
       args:
         MIX_ENV: dev
         CLEAN: "false"
-    hostname: discordbot
+    #hostname: discordbot
+    restart: on-failure
+    depends_on:
+      - rabbitmq
 
   rabbitmq:
     image: rabbitmq:3-management
-    hostname: rabbitmq
     ports:
       - "15672:15672"
       - "5672:5672"
-    labels:
-      NAME: rabbitmq
+    #hostname: rabbitmq
+    #healthcheck:
+    #  test: ["CMD", "curl", "-f", "http://localhost:15672"]
+    #  interval: 10s
+    #  timeout: 10s
+    #  retries: 5
