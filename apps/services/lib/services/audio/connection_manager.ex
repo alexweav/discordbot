@@ -7,7 +7,11 @@ defmodule Services.Audio.ConnectionManager do
 
   require Logger
 
-  @rmq_hostname "rabbitmq"
+  @rmq_hostname Application.get_env(
+                  :services,
+                  :rmq_host,
+                  "localhost"
+                )
 
   def start_link(opts) do
     GenServer.start_link(__MODULE__, :ok, opts)

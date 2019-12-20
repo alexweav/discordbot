@@ -13,4 +13,7 @@ config :discordbot,
   spotify_client_secret: "${SPOTIFY_CLIENT_SECRET}",
   shards: 2
 
+config :services,
+  rmq_host: "localhost"
+
 EOM
