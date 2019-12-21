@@ -1,4 +1,8 @@
 defmodule Services.Audio.Sender do
+  @moduledoc """
+  Sends transcode jobs via RabbitMQ.
+  """
+
   alias Services.Audio.ConnectionManager
 
   def initiate_transcode(file_name, guild_id) do

@@ -18,7 +18,7 @@ defmodule Services.Audio.ConnectionManager do
   end
 
   def get_channel!(manager) do
-    GenServer.call(manager, :get_channel)
+    GenServer.call(manager, :get_channel, 60_000)
   end
 
   ## Handlers
@@ -28,17 +28,37 @@ defmodule Services.Audio.ConnectionManager do
   end
 
   def handle_call(:get_channel, _from, connection) do
-    connection = try_connect!(connection)
+    connection = try_connect!(connection, 5)
     {:ok, channel} = AMQP.Channel.open(connection)
     {:reply, channel, connection}
   end
 
-  defp try_connect!(nil) do
+  defp try_connect!(nil, num_retries) do
     Logger.info("Attempting to connect to RabbitMQ at #{@rmq_hostname}")
-    {:ok, connection} = AMQP.Connection.open(host: @rmq_hostname)
+    {:ok, connection} = connect_retry_loop(num_retries)
     Logger.info("Connection succeeded")
     connection
   end
 
-  defp try_connect!(connection), do: connection
+  defp try_connect!(connection, _), do: connection
+
+  defp connect_retry_loop(1) do
+    connect()
+  end
+
+  defp connect_retry_loop(num_retries) do
+    case connect() do
+      {:ok, connection} ->
+        {:ok, connection}
+
+      _ ->
+        Logger.warn("Connection attempt failed, retrying...")
+        Process.sleep(10_000)
+        connect_retry_loop(num_retries - 1)
+    end
+  end
+
+  defp connect do
+    AMQP.Connection.open(host: @rmq_hostname)
+  end
 end
