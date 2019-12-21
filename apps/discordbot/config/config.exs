@@ -22,9 +22,6 @@ config :logger, :error,
   path: "logs/error.log",
   level: :error
 
-config :services,
-  rmq_host: "rabbitmq"
-
 # The configuration in this file is set at compile time.
 # Building this project from source via mix will use the
 # configuration in this file. Building this project via distillery
