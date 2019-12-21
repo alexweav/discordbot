@@ -33,9 +33,13 @@ defmodule Services.Voice do
       Process.sleep(3000)
       {:ok, control} = Session.control?(session)
 
-      Task.Supervisor.start_child(Services.Audio.TaskSupervisor, fn ->
-        Transcoder.transcode("test.wav", "audio.data." <> message.guild_id)
-      end, restart: :temporary)
+      Task.Supervisor.start_child(
+        Services.Audio.TaskSupervisor,
+        fn ->
+          Transcoder.transcode("test.wav", "audio.data." <> message.guild_id)
+        end,
+        restart: :temporary
+      )
 
       Control.speaking(control, true)
       connection = Control.connection?(control)
