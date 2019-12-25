@@ -45,14 +45,22 @@ defmodule DiscordBot.Model.Speaking do
   end
 
   @doc """
-  Builds the Speaking struct.
+  Builds the speaking struct.
   """
-  @spec speaking(boolean, integer, integer) :: VoicePayload.t()
-  def speaking(speaking, delay, ssrc) do
-    VoicePayload.payload(:speaking, %__MODULE__{
+  @spec new(boolean, integer, integer) :: __MODULE__.t()
+  def new(speaking, delay, ssrc) do
+    %__MODULE__{
       speaking: speaking,
       delay: delay,
       ssrc: ssrc
-    })
+    }
+  end
+
+  @doc """
+  Builds the Speaking struct and wraps it in a payload.
+  """
+  @spec speaking(boolean, integer, integer) :: VoicePayload.t()
+  def speaking(speaking, delay, ssrc) do
+    VoicePayload.payload(:speaking, new(speaking, delay, ssrc))
   end
 end

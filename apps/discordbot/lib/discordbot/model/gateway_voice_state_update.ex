@@ -45,15 +45,23 @@ defmodule DiscordBot.Model.GatewayVoiceStateUpdate do
   @doc """
   Builds the Gateway Voice State Update object.
   """
-  @spec voice_state_update(String.t(), String.t(), boolean, boolean) ::
-          Payload.t()
-  def voice_state_update(guild_id, channel_id, self_mute \\ false, self_deaf \\ false) do
-    Payload.payload(:voice_state_update, %__MODULE__{
+  @spec new(String.t(), String.t(), boolean, boolean) :: __MODULE__.t()
+  def new(guild_id, channel_id, self_mute \\ false, self_deaf \\ false) do
+    %__MODULE__{
       guild_id: guild_id,
       channel_id: channel_id,
       self_mute: self_mute,
       self_deaf: self_deaf
-    })
+    }
+  end
+
+  @doc """
+  Builds the Gateway Voice State Update object and wraps it in a payload`.
+  """
+  @spec voice_state_update(String.t(), String.t(), boolean, boolean) ::
+          Payload.t()
+  def voice_state_update(guild_id, channel_id, self_mute \\ false, self_deaf \\ false) do
+    Payload.payload(:voice_state_update, new(guild_id, channel_id, self_mute, self_deaf))
   end
 
   @doc """

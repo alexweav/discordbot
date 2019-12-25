@@ -54,13 +54,21 @@ defmodule DiscordBot.Model.VoiceIdentify do
   @doc """
   Builds the VoiceIdentify struct.
   """
-  @spec voice_identify(String.t(), String.t(), String.t(), String.t()) :: VoicePayload.t()
-  def voice_identify(server_id, user_id, session_id, token) do
-    VoicePayload.payload(:identify, %__MODULE__{
+  @spec voice_identify(String.t(), String.t(), String.t(), String.t()) :: __MODULE__.t()
+  def new(server_id, user_id, session_id, token) do
+    %__MODULE__{
       server_id: server_id,
       user_id: user_id,
       session_id: session_id,
       token: token
-    })
+    }
+  end
+
+  @doc """
+  Builds the VoiceIdentify struct and wraps it in a payload.
+  """
+  @spec voice_identify(String.t(), String.t(), String.t(), String.t()) :: VoicePayload.t()
+  def voice_identify(server_id, user_id, session_id, token) do
+    VoicePayload.payload(:identify, new(server_id, user_id, session_id, token))
   end
 end

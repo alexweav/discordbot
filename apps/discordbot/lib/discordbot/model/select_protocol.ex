@@ -41,15 +41,23 @@ defmodule DiscordBot.Model.SelectProtocol do
   @doc """
   Builds the Select Protocol struct.
   """
-  @spec select_protocol(String.t(), String.t(), integer, String.t()) :: VoicePayload.t()
-  def select_protocol(protocol, address, port, mode) do
-    VoicePayload.payload(:select_protocol, %__MODULE__{
+  @spec new(String.t(), String.t(), integer, String.t()) :: __MODULE__.t()
+  def new(protocol, address, port, mode) do
+    %__MODULE__{
       protocol: protocol,
       data: %UDP{
         address: address,
         port: port,
         mode: mode
       }
-    })
+    }
+  end
+
+  @doc """
+  Builds the Select Protocol struct and wraps it in a payload.
+  """
+  @spec select_protocol(String.t(), String.t(), integer, String.t()) :: VoicePayload.t()
+  def select_protocol(protocol, address, port, mode) do
+    VoicePayload.payload(:select_protocol, new(protocol, address, port, mode))
   end
 end
