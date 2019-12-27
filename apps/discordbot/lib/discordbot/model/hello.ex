@@ -37,13 +37,21 @@ defmodule DiscordBot.Model.Hello do
   end
 
   @doc """
-  Creates a hello payload.
+  Creates a hello struct.
+  """
+  @spec new(integer, list(String.t())) :: __MODULE__.t()
+  def new(interval, trace) do
+    %__MODULE__{
+      heartbeat_interval: interval,
+      _trace: trace
+    }
+  end
+
+  @doc """
+  Creates a hello struct wrapped in a payload.
   """
   @spec hello(integer, list(String.t())) :: Payload.t()
   def hello(interval, trace) do
-    Payload.payload(:hello, %__MODULE__{
-      heartbeat_interval: interval,
-      _trace: trace
-    })
+    Payload.payload(:hello, new(interval, trace))
   end
 end

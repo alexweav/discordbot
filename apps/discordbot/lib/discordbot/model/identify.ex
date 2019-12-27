@@ -135,18 +135,28 @@ defmodule DiscordBot.Model.Identify do
   end
 
   @doc """
-  Builds the message for an identify operation using
+  Builds an identify operation using
   the bot token `token`, the shard index `shard`, and
-  the shard count `num_shards`
+  the shard count `num_shards`.
   """
-  def identify(token, shard, num_shards, presence \\ @default_presence) do
-    Payload.payload(:identify, %__MODULE__{
+  @spec new(String.t(), integer, integer, StatusUpdate.t()) :: __MODULE__.t()
+  def new(token, shard, num_shards, presence \\ @default_presence) do
+    %__MODULE__{
       token: token,
       properties: ConnectionProperties.connection_properties(),
       compress: false,
       large_threshold: 250,
       shard: [shard, num_shards],
       presence: presence
-    })
+    }
+  end
+
+  @doc """
+  Builds the message for an identify operation using
+  the bot token `token`, the shard index `shard`, and
+  the shard count `num_shards`
+  """
+  def identify(token, shard, num_shards, presence \\ @default_presence) do
+    Payload.payload(:identify, new(token, shard, num_shards, presence))
   end
 end

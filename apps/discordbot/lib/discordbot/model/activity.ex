@@ -1,6 +1,6 @@
 defmodule DiscordBot.Model.Activity do
   @moduledoc """
-  Represents an activity that a user is currently performing
+  Represents an activity that a user is currently performing.
   """
 
   use DiscordBot.Model.Serializable
@@ -13,7 +13,7 @@ defmodule DiscordBot.Model.Activity do
   ]
 
   @typedoc """
-  The activity's name
+  The activity's name.
   """
   @type name :: String.t()
 
@@ -42,7 +42,7 @@ defmodule DiscordBot.Model.Activity do
   end
 
   @doc """
-  Converts a plain map-represented JSON object `map` into a payload
+  Converts a plain map-represented JSON object `map` into a payload.
   """
   @spec from_map(map) :: __MODULE__.t()
   def from_map(map) do
@@ -53,10 +53,10 @@ defmodule DiscordBot.Model.Activity do
   end
 
   @doc """
-  Builds the activity object
+  Builds the activity object.
   """
-  @spec activity(atom, String.t()) :: __MODULE__.t()
-  def activity(type, name) do
+  @spec new(atom, String.t()) :: __MODULE__.t()
+  def new(type, name) do
     %__MODULE__{
       type: type,
       name: name
@@ -64,7 +64,7 @@ defmodule DiscordBot.Model.Activity do
   end
 
   @doc """
-  Converts an activity type ID into a corresponding atom
+  Converts an activity type ID into a corresponding atom.
   """
   @spec atom_from_type(number) :: atom | nil
   def atom_from_type(id) do
@@ -76,7 +76,7 @@ defmodule DiscordBot.Model.Activity do
   end
 
   @doc """
-  Converts an activity type atom into its corresponding ID
+  Converts an activity type atom into its corresponding ID.
   """
   @spec type_from_atom(atom) :: number | nil
   def type_from_atom(atom) do
