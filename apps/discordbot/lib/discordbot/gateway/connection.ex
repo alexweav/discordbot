@@ -194,7 +194,7 @@ defmodule DiscordBot.Gateway.Connection do
   end
 
   def websocket_cast({:update_status, status, type, name}, conn, state) do
-    activity = Activity.activity(type, name)
+    activity = Activity.new(type, name)
     message = StatusUpdate.status_update(nil, activity, status)
 
     {:ok, json} =

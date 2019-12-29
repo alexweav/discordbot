@@ -66,15 +66,23 @@ defmodule DiscordBot.Model.StatusUpdate do
   - `:invisible`
   - `:offline`
   """
-  @spec status_update(number | nil, Activity.t() | nil, atom, boolean) ::
-          Payload.t()
-  def status_update(since, game, status, afk \\ false) do
-    Payload.payload(:status_update, %__MODULE__{
+  @spec new(number | nil, Activity.t() | nil, atom, boolean) :: __MODULE__.t()
+  def new(since, game, status, afk \\ false) do
+    %__MODULE__{
       since: since,
       game: game,
       status: status,
       afk: afk
-    })
+    }
+  end
+
+  @doc """
+  Builds the status update object and wraps it in a payload.
+  """
+  @spec status_update(number | nil, Activity.t() | nil, atom, boolean) ::
+          Payload.t()
+  def status_update(since, game, status, afk \\ false) do
+    Payload.payload(:status_update, new(since, game, status, afk))
   end
 
   @doc """
