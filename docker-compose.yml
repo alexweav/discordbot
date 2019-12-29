@@ -8,7 +8,6 @@ services:
       args:
         MIX_ENV: dev
         CLEAN: "false"
-    #hostname: discordbot
     restart: on-failure
     depends_on:
       - rabbitmq
@@ -18,9 +17,3 @@ services:
     ports:
       - "15672:15672"
       - "5672:5672"
-    #hostname: rabbitmq
-    #healthcheck:
-    #  test: ["CMD", "curl", "-f", "http://localhost:15672"]
-    #  interval: 10s
-    #  timeout: 10s
-    #  retries: 5
