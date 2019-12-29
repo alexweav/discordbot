@@ -12,6 +12,14 @@ services:
     depends_on:
       - rabbitmq
 
+  discordbot-transcoder:
+    build: https://github.com/alexweav/discordbot-transcoder.git
+    #build:
+    #  context: ../discordbot-transcoder
+    restart: on-failure
+    depends_on:
+      - rabbitmq
+
   rabbitmq:
     image: rabbitmq:3-management
     ports:
