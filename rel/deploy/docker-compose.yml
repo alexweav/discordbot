@@ -10,6 +10,15 @@ services:
         awslogs-region: us-east-2
         awslogs-stream-prefix: ecs
 
+  transcoder:
+    image: 902538745451.dkr.ecr.us-east-2.amazonaws.com/discordbot-transcoder:latest
+    logging:
+      driver: awslogs
+      options:
+        awslogs-group: /ecs/discordbot-transcoder
+        awslogs-region: us-east-2
+        awslogs-stream-prefix: ecs
+
   rabbitmq:
     image: rabbitmq:3-management
     ports:

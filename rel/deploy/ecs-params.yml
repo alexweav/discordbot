@@ -5,5 +5,7 @@ task_definition:
   services:
     discordbot:
       mem_limit: 512M
+    transcoder:
+      mem_limit: 128M
     rabbitmq:
       mem_limit: 256M
