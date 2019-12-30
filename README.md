@@ -1,4 +1,6 @@
-# DiscordBot [![Build Status](https://travis-ci.org/alexweav/discordbot.svg?branch=master)](https://travis-ci.org/alexweav/discordbot) [![Actions Status](https://github.com/alexweav/discordbot/workflows/DiscordBot-CD/badge.svg)](https://github.com/alexweav/discordbot/actions)
+# DiscordBot
+[![Actions Status](https://github.com/alexweav/discordbot/workflows/DiscordBot-CD/badge.svg)](https://github.com/alexweav/discordbot/actions)
+[![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=alexweav/discordbot)](https://dependabot.com)
 
 A simple Discord bot, built directly on top of the Discord API.
 
