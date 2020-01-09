@@ -8,6 +8,12 @@ defmodule Services.Audio.Sender do
   def initiate_transcode(file_name, guild_id) do
     channel = ConnectionManager.get_channel!(Services.Audio.ConnectionManager)
     AMQP.Queue.declare(channel, "work.transcode")
-    AMQP.Basic.publish(channel, "", "work.transcode", "#{file_name},#{guild_id}")
+
+    AMQP.Basic.publish(
+      channel,
+      "",
+      "work.transcode",
+      "{\"fileName\":\"#{file_name}\",\"guildId\":\"#{guild_id}\"}"
+    )
   end
 end
