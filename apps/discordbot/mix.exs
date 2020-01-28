@@ -47,7 +47,7 @@ defmodule DiscordBot.MixProject do
 
       # Dev/Test deps
       {:cowboy, "~> 2.6", only: [:dev, :test], runtime: false},
-      {:credo, "~> 1.1.5", only: [:dev, :test], runtime: false},
+      {:credo, "~> 1.2.1", only: [:dev, :test], runtime: false},
       {:credo_naming, "~> 0.4", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.0.0-rc.4", only: [:dev, :test], runtime: false},
       {:excoveralls, "~> 0.10", only: :test},
