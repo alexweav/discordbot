@@ -28,6 +28,14 @@ jobs:
         MIX_ENV: test
       run: mix format --check-formatted
 
+    - name: Configure Docker for GCP
+      uses: actions-hub/gcloud@master
+      env:
+        PROJECT_ID: ${{secrets.GCLOUD_PROJECT_ID}}
+        APPLICATION_CREDENTIALS: ${{secrets.GOOGLE_APPLICATION_CREDENTIALS}}
+      with:
+        args: auth configure-docker
+
     - name: Build
       env:
         MIX_ENV: test
