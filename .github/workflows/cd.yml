@@ -3,7 +3,8 @@ name: DiscordBot-CD
 on:
   push:
     branches:
-      - master
+      - '**'
+      #- master
 
 jobs:
   build-and-test:
@@ -40,7 +41,7 @@ jobs:
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
-    needs: build-and-test
+    #needs: build-and-test
 
     steps:
     - uses: actions/checkout@v1
@@ -72,6 +73,11 @@ jobs:
 
     - name: Build Container
       run: docker build . -t discordbot
+    
+    - name: GCR Push
+      run: |
+        docker tag discordbot:latest gcr.io/${{secrets.GCLOUD_PROJECT_ID}}/discordbot:latest
+        docker push gcr.io/${{secrets.GCLOUD_PROJECT_ID}}/discordbot:latest
 
     #- name: ECR Login
     #  env:
