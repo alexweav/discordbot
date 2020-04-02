@@ -56,31 +56,20 @@ jobs:
         YOUTUBE_DATA_API_KEY: ${{secrets.YOUTUBE_DATA_API_KEY}}
       run: ./rel/config/generate.sh
 
-    #- name: Get ecs-cli tool
-    #  run: |
-    #    sudo curl -o /usr/local/bin/ecs-cli https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-amd64-latest
-    #    sudo chmod +x /usr/local/bin/ecs-cli
-    #    ecs-cli --version
+    - name: Get gcloud CLI utilities
+      uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+      with:
+        service_account_key: ${{secrets.GOOGLE_APPLICATION_CREDENTIALS}}
+        project_id: ${{secrets.GCLOUD_PROJECT_ID}}
+
+    - name: Configure Docker for GCP
+      run: |
+        gcloud auth configure-docker
 
     - name: Build Container
       run: docker build . -t discordbot
-
-    #- name: ECR Login
-    #  env:
-    #    AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
-    #    AWS_ACCOUNT_ID: ${{secrets.AWS_ACCOUNT_ID}}
-    #    AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
-    #    AWS_REGION: us-east-2
-    #  run: |
-    #    aws ecr get-login --no-include-email --region ${AWS_REGION} | sh
-    #    docker tag discordbot:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/discordbot:latest
-    #    docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/discordbot:latest
-
-    #- name: Deploy
-    #  env:
-    #    AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
-    #    AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
-    #    CLUSTER_NAME: discordbot-prod
-    #    SERVICE_NAME: DiscordBot
-    #    AWS_REGION: us-east-2
-    #  run: ecs-cli compose --project-name discordbot --file rel/deploy/docker-compose.yml --ecs-params rel/deploy/ecs-params.yml --region ${AWS_REGION} --cluster ${CLUSTER_NAME} service up --force-deployment --deployment-max-percent 200 --deployment-min-healthy-percent 0
+    
+    - name: GCR Push
+      run: |
+        docker tag discordbot:latest gcr.io/${{secrets.GCLOUD_PROJECT_ID}}/discordbot:latest
+        docker push gcr.io/${{secrets.GCLOUD_PROJECT_ID}}/discordbot:latest
