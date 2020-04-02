@@ -63,13 +63,15 @@ jobs:
     #    sudo chmod +x /usr/local/bin/ecs-cli
     #    ecs-cli --version
 
-    - name: Configure Docker for GCP
-      uses: actions-hub/gcloud@master
-      env:
-        PROJECT_ID: ${{secrets.GCLOUD_PROJECT_ID}}
-        APPLICATION_CREDENTIALS: ${{secrets.GOOGLE_APPLICATION_CREDENTIALS}}
+    - name: Setup gcloud
+      uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
       with:
-        args: auth configure-docker
+        service_account_key: ${{secrets.GOOGLE_APPLICATION_CREDENTIALS}}
+        project_id: ${{secrets.GCLOUD_PROJECT_ID}}
+
+    - name: Configure Docker for GCP
+      run: |
+        gcloud auth configure-docker
 
     - name: Build Container
       run: docker build . -t discordbot
