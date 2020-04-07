@@ -73,3 +73,9 @@ jobs:
       run: |
         docker tag discordbot:latest gcr.io/${{secrets.GCLOUD_PROJECT_ID}}/discordbot:latest
         docker push gcr.io/${{secrets.GCLOUD_PROJECT_ID}}/discordbot:latest
+
+    - name: GCE Deploy
+      run: |-
+        gcloud compute instances update-container discordbot-host \
+          --zone us-central1-a \
+          --container-image gcr.io/${{secrets.GCLOUD_PROJECT_ID}}/discordbot:latest
