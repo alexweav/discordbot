@@ -196,6 +196,7 @@ defmodule DiscordBot.Model.Guild do
   Presences of users in the guild
   """
   @type presences :: list(map)
+
   # TODO: presence update struct
 
   @type t :: %__MODULE__{

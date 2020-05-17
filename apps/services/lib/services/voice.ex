@@ -57,6 +57,7 @@ defmodule Services.Voice do
 
           {this_time, conn}
         end)
+
       send_silence_sigil(connection)
       Process.sleep(1000)
       Control.speaking(control, false)
@@ -75,11 +76,11 @@ defmodule Services.Voice do
 
   defp send_silence_sigil(connection) do
     _ =
-        Enum.reduce(1..5, connection, fn _, c ->
-          Process.sleep(20)
+      Enum.reduce(1..5, connection, fn _, c ->
+        Process.sleep(20)
 
-          c
-          |> RTP.send(RTP.silence_packet())
-        end)
+        c
+        |> RTP.send(RTP.silence_packet())
+      end)
   end
 end
