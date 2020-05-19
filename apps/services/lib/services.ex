@@ -11,6 +11,8 @@ defmodule Services do
   end
 
   def init(:ok) do
+    Services.Audio.Downloader.start()
+
     children = [
       {Services.Help, [broker: Broker, name: Services.Help]},
       {Services.Ping, []},

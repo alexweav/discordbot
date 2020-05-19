@@ -1,4 +1,4 @@
-defmodule Services.Voice.Downloader do
+defmodule Services.Audio.Downloader do
   @moduledoc """
   Communicates with a service which can download audio resources.
   """
@@ -14,7 +14,7 @@ defmodule Services.Voice.Downloader do
   def available do
     uri = "/up"
 
-    case Services.Voice.Downloader do
+    case Services.Audio.Downloader do
       %Response{status_code: 200, body: %{up: true}} -> :ok
       response -> {:error, response}
     end
