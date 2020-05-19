@@ -14,7 +14,7 @@ defmodule Services.Audio.Downloader do
   def available do
     uri = "/up"
 
-    case Services.Audio.Downloader do
+    case Services.Audio.Downloader.get(uri) do
       %Response{status_code: 200, body: %{up: true}} -> :ok
       response -> {:error, response}
     end
