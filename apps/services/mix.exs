@@ -28,7 +28,7 @@ defmodule Services.MixProject do
 
   def application do
     [
-      extra_applications: [:logger, :amqp],
+      extra_applications: [:logger],
       mod: {Services.Application, []}
     ]
   end
