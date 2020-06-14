@@ -9,7 +9,7 @@ defmodule Services.Voice do
   alias DiscordBot.Entity.Channels
   alias DiscordBot.Voice
   alias DiscordBot.Voice.{Control, FFMPEG, RTP, Session}
-  alias Services.Audio.Sender
+  alias Services.Audio.Downloader
 
   @doc """
   Starts this handler inside a new process.
@@ -25,6 +25,7 @@ defmodule Services.Voice do
 
   @doc false
   def handle_message("!ff_voice", message, _) do
+    audio_file_to_play = "test.wav"
     channels = Channels.voice_channels?(message.guild_id)
 
     unless channels == [] do
@@ -32,14 +33,7 @@ defmodule Services.Voice do
       {:ok, session} = Voice.connect(first_channel.id)
       Process.sleep(3000)
       {:ok, control} = Session.control?(session)
-
-      Task.Supervisor.start_child(
-        Services.Audio.TaskSupervisor,
-        fn ->
-          Sender.initiate_transcode("test.wav", message.guild_id)
-        end,
-        restart: :temporary
-      )
+      :ok = Downloader.available?()
 
       Control.speaking(control, true)
       connection = Control.connection?(control)
@@ -47,7 +41,7 @@ defmodule Services.Voice do
       encoded_stream =
         :services
         |> :code.priv_dir()
-        |> Path.join("test.wav")
+        |> Path.join(audio_file_to_play)
         |> FFMPEG.transcode()
 
       _ =
@@ -66,14 +60,7 @@ defmodule Services.Voice do
           {this_time, conn}
         end)
 
-      _ =
-        Enum.reduce(1..5, connection, fn _, c ->
-          Process.sleep(20)
-
-          c
-          |> RTP.send(RTP.silence_packet())
-        end)
-
+      send_silence_sigil(connection)
       Process.sleep(1000)
       Control.speaking(control, false)
       Voice.disconnect(message.guild_id)
@@ -88,4 +75,14 @@ defmodule Services.Voice do
   end
 
   def handle_message(_, _, _), do: {:noreply}
+
+  defp send_silence_sigil(connection) do
+    _ =
+      Enum.reduce(1..5, connection, fn _, c ->
+        Process.sleep(20)
+
+        c
+        |> RTP.send(RTP.silence_packet())
+      end)
+  end
 end

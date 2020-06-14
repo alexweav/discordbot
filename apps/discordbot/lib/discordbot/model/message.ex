@@ -98,12 +98,14 @@ defmodule DiscordBot.Model.Message do
   Attached files
   """
   @type attachments :: list(map)
+
   # TODO: attachment object
 
   @typedoc """
   Embedded content
   """
   @type embeds :: list(map)
+
   # TODO: embed object
 
   @typedoc """
@@ -131,12 +133,14 @@ defmodule DiscordBot.Model.Message do
   Type of message
   """
   @type type :: integer
+
   # TODO: atoms for message types
 
   @typedoc """
   Sent with Rich Presence-related chat embeds
   """
   @type activity :: map | nil
+
   # TODO: message activity object
 
   @typedoc """
