@@ -24,8 +24,11 @@ defmodule Services.Voice do
   end
 
   @doc false
-  def handle_message("!ff_voice", message, _) do
-    audio_file_to_play = "test.wav"
+  def handle_message("!play", _, _) do
+    {:reply, {:text, "No file specified."}}
+  end
+
+  def handle_message("!play " <> audio_file_to_play, message, _) do
     channels = Channels.voice_channels?(message.guild_id)
 
     unless channels == [] do
@@ -71,7 +74,7 @@ defmodule Services.Voice do
     {:noreply}
   end
 
-  def handle_message("!ff_stop", message, _) do
+  def handle_message("!stop", message, _) do
     Voice.disconnect(message.guild_id)
     {:noreply}
   end
