@@ -31,19 +31,19 @@ defmodule Services.Voice do
     unless channels == [] do
       first_channel = Enum.min_by(channels, fn c -> c.position end)
       {:ok, session} = Voice.connect(first_channel.id)
-      Process.sleep(3000)
+      Process.sleep(1000)
       {:ok, control} = Session.control?(session)
 
       :ok = Downloader.available?()
-      {:ok, _file_metadata} = Downloader.get_file(audio_file_to_play)
+      {:ok, file_metadata} = Downloader.get_file(audio_file_to_play)
+      {:ok, audio_file} = Briefly.create()
+      :ok = Downloader.download_file(file_metadata["path"], audio_file)
 
       Control.speaking(control, true)
       connection = Control.connection?(control)
 
       encoded_stream =
-        :services
-        |> :code.priv_dir()
-        |> Path.join(audio_file_to_play)
+        audio_file
         |> FFMPEG.transcode()
 
       _ =

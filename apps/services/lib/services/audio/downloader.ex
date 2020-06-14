@@ -34,6 +34,20 @@ defmodule Services.Audio.Downloader do
     end
   end
 
+  @doc """
+  Downloads a file managed by the downloader to a local file.
+  The local file must already exist.
+  """
+  def download_file(path, local_path) do
+    uri = "/files/" <> path <> "/content"
+    url = process_request_url(uri)
+
+    {:ok, :saved_to_file} =
+      :httpc.request(:get, {to_charlist(url), []}, [], stream: to_charlist(local_path))
+
+    :ok
+  end
+
   @doc false
   def process_request_url("/" <> uri) do
     process_request_url(uri)
