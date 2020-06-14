@@ -65,9 +65,8 @@ defmodule Services.Voice do
           {this_time, conn}
         end)
 
-      send_silence_sigil(connection)
-      Process.sleep(1000)
       Control.speaking(control, false)
+      send_silence_sigil(connection)
       Voice.disconnect(message.guild_id)
     end
 
@@ -83,11 +82,18 @@ defmodule Services.Voice do
 
   defp send_silence_sigil(connection) do
     _ =
-      Enum.reduce(1..5, connection, fn _, c ->
-        Process.sleep(20)
+      Enum.reduce(1..5, {nil, connection}, fn _, {last_time, conn} ->
+        delay = 15
+        now = :os.system_time(:milli_seconds)
+        last_time = last_time || now
+        this_time = last_time + delay
+        diff = max(this_time - now, 0)
+        Process.sleep(diff)
 
-        c
+        conn
         |> RTP.send(RTP.silence_packet())
+
+        {this_time, conn}
       end)
   end
 end
