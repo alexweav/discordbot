@@ -5,13 +5,14 @@ defmodule Services do
 
   use Supervisor
   require Logger
+  alias Services.Audio.Downloader
 
   def start_link(opts) do
     Supervisor.start_link(__MODULE__, :ok, opts)
   end
 
   def init(:ok) do
-    Services.Audio.Downloader.start()
+    Downloader.start()
 
     children = [
       {Services.Help, [broker: Broker, name: Services.Help]},

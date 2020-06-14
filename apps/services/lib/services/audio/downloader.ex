@@ -5,17 +5,18 @@ defmodule Services.Audio.Downloader do
 
   use HTTPoison.Base
   alias HTTPoison.Response
+  alias Services.Audio.Downloader
 
   ## HTTPoison.Base Callbacks
 
   @doc """
   Indicates whether the downloader is reachable.
   """
-  def available do
+  def available? do
     uri = "/up"
 
-    case Services.Audio.Downloader.get(uri) do
-      %Response{status_code: 200, body: %{up: true}} -> :ok
+    case Downloader.get(uri) do
+      {:ok, %Response{body: %{"up" => true}}} -> :ok
       response -> {:error, response}
     end
   end

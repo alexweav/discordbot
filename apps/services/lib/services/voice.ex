@@ -9,6 +9,7 @@ defmodule Services.Voice do
   alias DiscordBot.Entity.Channels
   alias DiscordBot.Voice
   alias DiscordBot.Voice.{Control, FFMPEG, RTP, Session}
+  alias Services.Audio.Downloader
 
   @doc """
   Starts this handler inside a new process.
@@ -32,6 +33,7 @@ defmodule Services.Voice do
       {:ok, session} = Voice.connect(first_channel.id)
       Process.sleep(3000)
       {:ok, control} = Session.control?(session)
+      :ok = Downloader.available?()
 
       Control.speaking(control, true)
       connection = Control.connection?(control)
