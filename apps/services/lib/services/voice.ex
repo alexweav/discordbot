@@ -24,26 +24,29 @@ defmodule Services.Voice do
   end
 
   @doc false
-  def handle_message("!ff_voice", message, _) do
-    audio_file_to_play = "test.wav"
+  def handle_message("!play", _, _) do
+    {:reply, {:text, "No file specified."}}
+  end
+
+  def handle_message("!play " <> audio_file_to_play, message, _) do
     channels = Channels.voice_channels?(message.guild_id)
 
     unless channels == [] do
       first_channel = Enum.min_by(channels, fn c -> c.position end)
       {:ok, session} = Voice.connect(first_channel.id)
-      Process.sleep(3000)
+      Process.sleep(1000)
       {:ok, control} = Session.control?(session)
 
       :ok = Downloader.available?()
-      {:ok, _file_metadata} = Downloader.get_file(audio_file_to_play)
+      {:ok, file_metadata} = Downloader.get_file(audio_file_to_play)
+      {:ok, audio_file} = Briefly.create()
+      :ok = Downloader.download_file(file_metadata["path"], audio_file)
 
       Control.speaking(control, true)
       connection = Control.connection?(control)
 
       encoded_stream =
-        :services
-        |> :code.priv_dir()
-        |> Path.join(audio_file_to_play)
+        audio_file
         |> FFMPEG.transcode()
 
       _ =
@@ -62,16 +65,15 @@ defmodule Services.Voice do
           {this_time, conn}
         end)
 
-      send_silence_sigil(connection)
-      Process.sleep(1000)
       Control.speaking(control, false)
+      send_silence_sigil(connection)
       Voice.disconnect(message.guild_id)
     end
 
     {:noreply}
   end
 
-  def handle_message("!ff_stop", message, _) do
+  def handle_message("!stop", message, _) do
     Voice.disconnect(message.guild_id)
     {:noreply}
   end
@@ -80,11 +82,18 @@ defmodule Services.Voice do
 
   defp send_silence_sigil(connection) do
     _ =
-      Enum.reduce(1..5, connection, fn _, c ->
-        Process.sleep(20)
+      Enum.reduce(1..5, {nil, connection}, fn _, {last_time, conn} ->
+        delay = 15
+        now = :os.system_time(:milli_seconds)
+        last_time = last_time || now
+        this_time = last_time + delay
+        diff = max(this_time - now, 0)
+        Process.sleep(diff)
 
-        c
+        conn
         |> RTP.send(RTP.silence_packet())
+
+        {this_time, conn}
       end)
   end
 end
