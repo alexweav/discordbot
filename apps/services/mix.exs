@@ -35,7 +35,6 @@ defmodule Services.MixProject do
 
   defp deps do
     [
-      {:amqp, "~> 1.3"},
       {:cowboy, "~> 2.6", only: [:dev, :test], runtime: false},
       {:cowlib, "~> 2.7", override: true},
       {:credo, "~> 1.4.0", only: [:dev, :test], runtime: false},
