@@ -33,7 +33,9 @@ defmodule Services.Voice do
       {:ok, session} = Voice.connect(first_channel.id)
       Process.sleep(3000)
       {:ok, control} = Session.control?(session)
+
       :ok = Downloader.available?()
+      {:ok, _file_metadata} = Downloader.get_file(audio_file_to_play)
 
       Control.speaking(control, true)
       connection = Control.connection?(control)

@@ -21,6 +21,19 @@ defmodule Services.Audio.Downloader do
     end
   end
 
+  @doc """
+  Gets the metadata for a file managed the downloader, by path.
+  """
+  def get_file(path) do
+    uri = "/files/" <> path
+
+    case Downloader.get(uri) do
+      {:ok, response} -> {:ok, response.body}
+      {:error, %Response{status_code: 404}} -> {:error, :notfound}
+      {:error, response} -> {:error, response}
+    end
+  end
+
   @doc false
   def process_request_url("/" <> uri) do
     process_request_url(uri)
