@@ -29,25 +29,6 @@ defmodule Services.Voice do
   end
 
   def handle_message("!play " <> audio_file_to_play, message, _) do
-    with :ok <- Downloader.available?(),
-         {:ok, file_metadata} <- Downloader.get_file(audio_file_to_play),
-         {:ok, audio_file} <- Briefly.create(),
-         :ok <- Downloader.download_file(file_metadata["path"], audio_file) do
-      transcode_and_send(audio_file, message)
-      {:noreply}
-    else
-      error -> log_error_and_reply(error)
-    end
-  end
-
-  def handle_message("!stop", message, _) do
-    Voice.disconnect(message.guild_id)
-    {:noreply}
-  end
-
-  def handle_message(_, _, _), do: {:noreply}
-
-  defp transcode_and_send(audio_file, message) do
     channels = Channels.voice_channels?(message.guild_id)
 
     unless channels == [] do
@@ -55,6 +36,11 @@ defmodule Services.Voice do
       {:ok, session} = Voice.connect(first_channel.id)
       Process.sleep(1000)
       {:ok, control} = Session.control?(session)
+
+      :ok = Downloader.available?()
+      {:ok, file_metadata} = Downloader.get_file(audio_file_to_play)
+      {:ok, audio_file} = Briefly.create()
+      :ok = Downloader.download_file(file_metadata["path"], audio_file)
 
       Control.speaking(control, true)
       connection = Control.connection?(control)
@@ -83,7 +69,16 @@ defmodule Services.Voice do
       send_silence_sigil(connection)
       Voice.disconnect(message.guild_id)
     end
+
+    {:noreply}
   end
+
+  def handle_message("!stop", message, _) do
+    Voice.disconnect(message.guild_id)
+    {:noreply}
+  end
+
+  def handle_message(_, _, _), do: {:noreply}
 
   defp send_silence_sigil(connection) do
     _ =
@@ -100,14 +95,5 @@ defmodule Services.Voice do
 
         {this_time, conn}
       end)
-  end
-
-  defp log_error_and_reply({:error, :notfound}) do
-    {:reply, {:text, "That file doesn't exist."}}
-  end
-
-  defp log_error_and_reply(error) do
-    Logger.error("Error acquiring an audio file: #{inspect(error)}")
-    {:reply, {:text, "Error obtaining that audio file. :("}}
   end
 end
