@@ -39,7 +39,7 @@ defmodule Services.Audio.Downloader do
   The local file must already exist.
   """
   def download_file(path, local_path) do
-    uri = "/files/" <> URI.encode(path) <> "/content"
+    uri = "/files/" <> URI.encode(path) <> "?alt=media"
     url = process_request_url(uri)
 
     result = :httpc.request(:get, {to_charlist(url), []}, [], stream: to_charlist(local_path))
