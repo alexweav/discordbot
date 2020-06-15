@@ -28,7 +28,7 @@ defmodule Services.Audio.Downloader do
     uri = "/files/" <> URI.encode(path)
 
     case Downloader.get(uri) do
-      {:ok, response} -> {:ok, response.body}
+      {:ok, %Response{status_code: 200, body: body} -> {:ok, body}
       {:error, %Response{status_code: 404}} -> {:error, :notfound}
       {:error, response} -> {:error, response}
     end
@@ -43,9 +43,12 @@ defmodule Services.Audio.Downloader do
     url = process_request_url(uri)
 
     {:ok, :saved_to_file} =
-      :httpc.request(:get, {to_charlist(url), []}, [], stream: to_charlist(local_path))
+    result = :httpc.request(:get, {to_charlist(url), []}, [], stream: to_charlist(local_path))
 
-    :ok
+    case result do
+      {:ok, :saved_to_file} -> :ok
+      other -> {:error, other}
+    end
   end
 
   @doc false
