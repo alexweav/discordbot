@@ -39,7 +39,7 @@ defmodule Services.Audio.Downloader do
   The local file must already exist.
   """
   def download_file(path, local_path) do
-    uri = "/files/" <> path <> "/content"
+    uri = "/files/" <> URI.encode(path) <> "/content"
     url = process_request_url(uri)
 
     {:ok, :saved_to_file} =
