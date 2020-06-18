@@ -10,7 +10,8 @@ defmodule DiscordBot.Voice.Supervisor do
   def init(_) do
     children = [
       {Registry, keys: :unique, name: DiscordBot.Voice.SessionRegistry},
-      {DynamicSupervisor, name: DiscordBot.Voice.ControlSupervisor, strategy: :one_for_one}
+      {DynamicSupervisor, name: DiscordBot.Voice.ControlSupervisor, strategy: :one_for_one},
+      {Task.Supervisor, name: DiscordBot.Voice.PlayerSupervisor}
     ]
 
     Supervisor.init(children, strategy: :one_for_all)

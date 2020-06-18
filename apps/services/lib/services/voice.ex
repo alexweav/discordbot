@@ -31,7 +31,6 @@ defmodule Services.Voice do
   def handle_message("!play " <> audio_file_to_play, message, _) do
     with :ok <- Downloader.available?(),
          {:ok, file_response} <- Downloader.query_files(audio_file_to_play),
-         # Downloader.get_file(audio_file_to_play),
          {:ok, file_metadata} <- get_file_by_term(file_response),
          {:ok, audio_file} <- Briefly.create(),
          :ok <- Downloader.download_file(file_metadata["path"], audio_file) do
