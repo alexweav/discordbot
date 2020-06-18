@@ -22,6 +22,18 @@ defmodule Services.Audio.Downloader do
   end
 
   @doc """
+  Queries files by name.
+  """
+  def query_files(term) do
+    uri = "/files?name=" <> URI.encode(term)
+
+    case Downloader.get(uri) do
+      {:ok, %Response{status_code: 200, body: body}} -> {:ok, body}
+      response -> {:error, response}
+    end
+  end
+
+  @doc """
   Gets the metadata for a file managed the downloader, by path.
   """
   def get_file(path) do
