@@ -30,7 +30,9 @@ defmodule Services.Voice do
 
   def handle_message("!play " <> audio_file_to_play, message, _) do
     with :ok <- Downloader.available?(),
-         {:ok, file_metadata} <- Downloader.get_file(audio_file_to_play),
+         {:ok, file_response} <- Downloader.query_files(audio_file_to_play),
+         # Downloader.get_file(audio_file_to_play),
+         {:ok, file_metadata} <- get_file_by_term(file_response),
          {:ok, audio_file} <- Briefly.create(),
          :ok <- Downloader.download_file(file_metadata["path"], audio_file) do
       transcode_and_send(audio_file, message)
@@ -83,6 +85,15 @@ defmodule Services.Voice do
       send_silence_sigil(connection)
       Voice.disconnect(message.guild_id)
     end
+  end
+
+  defp get_file_by_term(%{"files" => []}) do
+    {:error, :notfound}
+  end
+
+  defp get_file_by_term(resp) do
+    IO.inspect(resp)
+    {:ok, Enum.at(resp["files"], 0)}
   end
 
   defp send_silence_sigil(connection) do
