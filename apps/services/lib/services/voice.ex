@@ -92,7 +92,6 @@ defmodule Services.Voice do
   end
 
   defp get_file_by_term(resp) do
-    IO.inspect(resp)
     {:ok, Enum.at(resp["files"], 0)}
   end
 
