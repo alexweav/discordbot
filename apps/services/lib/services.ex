@@ -22,8 +22,7 @@ defmodule Services do
       {Services.Netstat, []},
       {Services.AutoResponder, []},
       {Services.Mention, []},
-      {Services.Voice, [name: Services.Voice]},
-      {Services.Audio.Supervisor, []}
+      {Services.Voice, [name: Services.Voice]}
     ]
 
     Logger.info("Launching services...")
