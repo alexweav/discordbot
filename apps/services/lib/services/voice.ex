@@ -8,7 +8,7 @@ defmodule Services.Voice do
 
   alias DiscordBot.Entity.Channels
   alias DiscordBot.Voice
-  alias DiscordBot.Voice.{Control, FFMPEG, RTP, Session}
+  alias DiscordBot.Voice.{Control, FFMPEG, Player, RTP, Session}
   alias Services.Audio.Downloader
 
   @doc """
@@ -53,36 +53,7 @@ defmodule Services.Voice do
 
     unless channels == [] do
       first_channel = Enum.min_by(channels, fn c -> c.position end)
-      {:ok, session} = Voice.connect(first_channel.id)
-      Process.sleep(1000)
-      {:ok, control} = Session.control?(session)
-
-      Control.speaking(control, true)
-      connection = Control.connection?(control)
-
-      encoded_stream =
-        audio_file
-        |> FFMPEG.transcode()
-
-      _ =
-        Enum.reduce(encoded_stream, {nil, connection}, fn packet, {last_time, conn} ->
-          delay = 20
-          now = :os.system_time(:milli_seconds)
-          last_time = last_time || now
-          this_time = last_time + delay
-          diff = max(this_time - now, 0)
-          Process.sleep(diff)
-
-          conn =
-            conn
-            |> RTP.send(packet)
-
-          {this_time, conn}
-        end)
-
-      Control.speaking(control, false)
-      send_silence_sigil(connection)
-      Voice.disconnect(message.guild_id)
+      Player.start_player(first_channel, audio_file)
     end
   end
 
@@ -92,23 +63,6 @@ defmodule Services.Voice do
 
   defp get_file_by_term(resp) do
     {:ok, Enum.at(resp["files"], 0)}
-  end
-
-  defp send_silence_sigil(connection) do
-    _ =
-      Enum.reduce(1..5, {nil, connection}, fn _, {last_time, conn} ->
-        delay = 15
-        now = :os.system_time(:milli_seconds)
-        last_time = last_time || now
-        this_time = last_time + delay
-        diff = max(this_time - now, 0)
-        Process.sleep(diff)
-
-        conn
-        |> RTP.send(RTP.silence_packet())
-
-        {this_time, conn}
-      end)
   end
 
   defp log_error_and_reply({:error, :notfound}) do

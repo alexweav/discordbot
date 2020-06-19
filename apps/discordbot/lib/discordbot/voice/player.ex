@@ -14,7 +14,7 @@ defmodule DiscordBot.Voice.Player do
   Returns the task's PID.
   """
   def start_player(channel, audio_file) do
-    Supervisor.start_child(
+    Task.Supervisor.start_child(
       DiscordBot.Voice.PlayerSupervisor,
       fn -> play(channel, audio_file) end
     )
@@ -24,17 +24,17 @@ defmodule DiscordBot.Voice.Player do
   Plays an audio file in a channel.
   """
   def play(channel, audio_file) do
+    IO.inspect("AAAAAAAAAAAAAAAAAAAAAAA\n\n\n\n\n\n\n\n\n")
     {:ok, session} = Voice.connect(channel.id)
     # The above call blocks until the connection is established.
     # Regardless, wait a bit to allow the dust to settle.
     Process.sleep(@connect_settle_delay_milliseconds)
     {:ok, control} = Session.control?(session)
+    voip_connection = Control.connection?(control)
 
     transcoded_stream =
       audio_file
       |> FFMPEG.transcode()
-
-    voip_connection = Control.connection?(control)
 
     # Begin speaking.
     Control.speaking(control, true)
