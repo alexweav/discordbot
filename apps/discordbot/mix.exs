@@ -49,7 +49,7 @@ defmodule DiscordBot.MixProject do
       {:cowboy, "~> 2.6", only: [:dev, :test], runtime: false},
       {:credo, "~> 1.4.0", only: [:dev, :test], runtime: false},
       {:credo_naming, "~> 0.4", only: [:dev, :test], runtime: false},
-      {:dialyxir, "~> 1.0.0-rc.4", only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 1.1.0", only: [:dev, :test], runtime: false},
       {:excoveralls, "~> 0.10", only: :test},
       {:mox, "~> 0.5", only: :test},
       {:plug_cowboy, "~> 2.0", only: [:dev, :test], runtime: false}
